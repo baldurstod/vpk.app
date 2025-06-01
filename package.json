@@ -1,0 +1,32 @@
+{
+  "name": "vpk.app",
+  "version": "0.0.1",
+  "type": "module",
+  "description": "Source for vpk.app",
+  "scripts": {
+    "build": "rollup -c"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/baldurstod/vpk.app.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/baldurstod/vpk.app/issues"
+  },
+  "homepage": "https://github.com/baldurstod/vpk.app#readme",
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@rollup/plugin-typescript": "^12.1.2",
+    "rollup": "^4.41.1",
+    "rollup-plugin-copy": "^3.5.0",
+    "rollup-plugin-import-css": "^4.0.1",
+    "tslib": "^2.8.1",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "harmony-css": "github:baldurstod/harmony-css",
+    "harmony-ui": "github:baldurstod/harmony-ui"
+  }
+}
