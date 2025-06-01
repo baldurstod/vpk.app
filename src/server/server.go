@@ -51,12 +51,17 @@ func initEngine(config Config) *gin.Engine {
 
 	r.Use(rewriteURL(r))
 	r.StaticFS("/static", http.FS(useFS))
+	r.POST("/api", apiHandler)
 
 	return r
 }
 
 func rewriteURL(r *gin.Engine) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		if c.Request.URL.Path == "/api" {
+			c.Next()
+			return
+		}
 		if strings.HasPrefix(c.Request.URL.Path, "/@") {
 			c.Request.URL.Path = "/"
 			r.HandleContext(c)
