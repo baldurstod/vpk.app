@@ -54,12 +54,16 @@ func apiHandler(c *gin.Context) {
 }
 
 func apiGetVpkList(c *gin.Context) apiError {
-	root := "./vpk/"
+	root := "vpk/"
 	//files, err = FilePathWalkDir(root)
 	var files []string
 	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		if !info.IsDir() && strings.HasSuffix(path, "_dir.vpk") {
-			files = append(files, info.Name())
+			//files = append(files, strings.TrimSuffix(info.Name(), "_dir.vpk"))
+			//log.Println(filepath.Dir(path))
+			//dir, file := filepath.Split(strings.TrimPrefix(path, root))
+			//fmt.Printf("input: %q\n\tdir: %q\n\tfile: %q\n", path, dir, file)
+			files = append(files, strings.TrimPrefix(strings.TrimSuffix(path, "_dir.vpk"), root))
 		}
 		return nil
 	})

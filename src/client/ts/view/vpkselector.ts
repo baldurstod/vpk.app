@@ -2,6 +2,7 @@ import { createElement, createShadowRoot } from 'harmony-ui';
 import { SiteElement } from './sitepelement';
 import { Controller } from '../controller';
 import { ControllerEvents } from '../controllerevents';
+import vpkSelectorCSS from '../../css/vpkselector.css';
 
 export class VpkSelector extends SiteElement {
 	#htmlFavorites?: HTMLElement;
@@ -13,7 +14,7 @@ export class VpkSelector extends SiteElement {
 			return;
 		}
 		this.shadowRoot = createShadowRoot('section', {
-			//adoptStyle: favoritesPageCSS,
+			adoptStyle: vpkSelectorCSS,
 			childs: [
 				createElement('button', {
 					i18n: '#refresh_vpk',
@@ -31,7 +32,12 @@ export class VpkSelector extends SiteElement {
 
 		if (this.#vpkList) {
 			for (const vpk of this.#vpkList) {
-				this.#htmlList?.append(vpk);
+				createElement('div', {
+					class: 'vpk-item',
+					parent: this.#htmlList,
+					innerText: vpk,
+					$click: () => this.#selectVpk(vpk),
+				});
 			}
 		}
 	}
@@ -39,5 +45,9 @@ export class VpkSelector extends SiteElement {
 	setVpkList(vpkList: Array<string>) {
 		this.#vpkList = vpkList;
 		this.refreshHTML();
+	}
+
+	#selectVpk(vpk: string) {
+		console.info(vpk);
 	}
 }
