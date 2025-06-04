@@ -1,13 +1,14 @@
 import { createElement, createShadowRoot, defineHarmonyTree, HTMLHarmonyTreeElement, ItemClickEventData, TreeElement } from 'harmony-ui';
 import { SiteElement } from './siteelement';
 import { Controller } from '../controller';
-import { ControllerEvents, SelectVpk } from '../controllerevents';
+import { ControllerEvents, SelectFile, SelectVpk } from '../controllerevents';
 import vpkSelectorCSS from '../../css/vpkselector.css';
 import treeCSS from '../../css/tree.css';
 
 export class VpkSelector extends SiteElement {
 	#htmlList?: HTMLHarmonyTreeElement;
 	#htmlFileTree?: HTMLHarmonyTreeElement;
+	#vpkPath: string = '';
 	#vpkList?: Array<string>;
 	#fileList?: Array<string>;
 
@@ -49,13 +50,10 @@ export class VpkSelector extends SiteElement {
 		this.refreshHTML();
 	}
 
-	setFileList(fileList: Array<string>) {
+	setFileList(vpkPath: string, fileList: Array<string>) {
+		this.#vpkPath = vpkPath;
 		this.#fileList = fileList;
 		this.refreshHTML();
-	}
-
-	#selectVpk(vpk: string) {
-		console.info(vpk);
 	}
 
 	#itemClick(event: CustomEvent<ItemClickEventData>) {
@@ -68,6 +66,11 @@ export class VpkSelector extends SiteElement {
 	}
 
 	#fileItemClick(event: CustomEvent<ItemClickEventData>) {
-		console.info(event);
+		const clickedItem = event.detail.item;
+		if (!clickedItem || clickedItem.type != 'file') {
+			return;
+		}
+
+		Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.SelectFile, { detail: { vpkPath: this.#vpkPath, path: clickedItem.getPath() } }));
 	}
 }

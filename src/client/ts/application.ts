@@ -7,8 +7,8 @@ import english from '../json/i18n/english.json';
 import { fetchApi } from './fetchapi';
 import { MainContent } from './view/maincontent';
 import { Controller } from './controller';
-import { ControllerEvents, SelectVpk } from './controllerevents';
-import { VpkListResponse } from './responses/vpk';
+import { ControllerEvents, SelectFile, SelectVpk } from './controllerevents';
+import { getFileResponse, VpkListResponse } from './responses/vpk';
 
 documentStyle(htmlCSS);
 documentStyle(themeCSS);
@@ -31,6 +31,7 @@ class Application {
 	#initEvents() {
 		Controller.addEventListener(ControllerEvents.RefreshVpkList, () => this.#refreshVpkList());
 		Controller.addEventListener(ControllerEvents.SelectVpk, (event: Event) => this.#selectVpk(event as CustomEvent<SelectVpk>));
+		Controller.addEventListener(ControllerEvents.SelectFile, (event: Event) => this.#selectFile(event as CustomEvent<SelectFile>));
 	}
 
 	#initPage() {
@@ -56,13 +57,26 @@ class Application {
 	}
 
 	async #selectVpk(event: CustomEvent<SelectVpk>) {
-		const { requestId, response } = await fetchApi('get-file-list', 1, { path: event.detail.path }) as { requestId: string, response: VpkListResponse };
+		const vpkPath = event.detail.path;
+		const { requestId, response } = await fetchApi('get-file-list', 1, { vpk_path: vpkPath }) as { requestId: string, response: VpkListResponse };
 
 		console.info(event, response);
 		if (!response.success) {
 			return;
 		}
-		this.#appContent.setFileList(response.result!.files);
+		this.#appContent.setFileList(vpkPath, response.result!.files);
+	}
+
+	async #selectFile(event: CustomEvent<SelectFile>) {
+		const { requestId, response } = await fetchApi('get-file', 1, { vpk_path: event.detail.vpkPath, path:event.detail.path }) as { requestId: string, response: getFileResponse };
+
+		//console.info(event, response);
+		if (!response.success) {
+			return;
+		}
+
+		console.info(atob(response.result!.content))
+		//this.#appContent.setFileList(response.result!.files);
 	}
 }
 const app = new Application();

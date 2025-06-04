@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/gob"
 	"errors"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -45,6 +46,8 @@ func apiHandler(c *gin.Context) {
 		apiError = apiGetVpkList(c)
 	case "get-file-list":
 		apiError = apiGetFileList(c, request.Params)
+	case "get-file":
+		apiError = apiGetFile(c, request.Params)
 	default:
 		jsonError(c, NotFoundError{})
 		return
@@ -131,9 +134,9 @@ func apiGetFileList(c *gin.Context, params map[string]any) apiError {
 		return CreateApiError(NoParamsError)
 	}
 
-	vpkPath, ok := params["path"].(string)
+	vpkPath, ok := params["vpk_path"].(string)
 	if !ok {
-		return CreateApiError(InvalidParamVpk)
+		return CreateApiError(InvalidParamVpkPath)
 	}
 
 	var pak vpk.VPK
@@ -154,5 +157,50 @@ func apiGetFileList(c *gin.Context, params map[string]any) apiError {
 	}
 
 	jsonSuccess(c, map[string]any{"files": files})
+	return nil
+}
+
+func apiGetFile(c *gin.Context, params map[string]any) apiError {
+	if params == nil {
+		return CreateApiError(NoParamsError)
+	}
+
+	vpkPath, ok := params["vpk_path"].(string)
+	if !ok {
+		return CreateApiError(InvalidParamVpkPath)
+	}
+
+	filePath, ok := params["path"].(string)
+	if !ok {
+		return CreateApiError(InvalidParamPath)
+	}
+
+	var pak vpk.VPK
+	var err error
+	inputFile := filepath.Join(vpkRoot, vpkPath)
+
+	if strings.HasSuffix(inputFile, "_dir.vpk") {
+		pak, err = vpk.OpenDir(inputFile)
+	} else {
+		pak, err = vpk.OpenSingle(inputFile)
+	}
+	if err != nil {
+		logError(c, err)
+		return CreateApiError(UnexpectedError)
+	}
+
+	reader, err := pak.Open(filePath)
+	if err != nil {
+		logError(c, err)
+		return CreateApiError(UnexpectedError)
+	}
+
+	buf, err := io.ReadAll(reader)
+	if err != nil {
+		logError(c, err)
+		return CreateApiError(UnexpectedError)
+	}
+
+	jsonSuccess(c, map[string]any{"content": buf})
 	return nil
 }

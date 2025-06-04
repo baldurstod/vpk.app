@@ -5,3 +5,11 @@ export type VpkListResponse = {
 		files: Array<string>,
 	}
 }
+
+export type getFileResponse = {
+	success: boolean,
+	error?: string,
+	result?: {
+		content: string,
+	}
+}

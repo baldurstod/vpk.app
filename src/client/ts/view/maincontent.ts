@@ -23,7 +23,7 @@ export class MainContent extends SiteElement {
 		this.#vpkSelector.setVpkList(vpkList);
 	}
 
-	setFileList(fileList: Array<string>) {
-		this.#vpkSelector.setFileList(fileList);
+	setFileList(vpkPath: string, fileList: Array<string>) {
+		this.#vpkSelector.setFileList(vpkPath, fileList);
 	}
 }
