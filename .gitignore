@@ -2,4 +2,5 @@ build/
 dist/
 node_modules
 var/
+vpk/
 config.json

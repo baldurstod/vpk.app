@@ -3,6 +3,7 @@ module vpk.app
 go 1.24.2
 
 require (
+	github.com/baldurstod/go-vpk v0.0.0-20240807073618-a1390f518b40 // indirect
 	github.com/bytedance/sonic v1.13.2 // indirect
 	github.com/bytedance/sonic/loader v0.2.4 // indirect
 	github.com/cloudwego/base64x v0.1.5 // indirect

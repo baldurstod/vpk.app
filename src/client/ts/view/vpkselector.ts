@@ -1,45 +1,47 @@
-import { createElement, createShadowRoot } from 'harmony-ui';
-import { SiteElement } from './sitepelement';
+import { createElement, createShadowRoot, defineHarmonyTree, HTMLHarmonyTreeElement, ItemClickEventData, TreeElement } from 'harmony-ui';
+import { SiteElement } from './siteelement';
 import { Controller } from '../controller';
-import { ControllerEvents } from '../controllerevents';
+import { ControllerEvents, SelectVpk } from '../controllerevents';
 import vpkSelectorCSS from '../../css/vpkselector.css';
+import treeCSS from '../../css/tree.css';
 
 export class VpkSelector extends SiteElement {
-	#htmlFavorites?: HTMLElement;
-	#htmlList?: HTMLElement;
+	#htmlList?: HTMLHarmonyTreeElement;
+	#htmlFileTree?: HTMLHarmonyTreeElement;
 	#vpkList?: Array<string>;
+	#fileList?: Array<string>;
 
 	initHTML() {
 		if (this.shadowRoot) {
 			return;
 		}
+		defineHarmonyTree();
 		this.shadowRoot = createShadowRoot('section', {
 			adoptStyle: vpkSelectorCSS,
 			childs: [
 				createElement('button', {
-					i18n: '#refresh_vpk',
+					i18n: '#refresh_vpks',
 					$click: () => Controller.dispatchEvent(new CustomEvent(ControllerEvents.RefreshVpkList)),
 				}),
-				this.#htmlList = createElement('div', {
-				}),
+				this.#htmlList = createElement('harmony-tree', {
+					$itemclick: (event: CustomEvent<ItemClickEventData>) => this.#itemClick(event),
+				}) as HTMLHarmonyTreeElement,
+				this.#htmlFileTree = createElement('harmony-tree', {
+					$itemclick: (event: CustomEvent<ItemClickEventData>) => this.#fileItemClick(event),
+				}) as HTMLHarmonyTreeElement,
 			]
 		});
+
+		this.#htmlList.adoptStyle(treeCSS);
 	}
 
 	protected refreshHTML(): void {
 		this.initHTML();
 		this.#htmlList?.replaceChildren();
+		this.#htmlFileTree?.replaceChildren();
 
-		if (this.#vpkList) {
-			for (const vpk of this.#vpkList) {
-				createElement('div', {
-					class: 'vpk-item',
-					parent: this.#htmlList,
-					innerText: vpk,
-					$click: () => this.#selectVpk(vpk),
-				});
-			}
-		}
+		this.#htmlList?.setRoot(TreeElement.createFromPathList(this.#vpkList));
+		this.#htmlFileTree?.setRoot(TreeElement.createFromPathList(this.#fileList));
 	}
 
 	setVpkList(vpkList: Array<string>) {
@@ -47,7 +49,25 @@ export class VpkSelector extends SiteElement {
 		this.refreshHTML();
 	}
 
+	setFileList(fileList: Array<string>) {
+		this.#fileList = fileList;
+		this.refreshHTML();
+	}
+
 	#selectVpk(vpk: string) {
 		console.info(vpk);
+	}
+
+	#itemClick(event: CustomEvent<ItemClickEventData>) {
+		const clickedItem = event.detail.item;
+		if (!clickedItem || clickedItem.type != 'file') {
+			return;
+		}
+
+		Controller.dispatchEvent(new CustomEvent<SelectVpk>(ControllerEvents.SelectVpk, { detail: { path: clickedItem.getPath() } }));
+	}
+
+	#fileItemClick(event: CustomEvent<ItemClickEventData>) {
+		console.info(event);
 	}
 }

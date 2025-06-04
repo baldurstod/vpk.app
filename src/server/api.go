@@ -3,10 +3,12 @@ package main
 import (
 	"encoding/gob"
 	"errors"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/baldurstod/go-vpk"
 	"github.com/gin-gonic/gin"
 )
 
@@ -19,9 +21,7 @@ func registerToken() bool {
 	return true
 }
 
-/*
-type ApiHandler struct {
-}*/
+var vpkRoot = "vpk/"
 
 type apiRequest struct {
 	Action  string         `json:"action" binding:"required"`
@@ -43,6 +43,8 @@ func apiHandler(c *gin.Context) {
 	switch request.Action {
 	case "get-vpk-list":
 		apiError = apiGetVpkList(c)
+	case "get-file-list":
+		apiError = apiGetFileList(c, request.Params)
 	default:
 		jsonError(c, NotFoundError{})
 		return
@@ -54,15 +56,14 @@ func apiHandler(c *gin.Context) {
 }
 
 func apiGetVpkList(c *gin.Context) apiError {
-	root := "vpk/"
 	//files, err = FilePathWalkDir(root)
 	var files []string
-	err := Walk(root, func(path string, info os.FileInfo, err error) error {
+	err := Walk(vpkRoot, func(path string, info os.FileInfo, err error) error {
 		if !info.IsDir() && strings.HasSuffix(path, "_dir.vpk") {
 			//files = append(files, strings.TrimSuffix(info.Name(), "_dir.vpk"))
 			//dir, file := filepath.Split(strings.TrimPrefix(path, root))
 			//fmt.Printf("input: %q\n\tdir: %q\n\tfile: %q\n", path, dir, file)
-			files = append(files, strings.TrimPrefix(strings.TrimSuffix(path, "_dir.vpk"), root))
+			files = append(files, strings.TrimPrefix(path, vpkRoot))
 		}
 		return nil
 	})
@@ -86,7 +87,7 @@ func apiGetVpkList(c *gin.Context) apiError {
 // symwalkFunc calls the provided WalkFn for regular files.
 // However, when it encounters a symbolic link, it resolves the link fully using the
 // filepath.EvalSymlinks function and recursively calls symwalk.Walk on the resolved path.
-// This ensures that unlink filepath.Walk, traversal does not stop at symbolic links.
+// This ensures that unlike filepath.Walk, traversal does not stop at symbolic links.
 func walk(filename string, linkDirname string, walkFn filepath.WalkFunc, visitedDirs map[string]struct{}) error {
 	symWalkFunc := func(path string, info os.FileInfo, err error) error {
 
@@ -123,4 +124,35 @@ func walk(filename string, linkDirname string, walkFn filepath.WalkFunc, visited
 // Walk extends filepath.Walk to also follow symlinks
 func Walk(path string, walkFn filepath.WalkFunc) error {
 	return walk(path, path, walkFn, make(map[string]struct{}))
+}
+
+func apiGetFileList(c *gin.Context, params map[string]any) apiError {
+	if params == nil {
+		return CreateApiError(NoParamsError)
+	}
+
+	vpkPath, ok := params["path"].(string)
+	if !ok {
+		return CreateApiError(InvalidParamVpk)
+	}
+
+	var pak vpk.VPK
+	var err error
+	inputFile := filepath.Join(vpkRoot, vpkPath)
+
+	if strings.HasSuffix(inputFile, "_dir.vpk") {
+		pak, err = vpk.OpenDir(inputFile)
+	} else {
+		pak, err = vpk.OpenSingle(inputFile)
+	}
+
+	log.Println(pak, err)
+
+	var files = []string{}
+	for _, entry := range pak.Entries() {
+		files = append(files, entry.Filename())
+	}
+
+	jsonSuccess(c, map[string]any{"files": files})
+	return nil
 }

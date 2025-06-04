@@ -7,7 +7,7 @@ import english from '../json/i18n/english.json';
 import { fetchApi } from './fetchapi';
 import { MainContent } from './view/maincontent';
 import { Controller } from './controller';
-import { ControllerEvents } from './controllerevents';
+import { ControllerEvents, SelectVpk } from './controllerevents';
 import { VpkListResponse } from './responses/vpk';
 
 documentStyle(htmlCSS);
@@ -30,6 +30,7 @@ class Application {
 
 	#initEvents() {
 		Controller.addEventListener(ControllerEvents.RefreshVpkList, () => this.#refreshVpkList());
+		Controller.addEventListener(ControllerEvents.SelectVpk, (event: Event) => this.#selectVpk(event as CustomEvent<SelectVpk>));
 	}
 
 	#initPage() {
@@ -47,12 +48,21 @@ class Application {
 	async #refreshVpkList() {
 		const { requestId, response } = await fetchApi('get-vpk-list', 1) as { requestId: string, response: VpkListResponse };
 
-
 		if (!response.success) {
 			return;
 		}
 
 		this.#appContent.setVpkList(response.result!.files);
+	}
+
+	async #selectVpk(event: CustomEvent<SelectVpk>) {
+		const { requestId, response } = await fetchApi('get-file-list', 1, { path: event.detail.path }) as { requestId: string, response: VpkListResponse };
+
+		console.info(event, response);
+		if (!response.success) {
+			return;
+		}
+		this.#appContent.setFileList(response.result!.files);
 	}
 }
 const app = new Application();
