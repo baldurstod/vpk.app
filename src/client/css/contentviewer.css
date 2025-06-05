@@ -3,14 +3,17 @@
 	background-color: red;
 	display: flex;
 	flex-direction: column;
+	overflow: hidden;
 }
 
 .tabs {
 	flex: 0 0 2rem;
 	background-color: blue;
+	overflow: hidden;
 }
 
 .content {
 	flex: 1;
 	background-color: green;
+	overflow: auto;
 }

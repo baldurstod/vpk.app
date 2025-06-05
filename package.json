@@ -30,6 +30,7 @@
   "dependencies": {
     "harmony-css": "github:baldurstod/harmony-css",
     "harmony-ui": "github:baldurstod/harmony-ui",
+    "harmony-utils": "github:baldurstod/harmony-utils",
     "harmony-vpk": "github:baldurstod/harmony-vpk"
   }
 }

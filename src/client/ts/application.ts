@@ -99,7 +99,7 @@ class Application {
 		}
 
 		console.info(file);
-		this.#appContent.addFile(event.detail.path, GameEngine.Source1, file);
+		this.#appContent.viewFile(event.detail.vpkPath, event.detail.path, GameEngine.Source1, file);
 	}
 }
 const app = new Application();

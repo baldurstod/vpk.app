@@ -1,3 +1,18 @@
+import { Map2 } from 'harmony-utils';
+
+export class FileCache {
+	#files = new Map2<string, string, File>();
+
+	async setFile(vpkPath: string, path: string, file: File) {
+		this.#files.set(vpkPath, path, file);
+	}
+
+	async getFile(vpkPath: string, path: string): Promise<File | null> {
+		return this.#files.get(vpkPath, path) ?? null;
+	}
+}
+
+/*
 export class FileCache {
 	#files = new Map<string, Map<string, File>>();
 
@@ -18,3 +33,4 @@ export class FileCache {
 	}
 
 }
+*/

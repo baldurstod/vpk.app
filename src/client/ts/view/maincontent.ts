@@ -31,8 +31,8 @@ export class MainContent extends SiteElement {
 		this.#vpkSelector.setFileList(vpkPath, fileList);
 	}
 
-	addFile(path: string, engine: GameEngine, file: File) {
-		this.#contentViewer.addFile(path, engine, file)
+	viewFile(vpkPath: string, path: string, engine: GameEngine, file: File) {
+		this.#contentViewer.viewFile(vpkPath, path, engine, file)
 
 	}
 }

@@ -1,8 +1,9 @@
-import { createElement, createShadowRoot, defineHarmonyTab, defineHarmonyTabGroup, HTMLHarmonyTabGroupElement } from 'harmony-ui';
+import { createElement, createShadowRoot, defineHarmonyTab, defineHarmonyTabGroup, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement } from 'harmony-ui';
 import contentViewerCSS from '../../css/contentviewer.css';
 import { SiteElement } from './siteelement';
 import { ContentType, GameEngine } from '../enums';
 import { TextViewer } from './textviewer';
+import { Map2 } from 'harmony-utils';
 
 const TypePerExtension: { [key: string]: ContentType } = {
 	'cfg': ContentType.Txt,
@@ -24,6 +25,7 @@ export class ContentViewer extends SiteElement {
 	#htmlTabs?: HTMLHarmonyTabGroupElement;
 	#htmlContent?: HTMLElement;
 	#htmlTextViewer?: TextViewer;
+	#openViewers = new Map2<string, string, HTMLHarmonyTabElement>();
 
 	initHTML() {
 		if (this.shadowRoot) {
@@ -44,7 +46,18 @@ export class ContentViewer extends SiteElement {
 		this.initHTML();
 	}
 
-	async addFile(path: string, engine: GameEngine, file: File) {
+	async viewFile(vpkPath: string, path: string, engine: GameEngine, file: File) {
+		let tab = this.#openViewers.get(vpkPath, path);
+		if (tab) {
+			tab.activate();
+			return;
+		}
+		tab = await this.#viewFile(path, engine, file);
+		tab.activate();
+		this.#openViewers.set(vpkPath, path, tab);
+	}
+
+	async #viewFile(path: string, engine: GameEngine, file: File): Promise<HTMLHarmonyTabElement> {
 		console.info(path)
 		const extension = path.split('.').pop() ?? '';
 		const filename = path.split('/').pop() ?? '';
@@ -52,15 +65,13 @@ export class ContentViewer extends SiteElement {
 
 		switch (fileType) {
 			case ContentType.Txt:
-				file.arrayBuffer
-				this.#addTxtContent(filename, engine, new TextDecoder().decode(await file.arrayBuffer()));
-				break;
 			default:
+				return this.#addTxtContent(filename, engine, new TextDecoder().decode(await file.arrayBuffer()));
 				break;
 		}
 	}
 
-	#addTxtContent(filename: string, engine: GameEngine, content: string) {
+	#addTxtContent(filename: string, engine: GameEngine, content: string): HTMLHarmonyTabElement {
 		this.initHTML();
 
 		if (!this.#htmlTextViewer) {
@@ -68,12 +79,13 @@ export class ContentViewer extends SiteElement {
 			this.#htmlContent?.append(this.#htmlTextViewer.getHTML());
 		}
 
-		createElement('harmony-tab', {
+		const tab = createElement('harmony-tab', {
 			'data-text': filename,
 			parent: this.#htmlTabs,
 			$activated: () => this.#htmlTextViewer?.setText(String(content)),
-		});
+		}) as HTMLHarmonyTabElement;
 
 		this.#htmlTextViewer?.setText(String(content));
+		return tab;
 	}
 }
