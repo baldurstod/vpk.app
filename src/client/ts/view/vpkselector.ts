@@ -11,6 +11,8 @@ export class VpkSelector extends SiteElement {
 	#vpkPath: string = '';
 	#vpkList?: Array<string>;
 	#fileList?: Array<string>;
+	#dirtyVpkList = true;
+	#dirtyFileList = true;
 
 	initHTML() {
 		if (this.shadowRoot) {
@@ -38,21 +40,30 @@ export class VpkSelector extends SiteElement {
 
 	protected refreshHTML(): void {
 		this.initHTML();
-		this.#htmlList?.replaceChildren();
-		this.#htmlFileTree?.replaceChildren();
 
-		this.#htmlList?.setRoot(TreeElement.createFromPathList(this.#vpkList));
-		this.#htmlFileTree?.setRoot(TreeElement.createFromPathList(this.#fileList));
+		if (this.#dirtyVpkList) {
+			this.#htmlList?.replaceChildren();
+			this.#htmlList?.setRoot(TreeElement.createFromPathList(this.#vpkList));
+			this.#dirtyVpkList = false;
+		}
+
+		if (this.#dirtyFileList) {
+			this.#htmlFileTree?.replaceChildren();
+			this.#htmlFileTree?.setRoot(TreeElement.createFromPathList(this.#fileList));
+			this.#dirtyFileList = false;
+		}
 	}
 
 	setVpkList(vpkList: Array<string>) {
 		this.#vpkList = vpkList;
+		this.#dirtyVpkList = true;
 		this.refreshHTML();
 	}
 
 	setFileList(vpkPath: string, fileList: Array<string>) {
 		this.#vpkPath = vpkPath;
 		this.#fileList = fileList;
+		this.#dirtyFileList = true;
 		this.refreshHTML();
 	}
 
