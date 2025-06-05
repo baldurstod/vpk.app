@@ -4,11 +4,13 @@ import { createShadowRoot, documentStyle, I18n } from 'harmony-ui';
 import applicationCSS from '../css/application.css';
 import htmlCSS from '../css/html.css';
 import english from '../json/i18n/english.json';
-import { fetchApi } from './fetchapi';
-import { MainContent } from './view/maincontent';
 import { Controller } from './controller';
 import { ControllerEvents, SelectFile, SelectVpk } from './controllerevents';
+import { GameEngine } from './enums';
+import { fetchApi } from './fetchapi';
+import { FileCache } from './filecache';
 import { getFileResponse, VpkListResponse } from './responses/vpk';
+import { MainContent } from './view/maincontent';
 
 documentStyle(htmlCSS);
 documentStyle(themeCSS);
@@ -16,6 +18,7 @@ documentStyle(themeCSS);
 class Application {
 	#shadowRoot!: ShadowRoot;
 	#appContent = new MainContent();
+	#fileCache = new FileCache();
 
 	constructor() {
 		this.#init();
@@ -26,6 +29,7 @@ class Application {
 		I18n.start();
 		this.#initEvents();
 		this.#initPage();
+		this.#refreshVpkList();
 	}
 
 	#initEvents() {
@@ -68,15 +72,34 @@ class Application {
 	}
 
 	async #selectFile(event: CustomEvent<SelectFile>) {
-		const { requestId, response } = await fetchApi('get-file', 1, { vpk_path: event.detail.vpkPath, path:event.detail.path }) as { requestId: string, response: getFileResponse };
-
-		//console.info(event, response);
-		if (!response.success) {
-			return;
+		function base64ToArrayBuffer(base64: string): ArrayBuffer {
+			var binaryString = atob(base64);
+			var bytes = new Uint8Array(binaryString.length);
+			for (var i = 0; i < binaryString.length; i++) {
+				bytes[i] = binaryString.charCodeAt(i);
+			}
+			return bytes.buffer;
 		}
 
-		console.info(atob(response.result!.content))
-		//this.#appContent.setFileList(response.result!.files);
+		let file = await this.#fileCache.getFile(event.detail.vpkPath, event.detail.path);
+
+		if (!file) {
+			const { requestId, response } = await fetchApi('get-file', 1, { vpk_path: event.detail.vpkPath, path: event.detail.path }) as { requestId: string, response: getFileResponse };
+
+			if (!response.success) {
+				// TODO: show error ?
+				return;
+			}
+			const content = base64ToArrayBuffer(response.result!.content);
+
+			file = new File([new Blob([atob(response.result!.content)])], '');
+
+			await this.#fileCache.setFile(event.detail.vpkPath, event.detail.path, file);
+
+		}
+
+		console.info(file);
+		this.#appContent.addFile(event.detail.path, GameEngine.Source1, file);
 	}
 }
 const app = new Application();

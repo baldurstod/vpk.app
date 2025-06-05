@@ -2,9 +2,12 @@ import { createShadowRoot } from 'harmony-ui';
 import mainContentCSS from '../../css/maincontent.css';
 import { SiteElement } from './siteelement';
 import { VpkSelector } from './vpkselector';
+import { ContentViewer } from './contentviewer';
+import { GameEngine } from '../enums';
 
 export class MainContent extends SiteElement {
 	#vpkSelector = new VpkSelector();
+	#contentViewer = new ContentViewer();
 
 	initHTML() {
 		if (this.shadowRoot) {
@@ -15,6 +18,7 @@ export class MainContent extends SiteElement {
 			adoptStyle: mainContentCSS,
 			childs: [
 				this.#vpkSelector.getHTML(),
+				this.#contentViewer.getHTML(),
 			],
 		});
 	}
@@ -25,5 +29,10 @@ export class MainContent extends SiteElement {
 
 	setFileList(vpkPath: string, fileList: Array<string>) {
 		this.#vpkSelector.setFileList(vpkPath, fileList);
+	}
+
+	addFile(path: string, engine: GameEngine, file: File) {
+		this.#contentViewer.addFile(path, engine, file)
+
 	}
 }

@@ -1,0 +1,16 @@
+:host {
+	flex: 1;
+	background-color: red;
+	display: flex;
+	flex-direction: column;
+}
+
+.tabs {
+	flex: 0 0 2rem;
+	background-color: blue;
+}
+
+.content {
+	flex: 1;
+	background-color: green;
+}

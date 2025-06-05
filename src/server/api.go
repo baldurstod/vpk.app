@@ -4,7 +4,6 @@ import (
 	"encoding/gob"
 	"errors"
 	"io"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -149,7 +148,10 @@ func apiGetFileList(c *gin.Context, params map[string]any) apiError {
 		pak, err = vpk.OpenSingle(inputFile)
 	}
 
-	log.Println(pak, err)
+	if err != nil {
+		logError(c, err)
+		return CreateApiError(UnexpectedError)
+	}
 
 	var files = []string{}
 	for _, entry := range pak.Entries() {
