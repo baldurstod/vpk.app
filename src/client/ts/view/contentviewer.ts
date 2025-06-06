@@ -1,4 +1,4 @@
-import { createElement, createShadowRoot, defineHarmonyTab, defineHarmonyTabGroup, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement } from 'harmony-ui';
+import { createElement, createShadowRoot, defineHarmonyTab, defineHarmonyTabGroup, hide, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement, show, TabEventData } from 'harmony-ui';
 import contentViewerCSS from '../../css/contentviewer.css';
 import { SiteElement } from './siteelement';
 import { ContentType, GameEngine } from '../enums';
@@ -52,12 +52,24 @@ export class ContentViewer extends SiteElement {
 			tab.activate();
 			return;
 		}
-		tab = await this.#viewFile(path, engine, file);
+		tab = await this.#viewFile(vpkPath, path, engine, file);
 		tab.activate();
 		this.#openViewers.set(vpkPath, path, tab);
 	}
 
-	async #viewFile(path: string, engine: GameEngine, file: File): Promise<HTMLHarmonyTabElement> {
+	closeFile(vpkPath: string, path: string): boolean {
+		const tab = this.#openViewers.get(vpkPath, path);
+		if (!tab) {
+			return false;
+		}
+		this.#openViewers.delete(vpkPath, path);
+
+		tab.close();
+
+		return true;
+	}
+
+	async #viewFile(vpkPath: string, path: string, engine: GameEngine, file: File): Promise<HTMLHarmonyTabElement> {
 		console.info(path)
 		const extension = path.split('.').pop() ?? '';
 		const filename = path.split('/').pop() ?? '';
@@ -66,12 +78,12 @@ export class ContentViewer extends SiteElement {
 		switch (fileType) {
 			case ContentType.Txt:
 			default:
-				return this.#addTxtContent(filename, engine, new TextDecoder().decode(await file.arrayBuffer()));
+				return this.#addTxtContent(vpkPath, path, filename, engine, new TextDecoder().decode(await file.arrayBuffer()));
 				break;
 		}
 	}
 
-	#addTxtContent(filename: string, engine: GameEngine, content: string): HTMLHarmonyTabElement {
+	#addTxtContent(vpkPath: string, path: string, filename: string, engine: GameEngine, content: string): HTMLHarmonyTabElement {
 		this.initHTML();
 
 		if (!this.#htmlTextViewer) {
@@ -79,9 +91,17 @@ export class ContentViewer extends SiteElement {
 			this.#htmlContent?.append(this.#htmlTextViewer.getHTML());
 		}
 
+		this.#htmlTextViewer?.show();
+
 		const tab = createElement('harmony-tab', {
 			'data-text': filename,
+			'data-closable': true,
 			parent: this.#htmlTabs,
+			$close: (event: CustomEvent<TabEventData>) => {
+				if (this.closeFile(vpkPath, path) && event.detail.tab.isActive()) {
+					this.#htmlTextViewer?.hide();
+				};
+			},
 			$activated: () => this.#htmlTextViewer?.setText(String(content)),
 		}) as HTMLHarmonyTabElement;
 

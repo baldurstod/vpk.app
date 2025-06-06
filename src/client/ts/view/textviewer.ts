@@ -1,4 +1,4 @@
-import { createElement, createShadowRoot } from 'harmony-ui';
+import { createElement, createShadowRoot, hide, show } from 'harmony-ui';
 import textViewerCSS from '../../css/textviewer.css';
 import { SiteElement } from './siteelement';
 
@@ -24,8 +24,16 @@ export class TextViewer extends SiteElement {
 	}
 
 	setText(text: string) {
-		this.initHTML();
+		this.show();
 		this.#htmlText!.innerText = text;
+	}
 
+	show() {
+		this.initHTML();
+		show(this.#htmlText);
+	}
+
+	hide() {
+		hide(this.#htmlText);
 	}
 }
