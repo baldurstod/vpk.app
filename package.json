@@ -28,6 +28,7 @@
     "typescript": "^5.8.3"
   },
   "dependencies": {
+    "harmony-3d": "github:baldurstod/harmony-3d",
     "harmony-css": "github:baldurstod/harmony-css",
     "harmony-ui": "github:baldurstod/harmony-ui",
     "harmony-utils": "github:baldurstod/harmony-utils",

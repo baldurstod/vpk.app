@@ -11,6 +11,8 @@ import { fetchApi } from './fetchapi';
 import { FileCache } from './filecache';
 import { getFileResponse, VpkListResponse } from './responses/vpk';
 import { MainContent } from './view/maincontent';
+import { MemoryCacheRepository, Repositories } from 'harmony-3d';
+import { ApiRepository } from './apirepository';
 
 documentStyle(htmlCSS);
 documentStyle(themeCSS);
@@ -62,6 +64,13 @@ class Application {
 
 	async #selectVpk(event: CustomEvent<SelectVpk>) {
 		const vpkPath = event.detail.path;
+		let repository = Repositories.getRepository(vpkPath);
+		if (!repository) {
+			repository = new MemoryCacheRepository(new ApiRepository(vpkPath));
+			Repositories.addRepository(repository);
+		}
+
+
 		const { requestId, response } = await fetchApi('get-file-list', 1, { vpk_path: vpkPath }) as { requestId: string, response: VpkListResponse };
 
 		console.info(event, response);
@@ -72,34 +81,13 @@ class Application {
 	}
 
 	async #selectFile(event: CustomEvent<SelectFile>) {
-		function base64ToArrayBuffer(base64: string): ArrayBuffer {
-			var binaryString = atob(base64);
-			var bytes = new Uint8Array(binaryString.length);
-			for (var i = 0; i < binaryString.length; i++) {
-				bytes[i] = binaryString.charCodeAt(i);
-			}
-			return bytes.buffer;
+		const response = await Repositories.getFile(event.detail.vpkPath, event.detail.path);
+		if (response.error) {
+			return
 		}
 
-		let file = await this.#fileCache.getFile(event.detail.vpkPath, event.detail.path);
-
-		if (!file) {
-			const { requestId, response } = await fetchApi('get-file', 1, { vpk_path: event.detail.vpkPath, path: event.detail.path }) as { requestId: string, response: getFileResponse };
-
-			if (!response.success) {
-				// TODO: show error ?
-				return;
-			}
-			const content = base64ToArrayBuffer(response.result!.content);
-
-			file = new File([new Blob([atob(response.result!.content)])], '');
-
-			await this.#fileCache.setFile(event.detail.vpkPath, event.detail.path, file);
-
-		}
-
-		console.info(file);
-		this.#appContent.viewFile(event.detail.vpkPath, event.detail.path, GameEngine.Source1, file);
+		console.info(response.file);
+		this.#appContent.viewFile(event.detail.vpkPath, event.detail.path, GameEngine.Source1, response.file!);
 	}
 }
 const app = new Application();
