@@ -1,9 +1,10 @@
-import { createElement, createShadowRoot, defineHarmonyTree, HTMLHarmonyTreeElement, ItemClickEventData, TreeElement } from 'harmony-ui';
-import { SiteElement } from './siteelement';
+import { downloadSVG } from 'harmony-svg';
+import { createElement, createShadowRoot, defineHarmonyTree, HTMLHarmonyTreeElement, ItemActionEventData, ItemClickEventData, TreeElement } from 'harmony-ui';
+import treeCSS from '../../css/tree.css';
+import vpkSelectorCSS from '../../css/vpkselector.css';
 import { Controller } from '../controller';
 import { ControllerEvents, SelectFile, SelectVpk } from '../controllerevents';
-import vpkSelectorCSS from '../../css/vpkselector.css';
-import treeCSS from '../../css/tree.css';
+import { SiteElement } from './siteelement';
 
 export class VpkSelector extends SiteElement {
 	#htmlList?: HTMLHarmonyTreeElement;
@@ -35,7 +36,22 @@ export class VpkSelector extends SiteElement {
 			]
 		});
 
+
+		this.#htmlFileTree.addAction('download', downloadSVG);
+		this.#htmlFileTree.addEventListener('itemaction', (event: Event) => this.#handleItemAction(event as CustomEvent<ItemActionEventData>));
 		this.#htmlList.adoptStyle(treeCSS);
+	}
+
+	#handleItemAction(event: CustomEvent<ItemActionEventData>) {
+		const clickedItem = event.detail.item;
+
+		switch (event.detail.action) {
+			case 'download':
+				if (clickedItem) {
+					Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.DownloadFile, { detail: { vpkPath: this.#vpkPath, path: clickedItem.getPath() } }));
+				}
+				break;
+		}
 	}
 
 	protected refreshHTML(): void {
@@ -49,7 +65,16 @@ export class VpkSelector extends SiteElement {
 
 		if (this.#dirtyFileList) {
 			this.#htmlFileTree?.replaceChildren();
-			this.#htmlFileTree?.setRoot(TreeElement.createFromPathList(this.#fileList));
+			const root = TreeElement.createFromPathList(this.#fileList);
+
+			if (root) {
+				for (let item of root.walk({ type: 'file' })) {
+					item.addAction('download');
+				}
+			}
+
+			this.#htmlFileTree?.setRoot(root);
+
 			this.#dirtyFileList = false;
 		}
 	}

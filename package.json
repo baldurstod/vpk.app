@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "harmony-3d": "github:baldurstod/harmony-3d",
+    "harmony-browser-utils": "github:baldurstod/harmony-browser-utils",
     "harmony-css": "github:baldurstod/harmony-css",
     "harmony-ui": "github:baldurstod/harmony-ui",
     "harmony-utils": "github:baldurstod/harmony-utils",

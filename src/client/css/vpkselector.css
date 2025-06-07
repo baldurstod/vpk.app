@@ -1,3 +1,13 @@
+:host {
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+}
+
 .vpk-item {
 	cursor: pointer;
+}
+
+harmony-tree {
+	overflow: auto;
 }

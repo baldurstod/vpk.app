@@ -2,6 +2,7 @@ export enum ControllerEvents {
 	RefreshVpkList = 'refreshvpklist',
 	SelectVpk = 'selectvpk',
 	SelectFile = 'selectfile',
+	DownloadFile = 'downloadfile',
 }
 
 export type SelectVpk = {

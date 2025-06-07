@@ -13,6 +13,7 @@ import { getFileResponse, VpkListResponse } from './responses/vpk';
 import { MainContent } from './view/maincontent';
 import { MemoryCacheRepository, Repositories } from 'harmony-3d';
 import { ApiRepository } from './apirepository';
+import { SaveFile } from 'harmony-browser-utils';
 
 documentStyle(htmlCSS);
 documentStyle(themeCSS);
@@ -38,6 +39,7 @@ class Application {
 		Controller.addEventListener(ControllerEvents.RefreshVpkList, () => this.#refreshVpkList());
 		Controller.addEventListener(ControllerEvents.SelectVpk, (event: Event) => this.#selectVpk(event as CustomEvent<SelectVpk>));
 		Controller.addEventListener(ControllerEvents.SelectFile, (event: Event) => this.#selectFile(event as CustomEvent<SelectFile>));
+		Controller.addEventListener(ControllerEvents.DownloadFile, (event: Event) => this.#downloadFile(event as CustomEvent<SelectFile>));
 	}
 
 	#initPage() {
@@ -88,6 +90,18 @@ class Application {
 
 		console.info(response.file);
 		this.#appContent.viewFile(event.detail.vpkPath, event.detail.path, GameEngine.Source1, response.file!);
+	}
+
+	async #downloadFile(event: CustomEvent<SelectFile>) {
+		const response = await Repositories.getFile(event.detail.vpkPath, event.detail.path);
+		if (response.error) {
+			return
+		}
+
+		console.info(response.file);
+		SaveFile(response.file!);
+
+		//this.#appContent.viewFile(event.detail.vpkPath, event.detail.path, GameEngine.Source1, response.file!);
 	}
 }
 const app = new Application();
