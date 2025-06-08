@@ -32,7 +32,6 @@ export class MainContent extends SiteElement {
 	}
 
 	viewFile(vpkPath: string, path: string, engine: GameEngine, file: File) {
-		this.#contentViewer.viewFile(vpkPath, path, engine, file)
-
+		this.#contentViewer.viewFile(vpkPath, path, engine, file);
 	}
 }

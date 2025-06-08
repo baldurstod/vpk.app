@@ -3,6 +3,7 @@ export enum ControllerEvents {
 	SelectVpk = 'selectvpk',
 	SelectFile = 'selectfile',
 	DownloadFile = 'downloadfile',
+	CreateFileLink = 'createfilelink',
 }
 
 export type SelectVpk = {

@@ -1,4 +1,4 @@
-import { downloadSVG } from 'harmony-svg';
+import { downloadSVG, shareSVG } from 'harmony-svg';
 import { createElement, createShadowRoot, defineHarmonyTree, HTMLHarmonyTreeElement, ItemActionEventData, ItemClickEventData, TreeItem } from 'harmony-ui';
 import treeCSS from '../../css/tree.css';
 import vpkSelectorCSS from '../../css/vpkselector.css';
@@ -36,8 +36,8 @@ export class VpkSelector extends SiteElement {
 			]
 		});
 
-
 		this.#htmlFileTree.addAction('download', downloadSVG);
+		this.#htmlFileTree.addAction('sharelink', shareSVG);
 		this.#htmlFileTree.addEventListener('itemaction', (event: Event) => this.#handleItemAction(event as CustomEvent<ItemActionEventData>));
 		this.#htmlList.adoptStyle(treeCSS);
 	}
@@ -49,6 +49,11 @@ export class VpkSelector extends SiteElement {
 			case 'download':
 				if (clickedItem) {
 					Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.DownloadFile, { detail: { vpkPath: this.#vpkPath, path: clickedItem.getPath() } }));
+				}
+				break;
+			case 'sharelink':
+				if (clickedItem) {
+					Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.CreateFileLink, { detail: { vpkPath: this.#vpkPath, path: clickedItem.getPath() } }));
 				}
 				break;
 		}
@@ -69,12 +74,11 @@ export class VpkSelector extends SiteElement {
 
 			if (root) {
 				for (let item of root.walk({ type: 'file' })) {
-					item.addAction('download');
+					item.addActions(['download', 'sharelink']);
 				}
 			}
 
 			this.#htmlFileTree?.setRoot(root);
-
 			this.#dirtyFileList = false;
 		}
 	}
