@@ -18,7 +18,7 @@ export async function getFile(vpkPath: string, path: string): Promise<File | nul
 	}
 	const content = base64ToArrayBuffer(response.result!.content);
 
-	return new File([new Blob([atob(response.result!.content)])], path);
+	return new File([new Blob([content])], path);
 }
 
 export async function getFileList(vpkPath: string): Promise<Array<string>> {
