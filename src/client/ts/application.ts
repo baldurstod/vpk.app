@@ -13,7 +13,7 @@ import { getFileResponse, VpkListResponse } from './responses/vpk';
 import { MainContent } from './view/maincontent';
 import { MemoryCacheRepository, Repositories } from 'harmony-3d';
 import { ApiRepository } from './apirepository';
-import { SaveFile } from 'harmony-browser-utils';
+import { saveFile } from 'harmony-browser-utils';
 
 documentStyle(htmlCSS);
 documentStyle(themeCSS);
@@ -99,7 +99,7 @@ class Application {
 		}
 
 		console.info(response.file);
-		SaveFile(response.file!);
+		saveFile(response.file!);
 
 		//this.#appContent.viewFile(event.detail.vpkPath, event.detail.path, GameEngine.Source1, response.file!);
 	}

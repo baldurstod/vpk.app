@@ -1,5 +1,5 @@
 import { downloadSVG } from 'harmony-svg';
-import { createElement, createShadowRoot, defineHarmonyTree, HTMLHarmonyTreeElement, ItemActionEventData, ItemClickEventData, TreeElement } from 'harmony-ui';
+import { createElement, createShadowRoot, defineHarmonyTree, HTMLHarmonyTreeElement, ItemActionEventData, ItemClickEventData, TreeItem } from 'harmony-ui';
 import treeCSS from '../../css/tree.css';
 import vpkSelectorCSS from '../../css/vpkselector.css';
 import { Controller } from '../controller';
@@ -59,13 +59,13 @@ export class VpkSelector extends SiteElement {
 
 		if (this.#dirtyVpkList) {
 			this.#htmlList?.replaceChildren();
-			this.#htmlList?.setRoot(TreeElement.createFromPathList(this.#vpkList));
+			this.#htmlList?.setRoot(TreeItem.createFromPathList(this.#vpkList));
 			this.#dirtyVpkList = false;
 		}
 
 		if (this.#dirtyFileList) {
 			this.#htmlFileTree?.replaceChildren();
-			const root = TreeElement.createFromPathList(this.#fileList);
+			const root = TreeItem.createFromPathList(this.#fileList);
 
 			if (root) {
 				for (let item of root.walk({ type: 'file' })) {
