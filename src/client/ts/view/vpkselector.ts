@@ -12,6 +12,8 @@ export class VpkSelector extends SiteElement {
 	#vpkPath: string = '';
 	#vpkList?: Array<string>;
 	#fileList?: Array<string>;
+	#vpkRoot?: TreeItem;
+	#fileRoot?: TreeItem;
 	#dirtyVpkList = true;
 	#dirtyFileList = true;
 
@@ -62,23 +64,24 @@ export class VpkSelector extends SiteElement {
 	protected refreshHTML(): void {
 		this.initHTML();
 
-		if (this.#dirtyVpkList) {
+		if (this.#dirtyVpkList && this.#vpkList) {
 			this.#htmlList?.replaceChildren();
-			this.#htmlList?.setRoot(TreeItem.createFromPathList(this.#vpkList));
+			this.#vpkRoot = TreeItem.createFromPathList(this.#vpkList);
+			this.#htmlList?.setRoot(this.#vpkRoot);
 			this.#dirtyVpkList = false;
 		}
 
-		if (this.#dirtyFileList) {
+		if (this.#dirtyFileList && this.#fileList) {
 			this.#htmlFileTree?.replaceChildren();
-			const root = TreeItem.createFromPathList(this.#fileList);
+			this.#fileRoot = TreeItem.createFromPathList(this.#fileList);
 
-			if (root) {
-				for (let item of root.walk({ type: 'file' })) {
+			if (this.#fileRoot) {
+				for (let item of this.#fileRoot.walk({ type: 'file' })) {
 					item.addActions(['download', 'sharelink']);
 				}
 			}
 
-			this.#htmlFileTree?.setRoot(root);
+			this.#htmlFileTree?.setRoot(this.#fileRoot);
 			this.#dirtyFileList = false;
 		}
 	}
@@ -112,5 +115,35 @@ export class VpkSelector extends SiteElement {
 		}
 
 		Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.SelectFile, { detail: { vpkPath: this.#vpkPath, path: clickedItem.getPath() } }));
+	}
+
+	selectVpk(vpkPath: string) {
+		this.initHTML();
+
+		if (!this.#vpkRoot) {
+			return
+		}
+
+		for (let item of this.#vpkRoot.walk()) {
+			if (item.getPath() == vpkPath) {
+				this.#htmlList?.selectItem(item);
+				return;
+			}
+		}
+	}
+
+	selectFile(path: string) {
+		this.initHTML();
+
+		if (!this.#fileRoot) {
+			return
+		}
+
+		for (let item of this.#fileRoot.walk()) {
+			if (item.getPath() == path) {
+				this.#htmlFileTree?.selectItem(item);
+				return;
+			}
+		}
 	}
 }

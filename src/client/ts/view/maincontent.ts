@@ -23,6 +23,14 @@ export class MainContent extends SiteElement {
 		});
 	}
 
+	selectVpk(vpkPath: string) {
+		this.#vpkSelector.selectVpk(vpkPath);
+	}
+
+	selectFile(path: string) {
+		this.#vpkSelector.selectFile(path);
+	}
+
 	setVpkList(vpkList: Array<string>) {
 		this.#vpkSelector.setVpkList(vpkList);
 	}

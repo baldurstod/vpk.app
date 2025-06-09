@@ -114,6 +114,7 @@ class Application {
 			return;
 		}
 		this.#appContent.setFileList(vpkPath, response.result!.files);
+		this.#appContent.selectVpk(vpkPath);
 	}
 
 	async #selectFile(vpkPath: string, path: string) {
@@ -124,6 +125,8 @@ class Application {
 
 		console.info(response.file);
 		this.#appContent.viewFile(vpkPath, path, GameEngine.Source1, response.file!);
+		this.#appContent.selectVpk(vpkPath);
+		this.#appContent.selectFile(path);
 	}
 
 	async #downloadFile(event: CustomEvent<SelectFile>) {

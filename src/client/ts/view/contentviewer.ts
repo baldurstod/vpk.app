@@ -6,6 +6,8 @@ import { TextViewer } from './textviewer';
 import { Map2 } from 'harmony-utils';
 import { TextureViewer } from './textureviewer';
 import { imageDataToImage, Source1TextureManager } from 'harmony-3d';
+import { ControllerEvents, SelectFile } from '../controllerevents';
+import { Controller } from '../controller';
 
 const TypePerExtension: { [key: string]: ContentType } = {
 	'cfg': ContentType.Txt,
@@ -57,6 +59,8 @@ export class ContentViewer extends SiteElement {
 		}
 		tab = await this.#viewFile(vpkPath, path, engine, file);
 		tab.activate();
+		tab.addEventListener('activated', (event: Event) => Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.SelectFile, { detail: { vpkPath: vpkPath, path: path } })));
+
 		this.#openViewers.set(vpkPath, path, tab);
 	}
 
@@ -73,7 +77,6 @@ export class ContentViewer extends SiteElement {
 	}
 
 	async #viewFile(vpkPath: string, path: string, engine: GameEngine, file: File): Promise<HTMLHarmonyTabElement> {
-		console.info(path)
 		const extension = path.split('.').pop() ?? '';
 		const filename = path.split('/').pop() ?? '';
 		const fileType = TypePerExtension[extension];
@@ -122,7 +125,6 @@ export class ContentViewer extends SiteElement {
 		}
 
 		this.#htmlTextureViewer?.show();
-
 
 		const vtf = await Source1TextureManager.getVtf(vpkPath, path);
 		let image: HTMLImageElement | undefined;
