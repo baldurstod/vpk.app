@@ -140,7 +140,7 @@ export class ContentViewer extends SiteElement {
 			image = createElement('img') as HTMLImageElement;
 		}
 
-		this.#htmlTextureViewer?.setImage(image);
+		this.#htmlTextureViewer?.setImage(vpkPath, path, image);
 
 
 		const tab = createElement('harmony-tab', {
@@ -152,7 +152,7 @@ export class ContentViewer extends SiteElement {
 					this.#htmlTextureViewer?.hide();
 				};
 			},
-			$activated: () => this.#htmlTextureViewer?.setImage(image),
+			$activated: () => this.#htmlTextureViewer?.setImage(vpkPath, path, image),
 		}) as HTMLHarmonyTabElement;
 
 		return tab;
