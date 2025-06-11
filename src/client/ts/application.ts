@@ -1,19 +1,20 @@
 
+import { MemoryCacheRepository, Repositories } from 'harmony-3d';
+import { addNotification, NotificationType, saveFile } from 'harmony-browser-utils';
 import { themeCSS } from 'harmony-css';
 import { createShadowRoot, documentStyle, I18n } from 'harmony-ui';
 import applicationCSS from '../css/application.css';
 import htmlCSS from '../css/html.css';
 import english from '../json/i18n/english.json';
+import { ApiRepository } from './apirepository';
 import { Controller } from './controller';
 import { ControllerEvents, SelectFile, SelectVpk } from './controllerevents';
 import { GameEngine } from './enums';
 import { fetchApi } from './fetchapi';
 import { FileCache } from './filecache';
-import { getFileResponse, VpkListResponse } from './responses/vpk';
+import { VpkListResponse } from './responses/vpk';
 import { MainContent } from './view/maincontent';
-import { MemoryCacheRepository, Repositories } from 'harmony-3d';
-import { ApiRepository } from './apirepository';
-import { addNotification, NotificationType, saveFile } from 'harmony-browser-utils';
+import { Toolbar } from './view/toolbar';
 
 documentStyle(htmlCSS);
 documentStyle(themeCSS);
@@ -21,6 +22,7 @@ documentStyle(themeCSS);
 class Application {
 	#shadowRoot!: ShadowRoot;
 	#appContent = new MainContent();
+	#toolbar = new Toolbar();
 	#fileCache = new FileCache();
 
 	constructor() {
@@ -50,6 +52,7 @@ class Application {
 			adoptStyle: applicationCSS,
 			childs: [
 				//this.#appToolbar.getHTML(),
+				this.#toolbar.getHTML(),
 				this.#appContent.getHTML(),
 				//this.#appFooter.getHTML(),
 			],
