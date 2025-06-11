@@ -4,7 +4,8 @@
   "type": "module",
   "description": "Source for vpk.app",
   "scripts": {
-    "build": "rollup -c"
+    "build": "rollup -c",
+    "ace": "mkdir -p ./build/client/js/ace-builds/;cp -r ./node_modules/ace-builds/src-min/ ./build/client/js/ace-builds/src-min/"
   },
   "repository": {
     "type": "git",
@@ -28,6 +29,7 @@
     "typescript": "^5.8.3"
   },
   "dependencies": {
+    "ace-builds": "^1.42.0",
     "harmony-3d": "github:baldurstod/harmony-3d",
     "harmony-browser-utils": "github:baldurstod/harmony-browser-utils",
     "harmony-css": "github:baldurstod/harmony-css",

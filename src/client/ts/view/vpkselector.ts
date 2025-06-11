@@ -25,10 +25,12 @@ export class VpkSelector extends SiteElement {
 		this.shadowRoot = createShadowRoot('section', {
 			adoptStyle: vpkSelectorCSS,
 			childs: [
+				/*
 				createElement('button', {
 					i18n: '#refresh_vpks',
 					$click: () => Controller.dispatchEvent(new CustomEvent(ControllerEvents.RefreshVpkList)),
 				}),
+				*/
 				this.#htmlList = createElement('harmony-tree', {
 					$itemclick: (event: CustomEvent<ItemClickEventData>) => this.#itemClick(event),
 				}) as HTMLHarmonyTreeElement,
