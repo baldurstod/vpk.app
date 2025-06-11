@@ -7,9 +7,8 @@
 }
 
 .tabs {
-	flex: 0 0 2rem;
+	flex: 0;
 	background-color: blue;
-	overflow: hidden;
 }
 
 .content {

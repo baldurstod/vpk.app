@@ -1,0 +1,22 @@
+:host {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+}
+
+.toolbar {
+	flex: 0;
+	background-color: grey;
+}
+
+.toolbar svg {
+	cursor: pointer;
+	display: inline-block;
+	height: 3rem;
+	width: 3rem;
+}
+
+
+.editor {
+	flex: 1;
+}

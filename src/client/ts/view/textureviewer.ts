@@ -1,7 +1,7 @@
 import { saveFile } from 'harmony-browser-utils';
 import { downloadSVG, fileExportSVG } from 'harmony-svg';
 import { createElement, createShadowRoot, hide, show } from 'harmony-ui';
-import textViewerCSS from '../../css/textviewer.css';
+import textureViewerCSS from '../../css/textureviewer.css';
 import { Controller } from '../controller';
 import { ControllerEvents, SelectFile } from '../controllerevents';
 import { SiteElement } from './siteelement';
@@ -19,15 +19,18 @@ export class TextureViewer extends SiteElement {
 		}
 
 		this.shadowRoot = createShadowRoot('section', {
-			adoptStyle: textViewerCSS,
+			adoptStyle: textureViewerCSS,
 			childs: [
 				this.#htmlToolbar = createElement('div', {
+					class: 'toolbar',
 					childs: [
 						createElement('span', {
+							i18n: { title: '#download_file' },
 							innerHTML: downloadSVG,
 							$click: () => Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.DownloadFile, { detail: { vpkPath: this.#vpkPath, path: this.#path } })),
 						}),
 						createElement('span', {
+							i18n: { title: '#export_file' },
 							innerHTML: fileExportSVG,
 							$click: () => this.#convertImage(),
 						}),
