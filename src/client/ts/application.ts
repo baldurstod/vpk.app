@@ -156,7 +156,6 @@ class Application {
 		} catch (e) {
 			addNotification(notificationText, NotificationType.Info, 15);
 		}
-
 	}
 }
 const app = new Application();

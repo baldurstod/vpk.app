@@ -1,13 +1,14 @@
-import { createElement, createShadowRoot, defineHarmonyTab, defineHarmonyTabGroup, hide, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement, show, TabEventData } from 'harmony-ui';
-import contentViewerCSS from '../../css/contentviewer.css';
-import { SiteElement } from './siteelement';
-import { ContentType, GameEngine } from '../enums';
-import { TextViewer } from './textviewer';
-import { Map2 } from 'harmony-utils';
-import { TextureViewer } from './textureviewer';
 import { imageDataToImage, Source1TextureManager } from 'harmony-3d';
-import { ControllerEvents, SelectFile } from '../controllerevents';
+import { createElement, createShadowRoot, defineHarmonyTab, defineHarmonyTabGroup, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement, TabEventData } from 'harmony-ui';
+import { Map2 } from 'harmony-utils';
+import contentViewerCSS from '../../css/contentviewer.css';
 import { Controller } from '../controller';
+import { ControllerEvents, SelectFile } from '../controllerevents';
+import { ContentType, GameEngine } from '../enums';
+import { ModelViewer } from './modelviewer';
+import { SiteElement } from './siteelement';
+import { TextureViewer } from './textureviewer';
+import { TextViewer } from './textviewer';
 
 const TypePerExtension: { [key: string]: ContentType } = {
 	'cfg': ContentType.Txt,
@@ -15,6 +16,7 @@ const TypePerExtension: { [key: string]: ContentType } = {
 
 	// Source 1
 	'vtf': ContentType.Source1Texture,
+	'mdl': ContentType.Source1Model,
 };
 
 export class Content {
@@ -30,6 +32,7 @@ export class ContentViewer extends SiteElement {
 	#htmlContent?: HTMLElement;
 	#htmlTextViewer?: TextViewer;
 	#htmlTextureViewer?: TextureViewer;
+	#htmlModelViewer?: ModelViewer;
 	#openViewers = new Map2<string, string, HTMLHarmonyTabElement>();
 
 	initHTML() {
@@ -84,6 +87,8 @@ export class ContentViewer extends SiteElement {
 		switch (fileType) {
 			case ContentType.Source1Texture:
 				return await this.#addSource1TextureContent(vpkPath, path, filename, engine, await file.arrayBuffer());
+			case ContentType.Source1Model:
+				return await this.#addSource1ModelContent(vpkPath, path, filename, engine, await file.arrayBuffer());
 			case ContentType.Txt:
 			default:
 				return this.#addTxtContent(vpkPath, path, filename, engine, new TextDecoder().decode(await file.arrayBuffer()));
@@ -153,6 +158,47 @@ export class ContentViewer extends SiteElement {
 				};
 			},
 			$activated: () => this.#htmlTextureViewer?.setImage(vpkPath, path, image),
+		}) as HTMLHarmonyTabElement;
+
+		return tab;
+	}
+
+	async #addSource1ModelContent(vpkPath: string, path: string, filename: string, engine: GameEngine, content: ArrayBuffer): Promise<HTMLHarmonyTabElement> {
+		this.initHTML();
+
+		if (!this.#htmlModelViewer) {
+			this.#htmlModelViewer = new ModelViewer();
+			this.#htmlContent?.append(this.#htmlModelViewer.getHTML());
+		}
+
+		this.#htmlModelViewer?.show();
+
+		const vtf = await Source1TextureManager.getVtf(vpkPath, path);
+		let image: HTMLImageElement | undefined;
+		if (vtf) {
+			const imageData = await vtf.getImageData();
+			console.info(vtf, imageData);
+			if (imageData) {
+				image = imageDataToImage(imageData);
+			}
+		}
+
+		if (!image) {
+			image = createElement('img') as HTMLImageElement;
+		}
+
+		this.#htmlModelViewer?.setModel(vpkPath, path);
+
+		const tab = createElement('harmony-tab', {
+			'data-text': filename,
+			'data-closable': true,
+			parent: this.#htmlTabs,
+			$close: (event: CustomEvent<TabEventData>) => {
+				if (this.#closeFile(vpkPath, path) && event.detail.tab.isActive()) {
+					this.#htmlModelViewer?.hide();
+				};
+			},
+			$activated: () => this.#htmlModelViewer?.setModel(vpkPath, path),
 		}) as HTMLHarmonyTabElement;
 
 		return tab;

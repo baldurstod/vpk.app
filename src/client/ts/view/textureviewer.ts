@@ -34,7 +34,6 @@ export class TextureViewer extends SiteElement {
 							innerHTML: fileExportSVG,
 							$click: () => this.#convertImage(),
 						}),
-
 					],
 				}),
 				this.#htmlText = createElement('div'),
