@@ -1,5 +1,5 @@
 
-import { MemoryCacheRepository, Repositories } from 'harmony-3d';
+import { MemoryCacheRepository, Repositories, Source1TextureManager } from 'harmony-3d';
 import { addNotification, NotificationType, saveFile } from 'harmony-browser-utils';
 import { themeCSS } from 'harmony-css';
 import { createShadowRoot, documentStyle, I18n } from 'harmony-ui';
@@ -18,6 +18,9 @@ import { Toolbar } from './view/toolbar';
 
 documentStyle(htmlCSS);
 documentStyle(themeCSS);
+
+Repositories.addRepository(new MemoryCacheRepository(new ApiRepository('tf2/tf/tf2_textures_dir.vpk')));
+Source1TextureManager.fallbackRepository = 'tf2/tf/tf2_textures_dir.vpk';
 
 class Application {
 	#shadowRoot!: ShadowRoot;
@@ -105,8 +108,7 @@ class Application {
 	async #selectVpk(vpkPath: string) {
 		let repository = Repositories.getRepository(vpkPath);
 		if (!repository) {
-			repository = new MemoryCacheRepository(new ApiRepository(vpkPath));
-			Repositories.addRepository(repository);
+			Repositories.addRepository(new MemoryCacheRepository(new ApiRepository(vpkPath)));
 		}
 
 
