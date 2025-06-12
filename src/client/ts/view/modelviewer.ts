@@ -59,6 +59,11 @@ export class ModelViewer extends SiteElement {
 			const model = await Source1ModelManager.createInstance(vpkPath, path, true);
 			scene.addChild(model);
 			model.frame = 0.;
+
+			let seq = model.sourceModel.mdl.getSequenceById(0);
+			if (seq) {
+				model.playSequence(seq.name);
+			}
 		}
 
 		setScene(scene);
