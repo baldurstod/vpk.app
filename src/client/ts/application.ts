@@ -47,6 +47,7 @@ class Application {
 		Controller.addEventListener(ControllerEvents.SelectFile, (event: Event) => this.#selectFile((event as CustomEvent<SelectFile>).detail.vpkPath, (event as CustomEvent<SelectFile>).detail.path));
 		Controller.addEventListener(ControllerEvents.DownloadFile, (event: Event) => this.#downloadFile(event as CustomEvent<SelectFile>));
 		Controller.addEventListener(ControllerEvents.CreateFileLink, (event: Event) => this.#createFileLink(event as CustomEvent<SelectFile>));
+		Controller.addEventListener(ControllerEvents.ToogleOptions, () => this.#appContent.toogleOptions());
 	}
 
 	#initPage() {

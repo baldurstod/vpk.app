@@ -1,5 +1,5 @@
 import { vec3, vec4 } from 'gl-matrix';
-import { Camera, Composer, ContextObserver, Graphics, GraphicsEvent, GraphicsEvents, GraphicTickEvent, OrbitControl, Scene, WebGLStats } from 'harmony-3d';
+import { Camera, Composer, ContextObserver, Graphics, GraphicsEvent, GraphicsEvents, GraphicTickEvent, OrbitControl, Scene, SceneExplorer, WebGLStats } from 'harmony-3d';
 import { createElement } from 'harmony-ui';
 
 let renderer: Graphics | undefined;
@@ -12,6 +12,8 @@ let canvasContainer: HTMLElement | undefined;
 export function setScene(s: Scene) {
 	startupRenderer();
 	scene = s;
+	new SceneExplorer().setScene(scene);
+	s.activeCamera = activeCamera;
 }
 
 export function setParent(parent: HTMLElement): void {

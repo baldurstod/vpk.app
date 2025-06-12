@@ -22,6 +22,7 @@ export class SiteElement {
 	}
 
 	show() {
+		this.initHTML();
 		show(this.shadowRoot?.host as HTMLElement);
 	}
 

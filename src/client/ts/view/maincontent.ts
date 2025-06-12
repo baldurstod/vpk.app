@@ -1,13 +1,15 @@
-import { createShadowRoot } from 'harmony-ui';
+import { createShadowRoot, toggle } from 'harmony-ui';
 import mainContentCSS from '../../css/maincontent.css';
 import { SiteElement } from './siteelement';
 import { VpkSelector } from './vpkselector';
 import { ContentViewer } from './contentviewer';
 import { GameEngine } from '../enums';
+import { Options } from './options';
 
 export class MainContent extends SiteElement {
 	#vpkSelector = new VpkSelector();
 	#contentViewer = new ContentViewer();
+	#options = new Options();
 
 	initHTML() {
 		if (this.shadowRoot) {
@@ -18,9 +20,11 @@ export class MainContent extends SiteElement {
 			adoptStyle: mainContentCSS,
 			childs: [
 				this.#vpkSelector.getHTML(),
+				this.#options.getHTML(),
 				this.#contentViewer.getHTML(),
 			],
 		});
+		this.#options.hide();
 	}
 
 	selectVpk(vpkPath: string) {
@@ -41,5 +45,9 @@ export class MainContent extends SiteElement {
 
 	viewFile(vpkPath: string, path: string, engine: GameEngine, file: File) {
 		this.#contentViewer.viewFile(vpkPath, path, engine, file);
+	}
+
+	toogleOptions() {
+		toggle(this.#options.getHTML());
 	}
 }

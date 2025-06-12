@@ -4,6 +4,7 @@ export enum ControllerEvents {
 	SelectFile = 'selectfile',
 	DownloadFile = 'downloadfile',
 	CreateFileLink = 'createfilelink',
+	ToogleOptions = 'toogleoptions',
 }
 
 export type SelectVpk = {

@@ -1,5 +1,5 @@
 import { vec3 } from 'gl-matrix';
-import { ColorBackground, PointLight, Scene, Source1ModelManager } from 'harmony-3d';
+import { AmbientLight, ColorBackground, PointLight, Scene, Source1ModelManager } from 'harmony-3d';
 import { downloadSVG } from 'harmony-svg';
 import { createElement, createShadowRoot, hide, show } from 'harmony-ui';
 import { Map2 } from 'harmony-utils';
@@ -67,6 +67,7 @@ export class ModelViewer extends SiteElement {
 			}
 
 			scene.addChild(new PointLight({ position: vec3.fromValues(0, -500, 0) }));
+			scene.addChild(new AmbientLight({ position: vec3.fromValues(0, -500, 0) }));
 		}
 
 		setScene(scene);
