@@ -100,7 +100,6 @@ export class ContentViewer extends SiteElement {
 
 		if (!this.#htmlTextViewer) {
 			this.#htmlTextViewer = new TextViewer();
-			this.#htmlContent?.append(this.#htmlTextViewer.getHTML());
 		}
 
 		this.#htmlTextViewer?.show();
@@ -114,7 +113,10 @@ export class ContentViewer extends SiteElement {
 					this.#htmlTextViewer?.hide();
 				};
 			},
-			$activated: () => this.#htmlTextViewer?.setText(String(content)),
+			$activated: () => {
+				this.#htmlContent?.replaceChildren(this.#htmlTextViewer!.getHTML());
+				this.#htmlTextViewer?.setText(String(content));
+			},
 		}) as HTMLHarmonyTabElement;
 
 		this.#htmlTextViewer?.setText(String(content));
@@ -157,7 +159,10 @@ export class ContentViewer extends SiteElement {
 					this.#htmlTextureViewer?.hide();
 				};
 			},
-			$activated: () => this.#htmlTextureViewer?.setImage(vpkPath, path, image),
+			$activated: () => {
+				this.#htmlContent?.replaceChildren(this.#htmlTextureViewer!.getHTML());
+				this.#htmlTextureViewer?.setImage(vpkPath, path, image);
+			},
 		}) as HTMLHarmonyTabElement;
 
 		return tab;
@@ -198,7 +203,10 @@ export class ContentViewer extends SiteElement {
 					this.#htmlModelViewer?.hide();
 				};
 			},
-			$activated: () => this.#htmlModelViewer?.setModel(vpkPath, path),
+			$activated: () => {
+				this.#htmlContent?.replaceChildren(this.#htmlModelViewer!.getHTML());
+				this.#htmlModelViewer?.setModel(vpkPath, path);
+			},
 		}) as HTMLHarmonyTabElement;
 
 		return tab;

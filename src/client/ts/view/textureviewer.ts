@@ -75,13 +75,4 @@ export class TextureViewer extends SiteElement {
 			saveFile(new File([blob], `${this.#path}.png`));
 		});
 	}
-
-	show() {
-		this.initHTML();
-		show(this.#htmlText);
-	}
-
-	hide() {
-		hide(this.#htmlText);
-	}
 }
