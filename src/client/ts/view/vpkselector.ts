@@ -8,6 +8,7 @@ import { SiteElement } from './siteelement';
 
 export class VpkSelector extends SiteElement {
 	#htmlList?: HTMLHarmonyTreeElement;
+	#htmlFileFilter?: HTMLInputElement;
 	#htmlFileTree?: HTMLHarmonyTreeElement;
 	#vpkPath: string = '';
 	#vpkList?: Array<string>;
@@ -34,6 +35,10 @@ export class VpkSelector extends SiteElement {
 				this.#htmlList = createElement('harmony-tree', {
 					$itemclick: (event: CustomEvent<ItemClickEventData>) => this.#itemClick(event),
 				}) as HTMLHarmonyTreeElement,
+				this.#htmlFileFilter = createElement('input', {
+					type: 'text',
+					$input: (event: InputEvent) => this.setFileFilter((event.target as HTMLInputElement).value),
+				}) as HTMLInputElement,
 				this.#htmlFileTree = createElement('harmony-tree', {
 					$itemclick: (event: CustomEvent<ItemClickEventData>) => this.#fileItemClick(event),
 				}) as HTMLHarmonyTreeElement,
@@ -147,5 +152,9 @@ export class VpkSelector extends SiteElement {
 				return;
 			}
 		}
+	}
+
+	setFileFilter(filter: string) {
+		this.#htmlFileTree?.setFilter({ name: filter });
 	}
 }

@@ -71,6 +71,7 @@ class Application {
 				this.#initViewFromUrl();
 				break;
 			case pathname == '':
+			case pathname == '/':
 				break;
 			default:
 				this.#navigateTo('/');
@@ -89,7 +90,7 @@ class Application {
 	}
 
 	async #initViewFromUrl() {
-		let result = /@view\/([^\:]*)\:(.*)/i.exec(document.location.pathname);
+		let result = /@view\/([^\:]*)\:?(.*)/i.exec(document.location.pathname);
 		if (result) {
 			await this.#selectVpk(result[1]);
 			await this.#selectFile(result[1], result[2]);
