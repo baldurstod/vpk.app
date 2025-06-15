@@ -58,12 +58,15 @@ export class ModelViewer extends SiteElement {
 			scene.background = new ColorBackground();
 			this.#scenes.set(vpkPath, path, scene);
 			const model = await Source1ModelManager.createInstance(vpkPath, path, true);
-			scene.addChild(model);
-			model.frame = 0.;
 
-			let seq = model.sourceModel.mdl.getSequenceById(0);
-			if (seq) {
-				model.playSequence(seq.name);
+			if (model) {
+				scene.addChild(model);
+				model.frame = 0.;
+
+				let seq = model.sourceModel.mdl.getSequenceById(0);
+				if (seq) {
+					model.playSequence(seq.name);
+				}
 			}
 
 			scene.addChild(new PointLight({ position: vec3.fromValues(0, -500, 0) }));
