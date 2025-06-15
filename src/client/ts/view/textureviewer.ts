@@ -1,6 +1,6 @@
 import { saveFile } from 'harmony-browser-utils';
 import { downloadSVG, fileExportSVG } from 'harmony-svg';
-import { createElement, createShadowRoot, hide, show } from 'harmony-ui';
+import { createElement, createShadowRoot } from 'harmony-ui';
 import textureViewerCSS from '../../css/textureviewer.css';
 import { Controller } from '../controller';
 import { ControllerEvents, SelectFile } from '../controllerevents';
@@ -36,7 +36,7 @@ export class TextureViewer extends SiteElement {
 						}),
 					],
 				}),
-				this.#htmlText = createElement('div'),
+				this.#htmlText = createElement('div', { class: 'container', }),
 			]
 		});
 	}
@@ -64,8 +64,8 @@ export class TextureViewer extends SiteElement {
 			return;
 		}
 
-		canvas.width = this.#htmlImage.width;
-		canvas.height = this.#htmlImage.height;
+		canvas.width = this.#htmlImage.naturalWidth;
+		canvas.height = this.#htmlImage.naturalHeight;
 		context.drawImage(this.#htmlImage, 0, 0);
 
 		canvas.toBlob(blob => {

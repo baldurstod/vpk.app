@@ -138,7 +138,13 @@ export class ContentViewer extends SiteElement {
 		if (vtf) {
 			const imageData = await vtf.getImageData();
 			console.info(vtf, imageData);
+
 			if (imageData) {
+
+				for (let i = 3; i < imageData?.data.length; i += 4) {
+					imageData.data[i] = 255;
+
+				}
 				image = imageDataToImage(imageData);
 			}
 		}
@@ -177,20 +183,6 @@ export class ContentViewer extends SiteElement {
 		}
 
 		this.#htmlModelViewer?.show();
-
-		const vtf = await Source1TextureManager.getVtf(vpkPath, path);
-		let image: HTMLImageElement | undefined;
-		if (vtf) {
-			const imageData = await vtf.getImageData();
-			console.info(vtf, imageData);
-			if (imageData) {
-				image = imageDataToImage(imageData);
-			}
-		}
-
-		if (!image) {
-			image = createElement('img') as HTMLImageElement;
-		}
 
 		this.#htmlModelViewer?.setModel(vpkPath, path);
 
