@@ -1,5 +1,5 @@
 
-import { MemoryCacheRepository, Repositories, Source1TextureManager } from 'harmony-3d';
+import { MemoryCacheRepository, MemoryRepository, Repositories, Source1TextureManager } from 'harmony-3d';
 import { addNotification, NotificationType, saveFile } from 'harmony-browser-utils';
 import { themeCSS } from 'harmony-css';
 import { createShadowRoot, documentStyle, I18n } from 'harmony-ui';
@@ -20,6 +20,7 @@ documentStyle(htmlCSS);
 documentStyle(themeCSS);
 
 Repositories.addRepository(new MemoryCacheRepository(new ApiRepository('tf2/tf/tf2_textures_dir.vpk')));
+const localRepo = Repositories.addRepository(new MemoryRepository('local')) as MemoryRepository;
 Source1TextureManager.fallbackRepository = 'tf2/tf/tf2_textures_dir.vpk';
 
 class Application {
@@ -60,6 +61,8 @@ class Application {
 				this.#appContent.getHTML(),
 				//this.#appFooter.getHTML(),
 			],
+			$dragover: (event: Event) => event.preventDefault(),
+			$drop: (event: Event) => this.#handleDrop(event as DragEvent),
 		});
 	}
 
@@ -160,6 +163,31 @@ class Application {
 		} catch (e) {
 			addNotification(notificationText, NotificationType.Info, 15);
 		}
+	}
+
+	async  #handleDrop(event: DragEvent): Promise<void> {
+		event.preventDefault();
+
+		if (!event.dataTransfer) {
+			return;
+		}
+
+		for (const item of event.dataTransfer.items) {
+			if (item.kind === "file") {
+				const file = item.getAsFile();
+				if (file) {
+					console.log(`… file.name = ${file.name}`, file);
+					await this.#openLocalFile(file);
+				}
+			}
+		}
+	}
+
+	async #openLocalFile(file: File): Promise<void> {
+		//const extension = file.name.split('.').pop() ?? '';
+		localRepo.setFile(file.name, file);
+		await this.#selectFile('local', file.name);
+
 	}
 }
 const app = new Application();
