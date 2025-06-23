@@ -128,6 +128,8 @@ class Application {
 	}
 
 	async #selectFile(vpkPath: string, path: string) {
+		path = path.replace(/\.(vvd|dx80\.vtx|dx90\.vtx|sw\.vtx)$/, '.mdl');
+
 		const response = await Repositories.getFile(vpkPath, path);
 		if (response.error) {
 			return
