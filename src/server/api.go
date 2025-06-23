@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 
@@ -176,6 +177,9 @@ func apiGetFile(c *gin.Context, params map[string]any) apiError {
 	if !ok {
 		return CreateApiError(InvalidParamPath)
 	}
+
+	filePath = strings.ReplaceAll(filePath, "\\", "/")
+	filePath = path.Clean(filePath)
 
 	var pak vpk.VPK
 	var err error
