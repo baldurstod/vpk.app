@@ -134,27 +134,15 @@ export class ContentViewer extends SiteElement {
 		this.#htmlTextureViewer?.show();
 
 		const vtf = await Source1TextureManager.getVtf(vpkPath, path);
-		let image: HTMLImageElement | undefined;
+		let imageData:ImageData | null;
 		if (vtf) {
-			const imageData = await vtf.getImageData();
+			imageData = await vtf.getImageData();
 			console.info(vtf, imageData);
 
 			if (imageData) {
-
-				for (let i = 3; i < imageData?.data.length; i += 4) {
-					imageData.data[i] = 255;
-
-				}
-				image = imageDataToImage(imageData);
+				this.#htmlTextureViewer?.setImageData(vpkPath, path, imageData);
 			}
 		}
-
-		if (!image) {
-			image = createElement('img') as HTMLImageElement;
-		}
-
-		this.#htmlTextureViewer?.setImage(vpkPath, path, image);
-
 
 		const tab = createElement('harmony-tab', {
 			'data-text': filename,
@@ -167,7 +155,9 @@ export class ContentViewer extends SiteElement {
 			},
 			$activated: () => {
 				this.#htmlContent?.replaceChildren(this.#htmlTextureViewer!.getHTML());
-				this.#htmlTextureViewer?.setImage(vpkPath, path, image);
+				if (imageData) {
+					this.#htmlTextureViewer?.setImageData(vpkPath, path, imageData);
+				}
 			},
 		}) as HTMLHarmonyTabElement;
 

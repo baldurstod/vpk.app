@@ -1,17 +1,26 @@
+import { imageDataToImage } from 'harmony-3d';
 import { saveFile } from 'harmony-browser-utils';
-import { downloadSVG, fileExportSVG } from 'harmony-svg';
+import { backgroundReplaceSVG, downloadSVG, fileExportSVG, textureSVG, wallpaperSVG } from 'harmony-svg';
 import { createElement, createShadowRoot } from 'harmony-ui';
 import textureViewerCSS from '../../css/textureviewer.css';
 import { Controller } from '../controller';
 import { ControllerEvents, SelectFile } from '../controllerevents';
 import { SiteElement } from './siteelement';
 
+enum TextureMode {
+	Alpha = 0,
+	Rgb = 1,
+	Rgba = 2,
+}
+
 export class TextureViewer extends SiteElement {
 	#htmlToolbar?: HTMLElement;
 	#htmlText?: HTMLElement;
+	#imageData?: ImageData;
 	#htmlImage?: HTMLImageElement;
 	#vpkPath: string = '';
 	#path: string = '';
+	#mode = TextureMode.Rgb;
 
 	initHTML() {
 		if (this.shadowRoot) {
@@ -34,6 +43,21 @@ export class TextureViewer extends SiteElement {
 							innerHTML: fileExportSVG,
 							$click: () => this.#convertImage(),
 						}),
+						createElement('span', {
+							i18n: { title: '#rgb' },
+							innerHTML: wallpaperSVG,
+							$click: () => this.setMode(TextureMode.Rgb),
+						}),
+						createElement('span', {
+							i18n: { title: '#rgba' },
+							innerHTML: backgroundReplaceSVG,
+							$click: () => this.setMode(TextureMode.Rgba),
+						}),
+						createElement('span', {
+							i18n: { title: '#alpha' },
+							innerHTML: textureSVG,
+							$click: () => this.setMode(TextureMode.Alpha),
+						}),
 					],
 				}),
 				this.#htmlText = createElement('div', { class: 'container', }),
@@ -45,12 +69,50 @@ export class TextureViewer extends SiteElement {
 		this.initHTML();
 	}
 
-	setImage(vpkPath: string, path: string, image: HTMLImageElement) {
+	setImageData(vpkPath: string, path: string, imageData: ImageData) {
 		this.show();
-		this.#htmlText!.replaceChildren(image);
-		this.#htmlImage = image;
+		this.#imageData = imageData;
 		this.#vpkPath = vpkPath;
 		this.#path = path;
+		this.#updateImage();
+	}
+
+	setMode(mode: TextureMode) {
+		if (mode == this.#mode) {
+			return;
+		}
+
+		this.#mode = mode;
+		this.#updateImage();
+	}
+
+	#updateImage() {
+		if (!this.#imageData) {
+			return;
+		}
+
+		const imageData = new ImageData(new Uint8ClampedArray(this.#imageData.data), this.#imageData.width, this.#imageData.height);
+
+		switch (this.#mode) {
+			case TextureMode.Alpha:
+				for (let i = 0; i < imageData?.data.length; i += 4) {
+					const alpha = imageData.data[i + 3];
+					imageData.data[i] = alpha;
+					imageData.data[i + 1] = alpha;
+					imageData.data[i + 2] = alpha;
+					imageData.data[i + 3] = 255;
+				}
+				break;
+			case TextureMode.Rgb:
+				for (let i = 3; i < imageData?.data.length; i += 4) {
+					imageData.data[i] = 255;
+				}
+				break;
+		}
+
+		const image = imageDataToImage(imageData);
+		this.#htmlText!.replaceChildren(image);
+		this.#htmlImage = image;
 	}
 
 	#convertImage() {
