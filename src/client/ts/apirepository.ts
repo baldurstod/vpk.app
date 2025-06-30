@@ -56,11 +56,11 @@ export class ApiRepository implements Repository {
 		return { json: JSON.parse(await response.file!.text()) };
 	}
 
-	async getFileList(filter?: RepositoryFilter): Promise<RepositoryFileListResponse> {
+	async getFileList(): Promise<RepositoryFileListResponse> {
 		const files = await getFileList(this.#name);
-		const root = new RepositoryEntry(this, '', true);
+		const root = new RepositoryEntry(this, '', true, 0);
 		for (const [_, filename] of files) {
-			root.addEntry(filename);
+			root.addPath(filename);
 		}
 		return { root: root };
 	}
