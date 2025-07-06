@@ -22,7 +22,7 @@ func registerToken() bool {
 	return true
 }
 
-var vpkRoot = "vpk/"
+var repositoryRoot = "vpk/"
 
 type apiRequest struct {
 	Action  string         `json:"action" binding:"required"`
@@ -42,8 +42,8 @@ func apiHandler(c *gin.Context) {
 
 	var apiError apiError
 	switch request.Action {
-	case "get-vpk-list":
-		apiError = apiGetVpkList(c)
+	case "get-repository-list":
+		apiError = apiGetRepositoryList(c)
 	case "get-file-list":
 		apiError = apiGetFileList(c, request.Params)
 	case "get-file":
@@ -58,15 +58,15 @@ func apiHandler(c *gin.Context) {
 	}
 }
 
-func apiGetVpkList(c *gin.Context) apiError {
+func apiGetRepositoryList(c *gin.Context) apiError {
 	//files, err = FilePathWalkDir(root)
 	var files []string
-	err := Walk(vpkRoot, func(path string, info os.FileInfo, err error) error {
+	err := Walk(repositoryRoot, func(path string, info os.FileInfo, err error) error {
 		if !info.IsDir() && strings.HasSuffix(path, "_dir.vpk") {
 			//files = append(files, strings.TrimSuffix(info.Name(), "_dir.vpk"))
 			//dir, file := filepath.Split(strings.TrimPrefix(path, root))
 			//fmt.Printf("input: %q\n\tdir: %q\n\tfile: %q\n", path, dir, file)
-			files = append(files, strings.TrimPrefix(path, vpkRoot))
+			files = append(files, strings.TrimPrefix(path, repositoryRoot))
 		}
 		return nil
 	})
@@ -141,7 +141,7 @@ func apiGetFileList(c *gin.Context, params map[string]any) apiError {
 
 	var pak vpk.VPK
 	var err error
-	inputFile := filepath.Join(vpkRoot, repository)
+	inputFile := filepath.Join(repositoryRoot, repository)
 
 	if strings.HasSuffix(inputFile, "_dir.vpk") {
 		pak, err = vpk.OpenDir(inputFile)
@@ -183,7 +183,7 @@ func apiGetFile(c *gin.Context, params map[string]any) apiError {
 
 	var pak vpk.VPK
 	var err error
-	inputFile := filepath.Join(vpkRoot, repository)
+	inputFile := filepath.Join(repositoryRoot, repository)
 
 	if strings.HasSuffix(inputFile, "_dir.vpk") {
 		pak, err = vpk.OpenDir(inputFile)

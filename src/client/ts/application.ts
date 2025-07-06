@@ -8,7 +8,7 @@ import htmlCSS from '../css/html.css';
 import english from '../json/i18n/english.json';
 import { ApiRepository } from './apirepository';
 import { Controller } from './controller';
-import { ControllerEvents, SelectFile, SelectVpk } from './controllerevents';
+import { ControllerEvents, SelectFile, SelectRepository } from './controllerevents';
 import { GameEngine } from './enums';
 import { fetchApi } from './fetchapi';
 import { FileCache } from './filecache';
@@ -38,13 +38,13 @@ class Application {
 		I18n.start();
 		this.#initEvents();
 		this.#initPage();
-		this.#refreshVpkList();
+		this.#refreshRepositoryList();
 		await this.#startup();
 	}
 
 	#initEvents() {
-		Controller.addEventListener(ControllerEvents.RefreshVpkList, () => this.#refreshVpkList());
-		Controller.addEventListener(ControllerEvents.SelectVpk, (event: Event) => this.#selectVpk((event as CustomEvent<SelectVpk>).detail.path));
+		Controller.addEventListener(ControllerEvents.RefreshRepositoryList, () => this.#refreshRepositoryList());
+		Controller.addEventListener(ControllerEvents.SelectRepository, (event: Event) => this.#selectRepository((event as CustomEvent<SelectRepository>).detail.path));
 		Controller.addEventListener(ControllerEvents.SelectFile, (event: Event) => this.#selectFile((event as CustomEvent<SelectFile>).detail.origin, (event as CustomEvent<SelectFile>).detail.path));
 		Controller.addEventListener(ControllerEvents.DownloadFile, (event: Event) => this.#downloadFile(event as CustomEvent<SelectFile>));
 		Controller.addEventListener(ControllerEvents.CreateFileLink, (event: Event) => this.#createFileLink(event as CustomEvent<SelectFile>));
@@ -95,22 +95,22 @@ class Application {
 	async #initViewFromUrl() {
 		let result = /@view\/([^\:]*)\:?(.*)/i.exec(document.location.pathname);
 		if (result) {
-			await this.#selectVpk(result[1]);
+			await this.#selectRepository(result[1]);
 			await this.#selectFile(result[1], result[2]);
 		}
 	}
 
-	async #refreshVpkList() {
-		const { requestId, response } = await fetchApi('get-vpk-list', 1) as { requestId: string, response: RepositoryListResponse };
+	async #refreshRepositoryList() {
+		const { requestId, response } = await fetchApi('get-repository-list', 1) as { requestId: string, response: RepositoryListResponse };
 
 		if (!response.success) {
 			return;
 		}
 
-		this.#appContent.setVpkList(response.result!.files);
+		this.#appContent.setRepositoryList(response.result!.files);
 	}
 
-	async #selectVpk(repository: string) {
+	async #selectRepository(repository: string) {
 		let repo = Repositories.getRepository(repository);
 		if (!repo) {
 			Repositories.addRepository(new MemoryCacheRepository(new ApiRepository(repository)));
@@ -124,7 +124,7 @@ class Application {
 			return;
 		}
 		this.#appContent.setFileList(repository, response.result!.files);
-		this.#appContent.selectVpk(repository);
+		this.#appContent.selectRepository(repository);
 	}
 
 	async #selectFile(repository: string, path: string) {
@@ -137,7 +137,7 @@ class Application {
 
 		console.info(response.file);
 		this.#appContent.viewFile(repository, path, GameEngine.Source1, response.file!);
-		this.#appContent.selectVpk(repository);
+		this.#appContent.selectRepository(repository);
 		this.#appContent.selectFile(path);
 	}
 

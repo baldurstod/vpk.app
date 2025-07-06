@@ -1,21 +1,21 @@
 import { downloadSVG, shareSVG } from 'harmony-svg';
 import { createElement, createShadowRoot, defineHarmonyTree, HTMLHarmonyTreeElement, ItemActionEventData, ItemClickEventData, TreeItem } from 'harmony-ui';
+import repositorySelectorCSS from '../../css/repositoryselector.css';
 import treeCSS from '../../css/tree.css';
-import vpkSelectorCSS from '../../css/repositoryselector.css';
 import { Controller } from '../controller';
-import { ControllerEvents, SelectFile, SelectVpk } from '../controllerevents';
+import { ControllerEvents, SelectFile, SelectRepository } from '../controllerevents';
 import { SiteElement } from './siteelement';
 
-export class VpkSelector extends SiteElement {
+export class RepositorySelector extends SiteElement {
 	#htmlList?: HTMLHarmonyTreeElement;
 	#htmlFileFilter?: HTMLInputElement;
 	#htmlFileTree?: HTMLHarmonyTreeElement;
 	#repository: string = '';
-	#vpkList?: Array<string>;
+	#repositoryList?: Array<string>;
 	#fileList?: Array<string>;
-	#vpkRoot?: TreeItem;
+	#repositoryRoot?: TreeItem;
 	#fileRoot?: TreeItem;
-	#dirtyVpkList = true;
+	#dirtyRepositoryList = true;
 	#dirtyFileList = true;
 
 	initHTML() {
@@ -24,7 +24,7 @@ export class VpkSelector extends SiteElement {
 		}
 		defineHarmonyTree();
 		this.shadowRoot = createShadowRoot('section', {
-			adoptStyle: vpkSelectorCSS,
+			adoptStyle: repositorySelectorCSS,
 			childs: [
 				/*
 				createElement('button', {
@@ -71,11 +71,11 @@ export class VpkSelector extends SiteElement {
 	protected refreshHTML(): void {
 		this.initHTML();
 
-		if (this.#dirtyVpkList && this.#vpkList) {
+		if (this.#dirtyRepositoryList && this.#repositoryList) {
 			this.#htmlList?.replaceChildren();
-			this.#vpkRoot = TreeItem.createFromPathList(this.#vpkList);
-			this.#htmlList?.setRoot(this.#vpkRoot);
-			this.#dirtyVpkList = false;
+			this.#repositoryRoot = TreeItem.createFromPathList(this.#repositoryList);
+			this.#htmlList?.setRoot(this.#repositoryRoot);
+			this.#dirtyRepositoryList = false;
 		}
 
 		if (this.#dirtyFileList && this.#fileList) {
@@ -93,9 +93,9 @@ export class VpkSelector extends SiteElement {
 		}
 	}
 
-	setVpkList(vpkList: Array<string>) {
-		this.#vpkList = vpkList;
-		this.#dirtyVpkList = true;
+	setRepositoryList(repositoryList: Array<string>) {
+		this.#repositoryList = repositoryList;
+		this.#dirtyRepositoryList = true;
 		this.refreshHTML();
 	}
 
@@ -112,7 +112,7 @@ export class VpkSelector extends SiteElement {
 			return;
 		}
 
-		Controller.dispatchEvent(new CustomEvent<SelectVpk>(ControllerEvents.SelectVpk, { detail: { path: clickedItem.getPath() } }));
+		Controller.dispatchEvent(new CustomEvent<SelectRepository>(ControllerEvents.SelectRepository, { detail: { path: clickedItem.getPath() } }));
 	}
 
 	#fileItemClick(event: CustomEvent<ItemClickEventData>) {
@@ -124,14 +124,14 @@ export class VpkSelector extends SiteElement {
 		Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.SelectFile, { detail: { origin: this.#repository, path: clickedItem.getPath() } }));
 	}
 
-	selectVpk(repository: string) {
+	selectRepository(repository: string) {
 		this.initHTML();
 
-		if (!this.#vpkRoot) {
+		if (!this.#repositoryRoot) {
 			return
 		}
 
-		for (let item of this.#vpkRoot.walk()) {
+		for (let item of this.#repositoryRoot.walk()) {
 			if (item.getPath() == repository) {
 				this.#htmlList?.selectItem(item);
 				return;

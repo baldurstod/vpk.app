@@ -1,13 +1,13 @@
 export enum ControllerEvents {
-	RefreshVpkList = 'refreshvpklist',
-	SelectVpk = 'selectvpk',
+	RefreshRepositoryList = 'refreshrepositorylist',
+	SelectRepository = 'selectrepository',
 	SelectFile = 'selectfile',
 	DownloadFile = 'downloadfile',
 	CreateFileLink = 'createfilelink',
 	ToogleOptions = 'toogleoptions',
 }
 
-export type SelectVpk = {
+export type SelectRepository = {
 	path: string,
 }
 
