@@ -20,7 +20,7 @@ const (
 var apiErrorValues = map[ApiErrorCode]error{
 	UnexpectedError:     errors.New("unexpected error, contact support"),
 	NoParamsError:       errors.New("no params provided"),
-	InvalidParamVpkPath: errors.New("invalid param vpk_path"),
+	InvalidParamVpkPath: errors.New("invalid param repository"),
 	InvalidParamPath:    errors.New("invalid param path"),
 }
 

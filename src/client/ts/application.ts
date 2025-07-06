@@ -117,7 +117,7 @@ class Application {
 		}
 
 
-		const { requestId, response } = await fetchApi('get-file-list', 1, { vpk_path: vpkPath }) as { requestId: string, response: VpkListResponse };
+		const { requestId, response } = await fetchApi('get-file-list', 1, { repository: vpkPath }) as { requestId: string, response: VpkListResponse };
 
 		console.info(event, response);
 		if (!response.success) {

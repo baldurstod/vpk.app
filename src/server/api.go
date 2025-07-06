@@ -134,7 +134,7 @@ func apiGetFileList(c *gin.Context, params map[string]any) apiError {
 		return CreateApiError(NoParamsError)
 	}
 
-	vpkPath, ok := params["vpk_path"].(string)
+	vpkPath, ok := params["repository"].(string)
 	if !ok {
 		return CreateApiError(InvalidParamVpkPath)
 	}
@@ -168,7 +168,7 @@ func apiGetFile(c *gin.Context, params map[string]any) apiError {
 		return CreateApiError(NoParamsError)
 	}
 
-	vpkPath, ok := params["vpk_path"].(string)
+	vpkPath, ok := params["repository"].(string)
 	if !ok {
 		return CreateApiError(InvalidParamVpkPath)
 	}
