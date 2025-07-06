@@ -110,34 +110,34 @@ class Application {
 		this.#appContent.setVpkList(response.result!.files);
 	}
 
-	async #selectVpk(vpkPath: string) {
-		let repository = Repositories.getRepository(vpkPath);
-		if (!repository) {
-			Repositories.addRepository(new MemoryCacheRepository(new ApiRepository(vpkPath)));
+	async #selectVpk(repository: string) {
+		let repo = Repositories.getRepository(repository);
+		if (!repo) {
+			Repositories.addRepository(new MemoryCacheRepository(new ApiRepository(repository)));
 		}
 
 
-		const { requestId, response } = await fetchApi('get-file-list', 1, { repository: vpkPath }) as { requestId: string, response: VpkListResponse };
+		const { requestId, response } = await fetchApi('get-file-list', 1, { repository: repository }) as { requestId: string, response: VpkListResponse };
 
 		console.info(event, response);
 		if (!response.success) {
 			return;
 		}
-		this.#appContent.setFileList(vpkPath, response.result!.files);
-		this.#appContent.selectVpk(vpkPath);
+		this.#appContent.setFileList(repository, response.result!.files);
+		this.#appContent.selectVpk(repository);
 	}
 
-	async #selectFile(vpkPath: string, path: string) {
+	async #selectFile(repository: string, path: string) {
 		path = path.replace(/\.(vvd|dx80\.vtx|dx90\.vtx|sw\.vtx)$/, '.mdl');
 
-		const response = await Repositories.getFile(vpkPath, path);
+		const response = await Repositories.getFile(repository, path);
 		if (response.error) {
 			return
 		}
 
 		console.info(response.file);
-		this.#appContent.viewFile(vpkPath, path, GameEngine.Source1, response.file!);
-		this.#appContent.selectVpk(vpkPath);
+		this.#appContent.viewFile(repository, path, GameEngine.Source1, response.file!);
+		this.#appContent.selectVpk(repository);
 		this.#appContent.selectFile(path);
 	}
 

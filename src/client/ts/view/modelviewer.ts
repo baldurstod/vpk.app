@@ -12,7 +12,7 @@ import { SiteElement } from './siteelement';
 export class ModelViewer extends SiteElement {
 	#htmlToolbar?: HTMLElement;
 	#htmlText?: HTMLElement;
-	#vpkPath: string = '';
+	#repository: string = '';
 	#path: string = '';
 	#scenes = new Map2<string, string, Scene>();
 
@@ -30,7 +30,7 @@ export class ModelViewer extends SiteElement {
 						createElement('span', {
 							i18n: { title: '#download_file' },
 							innerHTML: downloadSVG,
-							$click: () => Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.DownloadFile, { detail: { origin: this.#vpkPath, path: this.#path } })),
+							$click: () => Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.DownloadFile, { detail: { origin: this.#repository, path: this.#path } })),
 						}),
 					],
 				}),
@@ -45,19 +45,19 @@ export class ModelViewer extends SiteElement {
 		this.initHTML();
 	}
 
-	async setModel(vpkPath: string, path: string): Promise<void> {
+	async setModel(repository: string, path: string): Promise<void> {
 		startupRenderer();
 		this.show();
-		this.#vpkPath = vpkPath;
+		this.#repository = repository;
 		this.#path = path;
 
-		let scene = this.#scenes.get(vpkPath, path);
+		let scene = this.#scenes.get(repository, path);
 		if (!scene) {
 			scene = new Scene();
 
 			scene.background = new ColorBackground();
-			this.#scenes.set(vpkPath, path, scene);
-			const model = await Source1ModelManager.createInstance(vpkPath, path, true);
+			this.#scenes.set(repository, path, scene);
+			const model = await Source1ModelManager.createInstance(repository, path, true);
 
 			if (model) {
 				scene.addChild(model);

@@ -27,8 +27,8 @@ export class MainContent extends SiteElement {
 		this.#options.hide();
 	}
 
-	selectVpk(vpkPath: string) {
-		this.#vpkSelector.selectVpk(vpkPath);
+	selectVpk(repository: string) {
+		this.#vpkSelector.selectVpk(repository);
 	}
 
 	selectFile(path: string) {
@@ -39,12 +39,12 @@ export class MainContent extends SiteElement {
 		this.#vpkSelector.setVpkList(vpkList);
 	}
 
-	setFileList(vpkPath: string, fileList: Array<string>) {
-		this.#vpkSelector.setFileList(vpkPath, fileList);
+	setFileList(repository: string, fileList: Array<string>) {
+		this.#vpkSelector.setFileList(repository, fileList);
 	}
 
-	viewFile(vpkPath: string, path: string, engine: GameEngine, file: File) {
-		this.#contentViewer.viewFile(vpkPath, path, engine, file);
+	viewFile(repository: string, path: string, engine: GameEngine, file: File) {
+		this.#contentViewer.viewFile(repository, path, engine, file);
 	}
 
 	toogleOptions() {

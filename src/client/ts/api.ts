@@ -10,8 +10,8 @@ function base64ToArrayBuffer(base64: string): ArrayBuffer {
 	return bytes.buffer;
 }
 
-export async function getFile(vpkPath: string, path: string): Promise<File | null> {
-	const { requestId, response } = await fetchApi('get-file', 1, { repository: vpkPath, path: path }) as { requestId: string, response: getFileResponse };
+export async function getFile(repository: string, path: string): Promise<File | null> {
+	const { requestId, response } = await fetchApi('get-file', 1, { repository: repository, path: path }) as { requestId: string, response: getFileResponse };
 
 	if (!response.success) {
 		return null;
@@ -21,8 +21,8 @@ export async function getFile(vpkPath: string, path: string): Promise<File | nul
 	return new File([new Blob([content])], path);
 }
 
-export async function getFileList(vpkPath: string): Promise<Array<string>> {
-	const { requestId, response } = await fetchApi('get-file-list', 1, { repository: vpkPath }) as { requestId: string, response: VpkListResponse };
+export async function getFileList(repository: string): Promise<Array<string>> {
+	const { requestId, response } = await fetchApi('get-file-list', 1, { repository: repository }) as { requestId: string, response: VpkListResponse };
 
 	console.info(event, response);
 	if (!response.success) {

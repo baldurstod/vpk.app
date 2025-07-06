@@ -55,48 +55,48 @@ export class ContentViewer extends SiteElement {
 		this.initHTML();
 	}
 
-	async viewFile(vpkPath: string, path: string, engine: GameEngine, file: File) {
-		let tab = this.#openViewers.get(vpkPath, path);
+	async viewFile(repository: string, path: string, engine: GameEngine, file: File) {
+		let tab = this.#openViewers.get(repository, path);
 		if (tab) {
 			tab.activate();
 			return;
 		}
-		tab = await this.#viewFile(vpkPath, path, engine, file);
+		tab = await this.#viewFile(repository, path, engine, file);
 		tab.activate();
-		tab.addEventListener('activated', (event: Event) => Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.SelectFile, { detail: { origin: vpkPath, path: path } })));
+		tab.addEventListener('activated', (event: Event) => Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.SelectFile, { detail: { origin: repository, path: path } })));
 
-		this.#openViewers.set(vpkPath, path, tab);
+		this.#openViewers.set(repository, path, tab);
 	}
 
-	#closeFile(vpkPath: string, path: string): boolean {
-		const tab = this.#openViewers.get(vpkPath, path);
+	#closeFile(repository: string, path: string): boolean {
+		const tab = this.#openViewers.get(repository, path);
 		if (!tab) {
 			return false;
 		}
-		this.#openViewers.delete(vpkPath, path);
+		this.#openViewers.delete(repository, path);
 
 		//tab.close();
 
 		return true;
 	}
 
-	async #viewFile(vpkPath: string, path: string, engine: GameEngine, file: File): Promise<HTMLHarmonyTabElement> {
+	async #viewFile(repository: string, path: string, engine: GameEngine, file: File): Promise<HTMLHarmonyTabElement> {
 		const extension = path.split('.').pop() ?? '';
 		const filename = path.split('/').pop() ?? '';
 		const fileType = TypePerExtension[extension];
 
 		switch (fileType) {
 			case ContentType.Source1Texture:
-				return await this.#addSource1TextureContent(vpkPath, path, filename, engine, await file.arrayBuffer());
+				return await this.#addSource1TextureContent(repository, path, filename, engine, await file.arrayBuffer());
 			case ContentType.Source1Model:
-				return await this.#addSource1ModelContent(vpkPath, path, filename, engine, await file.arrayBuffer());
+				return await this.#addSource1ModelContent(repository, path, filename, engine, await file.arrayBuffer());
 			case ContentType.Txt:
 			default:
-				return this.#addTxtContent(vpkPath, path, filename, engine, new TextDecoder().decode(await file.arrayBuffer()));
+				return this.#addTxtContent(repository, path, filename, engine, new TextDecoder().decode(await file.arrayBuffer()));
 		}
 	}
 
-	#addTxtContent(vpkPath: string, path: string, filename: string, engine: GameEngine, content: string): HTMLHarmonyTabElement {
+	#addTxtContent(repository: string, path: string, filename: string, engine: GameEngine, content: string): HTMLHarmonyTabElement {
 		this.initHTML();
 
 		if (!this.#htmlTextViewer) {
@@ -110,7 +110,7 @@ export class ContentViewer extends SiteElement {
 			'data-closable': true,
 			parent: this.#htmlTabs,
 			$close: (event: CustomEvent<TabEventData>) => {
-				if (this.#closeFile(vpkPath, path) && event.detail.tab.isActive()) {
+				if (this.#closeFile(repository, path) && event.detail.tab.isActive()) {
 					this.#htmlTextViewer?.hide();
 				};
 			},
@@ -124,7 +124,7 @@ export class ContentViewer extends SiteElement {
 		return tab;
 	}
 
-	async #addSource1TextureContent(vpkPath: string, path: string, filename: string, engine: GameEngine, content: ArrayBuffer): Promise<HTMLHarmonyTabElement> {
+	async #addSource1TextureContent(repository: string, path: string, filename: string, engine: GameEngine, content: ArrayBuffer): Promise<HTMLHarmonyTabElement> {
 		this.initHTML();
 
 		if (!this.#htmlTextureViewer) {
@@ -134,14 +134,14 @@ export class ContentViewer extends SiteElement {
 
 		this.#htmlTextureViewer?.show();
 
-		const vtf = await Source1TextureManager.getVtf(vpkPath, path);
+		const vtf = await Source1TextureManager.getVtf(repository, path);
 		let texture: Texture;
 		if (vtf) {
 			const imageData = await vtf.getImageData();
 			console.info(vtf, imageData);
 
 			if (imageData) {
-				texture = new Texture(vpkPath, path, imageData);
+				texture = new Texture(repository, path, imageData);
 				this.#htmlTextureViewer?.setTexture(texture);
 			}
 		}
@@ -151,7 +151,7 @@ export class ContentViewer extends SiteElement {
 			'data-closable': true,
 			parent: this.#htmlTabs,
 			$close: (event: CustomEvent<TabEventData>) => {
-				if (this.#closeFile(vpkPath, path) && event.detail.tab.isActive()) {
+				if (this.#closeFile(repository, path) && event.detail.tab.isActive()) {
 					this.#htmlTextureViewer?.hide();
 				};
 			},
@@ -166,7 +166,7 @@ export class ContentViewer extends SiteElement {
 		return tab;
 	}
 
-	async #addSource1ModelContent(vpkPath: string, path: string, filename: string, engine: GameEngine, content: ArrayBuffer): Promise<HTMLHarmonyTabElement> {
+	async #addSource1ModelContent(repository: string, path: string, filename: string, engine: GameEngine, content: ArrayBuffer): Promise<HTMLHarmonyTabElement> {
 		this.initHTML();
 
 		if (!this.#htmlModelViewer) {
@@ -176,20 +176,20 @@ export class ContentViewer extends SiteElement {
 
 		this.#htmlModelViewer?.show();
 
-		this.#htmlModelViewer?.setModel(vpkPath, path);
+		this.#htmlModelViewer?.setModel(repository, path);
 
 		const tab = createElement('harmony-tab', {
 			'data-text': filename,
 			'data-closable': true,
 			parent: this.#htmlTabs,
 			$close: (event: CustomEvent<TabEventData>) => {
-				if (this.#closeFile(vpkPath, path) && event.detail.tab.isActive()) {
+				if (this.#closeFile(repository, path) && event.detail.tab.isActive()) {
 					this.#htmlModelViewer?.hide();
 				};
 			},
 			$activated: () => {
 				this.#htmlContent?.replaceChildren(this.#htmlModelViewer!.getHTML());
-				this.#htmlModelViewer?.setModel(vpkPath, path);
+				this.#htmlModelViewer?.setModel(repository, path);
 			},
 		}) as HTMLHarmonyTabElement;
 

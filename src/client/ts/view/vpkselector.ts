@@ -10,7 +10,7 @@ export class VpkSelector extends SiteElement {
 	#htmlList?: HTMLHarmonyTreeElement;
 	#htmlFileFilter?: HTMLInputElement;
 	#htmlFileTree?: HTMLHarmonyTreeElement;
-	#vpkPath: string = '';
+	#repository: string = '';
 	#vpkList?: Array<string>;
 	#fileList?: Array<string>;
 	#vpkRoot?: TreeItem;
@@ -57,12 +57,12 @@ export class VpkSelector extends SiteElement {
 		switch (event.detail.action) {
 			case 'download':
 				if (clickedItem) {
-					Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.DownloadFile, { detail: { origin: this.#vpkPath, path: clickedItem.getPath() } }));
+					Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.DownloadFile, { detail: { origin: this.#repository, path: clickedItem.getPath() } }));
 				}
 				break;
 			case 'sharelink':
 				if (clickedItem) {
-					Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.CreateFileLink, { detail: { origin: this.#vpkPath, path: clickedItem.getPath() } }));
+					Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.CreateFileLink, { detail: { origin: this.#repository, path: clickedItem.getPath() } }));
 				}
 				break;
 		}
@@ -99,8 +99,8 @@ export class VpkSelector extends SiteElement {
 		this.refreshHTML();
 	}
 
-	setFileList(vpkPath: string, fileList: Array<string>) {
-		this.#vpkPath = vpkPath;
+	setFileList(repository: string, fileList: Array<string>) {
+		this.#repository = repository;
 		this.#fileList = fileList;
 		this.#dirtyFileList = true;
 		this.refreshHTML();
@@ -121,10 +121,10 @@ export class VpkSelector extends SiteElement {
 			return;
 		}
 
-		Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.SelectFile, { detail: { origin: this.#vpkPath, path: clickedItem.getPath() } }));
+		Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.SelectFile, { detail: { origin: this.#repository, path: clickedItem.getPath() } }));
 	}
 
-	selectVpk(vpkPath: string) {
+	selectVpk(repository: string) {
 		this.initHTML();
 
 		if (!this.#vpkRoot) {
@@ -132,7 +132,7 @@ export class VpkSelector extends SiteElement {
 		}
 
 		for (let item of this.#vpkRoot.walk()) {
-			if (item.getPath() == vpkPath) {
+			if (item.getPath() == repository) {
 				this.#htmlList?.selectItem(item);
 				return;
 			}

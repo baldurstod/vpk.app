@@ -13,15 +13,15 @@ type ApiErrorCode int
 const (
 	UnexpectedError = iota
 	NoParamsError
-	InvalidParamVpkPath
+	InvalidParamRepository
 	InvalidParamPath
 )
 
 var apiErrorValues = map[ApiErrorCode]error{
-	UnexpectedError:     errors.New("unexpected error, contact support"),
-	NoParamsError:       errors.New("no params provided"),
-	InvalidParamVpkPath: errors.New("invalid param repository"),
-	InvalidParamPath:    errors.New("invalid param path"),
+	UnexpectedError:        errors.New("unexpected error, contact support"),
+	NoParamsError:          errors.New("no params provided"),
+	InvalidParamRepository: errors.New("invalid param repository"),
+	InvalidParamPath:       errors.New("invalid param path"),
 }
 
 type apiError interface {
