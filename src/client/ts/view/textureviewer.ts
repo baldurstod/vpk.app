@@ -5,6 +5,7 @@ import { createElement, createShadowRoot } from 'harmony-ui';
 import textureViewerCSS from '../../css/textureviewer.css';
 import { Controller } from '../controller';
 import { ControllerEvents, SelectFile } from '../controllerevents';
+import { Texture } from '../model/texture';
 import { SiteElement } from './siteelement';
 
 enum TextureMode {
@@ -16,7 +17,8 @@ enum TextureMode {
 export class TextureViewer extends SiteElement {
 	#htmlToolbar?: HTMLElement;
 	#htmlText?: HTMLElement;
-	#imageData?: ImageData;
+	//#imageData?: ImageData;
+	#texture?: Texture;
 	#htmlImage?: HTMLImageElement;
 	#vpkPath: string = '';
 	#path: string = '';
@@ -69,9 +71,9 @@ export class TextureViewer extends SiteElement {
 		this.initHTML();
 	}
 
-	setImageData(vpkPath: string, path: string, imageData: ImageData) {
+	setTexture(vpkPath: string, path: string, texture: Texture) {
 		this.show();
-		this.#imageData = imageData;
+		this.#texture = texture;
 		this.#vpkPath = vpkPath;
 		this.#path = path;
 		this.#updateImage();
@@ -87,11 +89,12 @@ export class TextureViewer extends SiteElement {
 	}
 
 	#updateImage() {
-		if (!this.#imageData) {
+		if (!this.#texture) {
 			return;
 		}
 
-		const imageData = new ImageData(new Uint8ClampedArray(this.#imageData.data), this.#imageData.width, this.#imageData.height);
+		const textureImageData = this.#texture.getImageData();
+		const imageData = new ImageData(new Uint8ClampedArray(textureImageData.data), textureImageData.width, textureImageData.height);
 
 		switch (this.#mode) {
 			case TextureMode.Alpha:

@@ -9,6 +9,7 @@ import { ModelViewer } from './modelviewer';
 import { SiteElement } from './siteelement';
 import { TextureViewer } from './textureviewer';
 import { TextViewer } from './textviewer';
+import { Texture } from '../model/texture';
 
 const TypePerExtension: { [key: string]: ContentType } = {
 	'cfg': ContentType.Txt,
@@ -134,13 +135,14 @@ export class ContentViewer extends SiteElement {
 		this.#htmlTextureViewer?.show();
 
 		const vtf = await Source1TextureManager.getVtf(vpkPath, path);
-		let imageData:ImageData | null;
+		let texture: Texture;
 		if (vtf) {
-			imageData = await vtf.getImageData();
+			const imageData = await vtf.getImageData();
 			console.info(vtf, imageData);
 
 			if (imageData) {
-				this.#htmlTextureViewer?.setImageData(vpkPath, path, imageData);
+				texture = new Texture(imageData);
+				this.#htmlTextureViewer?.setTexture(vpkPath, path, texture);
 			}
 		}
 
@@ -155,8 +157,8 @@ export class ContentViewer extends SiteElement {
 			},
 			$activated: () => {
 				this.#htmlContent?.replaceChildren(this.#htmlTextureViewer!.getHTML());
-				if (imageData) {
-					this.#htmlTextureViewer?.setImageData(vpkPath, path, imageData);
+				if (texture) {
+					this.#htmlTextureViewer?.setTexture(vpkPath, path, texture);
 				}
 			},
 		}) as HTMLHarmonyTabElement;
