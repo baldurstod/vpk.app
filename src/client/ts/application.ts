@@ -45,7 +45,7 @@ class Application {
 	#initEvents() {
 		Controller.addEventListener(ControllerEvents.RefreshVpkList, () => this.#refreshVpkList());
 		Controller.addEventListener(ControllerEvents.SelectVpk, (event: Event) => this.#selectVpk((event as CustomEvent<SelectVpk>).detail.path));
-		Controller.addEventListener(ControllerEvents.SelectFile, (event: Event) => this.#selectFile((event as CustomEvent<SelectFile>).detail.vpkPath, (event as CustomEvent<SelectFile>).detail.path));
+		Controller.addEventListener(ControllerEvents.SelectFile, (event: Event) => this.#selectFile((event as CustomEvent<SelectFile>).detail.origin, (event as CustomEvent<SelectFile>).detail.path));
 		Controller.addEventListener(ControllerEvents.DownloadFile, (event: Event) => this.#downloadFile(event as CustomEvent<SelectFile>));
 		Controller.addEventListener(ControllerEvents.CreateFileLink, (event: Event) => this.#createFileLink(event as CustomEvent<SelectFile>));
 		Controller.addEventListener(ControllerEvents.ToogleOptions, () => this.#appContent.toogleOptions());
@@ -142,7 +142,7 @@ class Application {
 	}
 
 	async #downloadFile(event: CustomEvent<SelectFile>) {
-		const response = await Repositories.getFile(event.detail.vpkPath, event.detail.path);
+		const response = await Repositories.getFile(event.detail.origin, event.detail.path);
 		if (response.error) {
 			return
 		}
@@ -151,9 +151,9 @@ class Application {
 	}
 
 	async #createFileLink(event: CustomEvent<SelectFile>) {
-		const response = await Repositories.getFile(event.detail.vpkPath, event.detail.path);
+		const response = await Repositories.getFile(event.detail.origin, event.detail.path);
 
-		const url = `${document.location.origin}/@view/${encodeURI(event.detail.vpkPath)}:${encodeURI(event.detail.path)}`;
+		const url = `${document.location.origin}/@view/${encodeURI(event.detail.origin)}:${encodeURI(event.detail.path)}`;
 		console.info(url);
 
 		let notificationText = `${I18n.getString('#share_this_url')}<input value='${url}'>`;

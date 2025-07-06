@@ -9,13 +9,24 @@ export enum TextureParam {
 export type TextureParamValue = boolean | number;
 
 export class Texture {
+	#origin: string;
+	#path: string;
 	#imageData: ImageData;
-	//#flags = new Map<string, boolean>();
 	#params: Map<TextureParam, TextureParamValue>;
 
-	constructor(imageData: ImageData, params?: Map<TextureParam, TextureParamValue>) {
+	constructor(origin: string, path: string, imageData: ImageData, params?: Map<TextureParam, TextureParamValue>) {
+		this.#origin = origin;
+		this.#path = path;
 		this.#imageData = imageData;
 		this.#params = new Map<TextureParam, TextureParamValue>(params);
+	}
+
+	getOrigin(): string {
+		return this.#origin;
+	}
+
+	getPath(): string {
+		return this.#path;
 	}
 
 	getImageData(): ImageData {

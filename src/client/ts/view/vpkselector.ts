@@ -57,12 +57,12 @@ export class VpkSelector extends SiteElement {
 		switch (event.detail.action) {
 			case 'download':
 				if (clickedItem) {
-					Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.DownloadFile, { detail: { vpkPath: this.#vpkPath, path: clickedItem.getPath() } }));
+					Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.DownloadFile, { detail: { origin: this.#vpkPath, path: clickedItem.getPath() } }));
 				}
 				break;
 			case 'sharelink':
 				if (clickedItem) {
-					Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.CreateFileLink, { detail: { vpkPath: this.#vpkPath, path: clickedItem.getPath() } }));
+					Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.CreateFileLink, { detail: { origin: this.#vpkPath, path: clickedItem.getPath() } }));
 				}
 				break;
 		}
@@ -121,7 +121,7 @@ export class VpkSelector extends SiteElement {
 			return;
 		}
 
-		Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.SelectFile, { detail: { vpkPath: this.#vpkPath, path: clickedItem.getPath() } }));
+		Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.SelectFile, { detail: { origin: this.#vpkPath, path: clickedItem.getPath() } }));
 	}
 
 	selectVpk(vpkPath: string) {

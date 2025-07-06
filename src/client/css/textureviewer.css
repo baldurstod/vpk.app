@@ -24,7 +24,19 @@
 	justify-items: center;
 }
 
-.container>img {
+.flags {
+	background-color: beige;
+	min-width: 10rem;
+}
+
+.image {
+	display: flex;
+	flex: 1;
+	overflow: hidden;
+	justify-items: center;
+}
+
+.image>img {
 	object-fit: contain;
 	width: 100%;
 	height: 100%;

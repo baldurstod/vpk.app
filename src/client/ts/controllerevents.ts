@@ -12,6 +12,6 @@ export type SelectVpk = {
 }
 
 export type SelectFile = {
-	vpkPath: string,
+	origin: string,
 	path: string,
 }

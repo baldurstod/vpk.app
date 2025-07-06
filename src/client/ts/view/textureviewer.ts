@@ -14,15 +14,20 @@ enum TextureMode {
 	Rgba = 2,
 }
 
+type TextureOption = {
+	mode: TextureMode;
+}
+
 export class TextureViewer extends SiteElement {
 	#htmlToolbar?: HTMLElement;
-	#htmlText?: HTMLElement;
+	#htmlContainer?: HTMLElement;
+	#htmlParams?: HTMLElement;
+	#htmlImageContainer?: HTMLElement;
 	//#imageData?: ImageData;
 	#texture?: Texture;
 	#htmlImage?: HTMLImageElement;
-	#vpkPath: string = '';
-	#path: string = '';
 	#mode = TextureMode.Rgb;
+	#textureOptions = new Map<Texture, TextureOption>;
 
 	initHTML() {
 		if (this.shadowRoot) {
@@ -38,7 +43,11 @@ export class TextureViewer extends SiteElement {
 						createElement('span', {
 							i18n: { title: '#download_file' },
 							innerHTML: downloadSVG,
-							$click: () => Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.DownloadFile, { detail: { vpkPath: this.#vpkPath, path: this.#path } })),
+							$click: () => {
+								if (this.#texture) {
+									Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.DownloadFile, { detail: { origin: this.#texture.getOrigin(), path: this.#texture.getPath() } }));
+								}
+							},
 						}),
 						createElement('span', {
 							i18n: { title: '#export_file' },
@@ -62,7 +71,14 @@ export class TextureViewer extends SiteElement {
 						}),
 					],
 				}),
-				this.#htmlText = createElement('div', { class: 'container', }),
+				this.#htmlContainer = createElement('div', {
+					class: 'container',
+					childs: [
+						this.#htmlParams = createElement('div', { class: 'flags', }),
+						this.#htmlImageContainer = createElement('div', { class: 'image', }),
+
+					]
+				}),
 			]
 		});
 	}
@@ -71,17 +87,31 @@ export class TextureViewer extends SiteElement {
 		this.initHTML();
 	}
 
-	setTexture(vpkPath: string, path: string, texture: Texture) {
+	setTexture(texture: Texture) {
 		this.show();
 		this.#texture = texture;
-		this.#vpkPath = vpkPath;
-		this.#path = path;
+		const origin = texture.getOrigin();
+		const path = texture.getPath();
+
+		let textureOptions = this.#textureOptions.get(texture);
+		if (!textureOptions) {
+			textureOptions = { mode: this.#mode };
+			this.#textureOptions.set(texture, textureOptions);
+		}
+		this.#mode = textureOptions.mode;
 		this.#updateImage();
 	}
 
 	setMode(mode: TextureMode) {
 		if (mode == this.#mode) {
 			return;
+		}
+
+		if (this.#texture) {
+			const textureOptions = this.#textureOptions.get(this.#texture);
+			if (textureOptions) {
+				textureOptions.mode = mode;
+			}
 		}
 
 		this.#mode = mode;
@@ -114,7 +144,7 @@ export class TextureViewer extends SiteElement {
 		}
 
 		const image = imageDataToImage(imageData);
-		this.#htmlText!.replaceChildren(image);
+		this.#htmlImageContainer!.replaceChildren(image);
 		this.#htmlImage = image;
 	}
 
@@ -134,10 +164,10 @@ export class TextureViewer extends SiteElement {
 		context.drawImage(this.#htmlImage, 0, 0);
 
 		canvas.toBlob(blob => {
-			if (!blob) {
+			if (!blob || !this.#texture) {
 				return;
 			}
-			saveFile(new File([blob], `${this.#path}.png`));
+			saveFile(new File([blob], `${this.#texture.getPath()}.png`));
 		});
 	}
 }

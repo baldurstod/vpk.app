@@ -63,7 +63,7 @@ export class ContentViewer extends SiteElement {
 		}
 		tab = await this.#viewFile(vpkPath, path, engine, file);
 		tab.activate();
-		tab.addEventListener('activated', (event: Event) => Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.SelectFile, { detail: { vpkPath: vpkPath, path: path } })));
+		tab.addEventListener('activated', (event: Event) => Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.SelectFile, { detail: { origin: vpkPath, path: path } })));
 
 		this.#openViewers.set(vpkPath, path, tab);
 	}
@@ -141,8 +141,8 @@ export class ContentViewer extends SiteElement {
 			console.info(vtf, imageData);
 
 			if (imageData) {
-				texture = new Texture(imageData);
-				this.#htmlTextureViewer?.setTexture(vpkPath, path, texture);
+				texture = new Texture(vpkPath, path, imageData);
+				this.#htmlTextureViewer?.setTexture(texture);
 			}
 		}
 
@@ -158,7 +158,7 @@ export class ContentViewer extends SiteElement {
 			$activated: () => {
 				this.#htmlContent?.replaceChildren(this.#htmlTextureViewer!.getHTML());
 				if (texture) {
-					this.#htmlTextureViewer?.setTexture(vpkPath, path, texture);
+					this.#htmlTextureViewer?.setTexture(texture);
 				}
 			},
 		}) as HTMLHarmonyTabElement;

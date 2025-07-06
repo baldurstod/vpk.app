@@ -30,7 +30,7 @@ export class ModelViewer extends SiteElement {
 						createElement('span', {
 							i18n: { title: '#download_file' },
 							innerHTML: downloadSVG,
-							$click: () => Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.DownloadFile, { detail: { vpkPath: this.#vpkPath, path: this.#path } })),
+							$click: () => Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.DownloadFile, { detail: { origin: this.#vpkPath, path: this.#path } })),
 						}),
 					],
 				}),
