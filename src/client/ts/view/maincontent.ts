@@ -1,7 +1,7 @@
 import { createShadowRoot, toggle } from 'harmony-ui';
 import mainContentCSS from '../../css/maincontent.css';
 import { SiteElement } from './siteelement';
-import { VpkSelector } from './vpkselector';
+import { VpkSelector } from './repositoryselector';
 import { ContentViewer } from './contentviewer';
 import { GameEngine } from '../enums';
 import { Options } from './options';

@@ -1,7 +1,7 @@
 import { downloadSVG, shareSVG } from 'harmony-svg';
 import { createElement, createShadowRoot, defineHarmonyTree, HTMLHarmonyTreeElement, ItemActionEventData, ItemClickEventData, TreeItem } from 'harmony-ui';
 import treeCSS from '../../css/tree.css';
-import vpkSelectorCSS from '../../css/vpkselector.css';
+import vpkSelectorCSS from '../../css/repositoryselector.css';
 import { Controller } from '../controller';
 import { ControllerEvents, SelectFile, SelectVpk } from '../controllerevents';
 import { SiteElement } from './siteelement';

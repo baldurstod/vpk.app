@@ -1,5 +1,5 @@
 import { fetchApi } from './fetchapi';
-import { getFileResponse, VpkListResponse } from './responses/vpk';
+import { getFileResponse, RepositoryListResponse } from './responses/repository';
 
 function base64ToArrayBuffer(base64: string): ArrayBuffer {
 	var binaryString = atob(base64);
@@ -22,7 +22,7 @@ export async function getFile(repository: string, path: string): Promise<File | 
 }
 
 export async function getFileList(repository: string): Promise<Array<string>> {
-	const { requestId, response } = await fetchApi('get-file-list', 1, { repository: repository }) as { requestId: string, response: VpkListResponse };
+	const { requestId, response } = await fetchApi('get-file-list', 1, { repository: repository }) as { requestId: string, response: RepositoryListResponse };
 
 	console.info(event, response);
 	if (!response.success) {

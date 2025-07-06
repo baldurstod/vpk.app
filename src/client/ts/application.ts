@@ -12,7 +12,7 @@ import { ControllerEvents, SelectFile, SelectVpk } from './controllerevents';
 import { GameEngine } from './enums';
 import { fetchApi } from './fetchapi';
 import { FileCache } from './filecache';
-import { VpkListResponse } from './responses/vpk';
+import { RepositoryListResponse } from './responses/repository';
 import { MainContent } from './view/maincontent';
 import { Toolbar } from './view/toolbar';
 
@@ -101,7 +101,7 @@ class Application {
 	}
 
 	async #refreshVpkList() {
-		const { requestId, response } = await fetchApi('get-vpk-list', 1) as { requestId: string, response: VpkListResponse };
+		const { requestId, response } = await fetchApi('get-vpk-list', 1) as { requestId: string, response: RepositoryListResponse };
 
 		if (!response.success) {
 			return;
@@ -117,7 +117,7 @@ class Application {
 		}
 
 
-		const { requestId, response } = await fetchApi('get-file-list', 1, { repository: repository }) as { requestId: string, response: VpkListResponse };
+		const { requestId, response } = await fetchApi('get-file-list', 1, { repository: repository }) as { requestId: string, response: RepositoryListResponse };
 
 		console.info(event, response);
 		if (!response.success) {

@@ -1,4 +1,4 @@
-export type VpkListResponse = {
+export type RepositoryListResponse = {
 	success: boolean,
 	error?: string,
 	result?: {
