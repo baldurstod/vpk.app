@@ -5,7 +5,7 @@ import { createElement, createShadowRoot } from 'harmony-ui';
 import textureViewerCSS from '../../css/textureviewer.css';
 import { Controller } from '../controller';
 import { ControllerEvents, SelectFile } from '../controllerevents';
-import { Texture } from '../model/texture';
+import { Texture, TextureParam, TextureParamType, TextureParamValue, TextureWrap } from '../model/texture';
 import { SiteElement } from './siteelement';
 
 enum TextureMode {
@@ -100,6 +100,7 @@ export class TextureViewer extends SiteElement {
 		}
 		this.#mode = textureOptions.mode;
 		this.#updateImage();
+		this.#updateParams();
 	}
 
 	setMode(mode: TextureMode) {
@@ -148,6 +149,18 @@ export class TextureViewer extends SiteElement {
 		this.#htmlImage = image;
 	}
 
+	#updateParams() {
+		if (!this.#texture || !this.#htmlParams) {
+			return;
+		}
+
+		this.#htmlParams.replaceChildren();
+
+		for (const [name, param] of this.#texture.getParams()) {
+			this.#htmlParams.append(createParam(param));
+		}
+	}
+
 	#convertImage() {
 		if (!this.#htmlImage) {
 			return;
@@ -170,4 +183,40 @@ export class TextureViewer extends SiteElement {
 			saveFile(new File([blob], `${this.#texture.getPath()}.png`));
 		});
 	}
+}
+
+function createParam(param: TextureParam): HTMLElement {
+	let htmlValue;
+	switch (param.type) {
+		case TextureParamType.String:
+			htmlValue = createElement('span', {
+				innerText: param.value as string,
+			});
+			break;
+		case TextureParamType.Number:
+			htmlValue = createElement('span', {
+				innerText: String(param.value as number),
+			});
+			break;
+		case TextureParamType.Boolean:
+			htmlValue = createElement('input', {
+				type: 'checkbox',
+				checked: param.value as boolean,
+				disabled: true,
+			});
+			break;
+		case TextureParamType.TextureWrap:
+			htmlValue = createElement('span', {
+				i18n: param.value as TextureWrap == TextureWrap.Clamp ? '#clamp' : '#repeat',
+			});
+			break;
+	}
+	return createElement('label', {
+		childs: [
+			createElement('span', {
+				i18n: param.i18n,
+			}),
+			htmlValue!,
+		]
+	});
 }

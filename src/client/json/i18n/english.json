@@ -1,6 +1,15 @@
 {
 	"lang": "english",
 	"strings": {
-		"#refresh_repositories": "Refresh repositories"
+		"#refresh_repositories": "Refresh repositories",
+		"#version": "Version",
+		"#width": "Width",
+		"#height": "Height",
+		"#wrap_s": "Wrap S",
+		"#wrap_t": "Wrap T",
+		"#repeat": "Repeat",
+		"#clamp": "Clamp",
+		"#srgb": "Srgb",
+		"#normal": "Normal"
 	}
 }

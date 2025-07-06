@@ -27,6 +27,11 @@
 .flags {
 	background-color: beige;
 	min-width: 10rem;
+	color: black;
+}
+
+.flags label {
+	display: block;
 }
 
 .image {

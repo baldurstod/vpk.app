@@ -3,6 +3,7 @@ import { getFile, getFileList } from './api';
 
 export class ApiRepository implements Repository {
 	#name: string;
+	active: boolean = true;
 
 	constructor(name: string) {
 		this.#name = name;
@@ -13,6 +14,9 @@ export class ApiRepository implements Repository {
 	}
 
 	async getFile(filename: string): Promise<RepositoryFileResponse> {
+		if (!this.active) {
+			return { error: RepositoryError.RepoInactive };
+		}
 		const file = await getFile(this.#name, filename);
 		if (!file) {
 			return { error: RepositoryError.FileNotFound };
@@ -21,6 +25,9 @@ export class ApiRepository implements Repository {
 	}
 
 	async getFileAsArrayBuffer(filename: string): Promise<RepositoryArrayBufferResponse> {
+		if (!this.active) {
+			return { error: RepositoryError.RepoInactive };
+		}
 		const response = await this.getFile(filename);
 		if (response.error) {
 			return response;
@@ -30,6 +37,9 @@ export class ApiRepository implements Repository {
 	}
 
 	async getFileAsText(filename: string): Promise<RepositoryTextResponse> {
+		if (!this.active) {
+			return { error: RepositoryError.RepoInactive };
+		}
 		const response = await this.getFile(filename);
 		if (response.error) {
 			return response;
@@ -39,6 +49,9 @@ export class ApiRepository implements Repository {
 	}
 
 	async getFileAsBlob(filename: string): Promise<RepositoryBlobResponse> {
+		if (!this.active) {
+			return { error: RepositoryError.RepoInactive };
+		}
 		const response = await this.getFile(filename);
 		if (response.error) {
 			return response;
@@ -48,6 +61,9 @@ export class ApiRepository implements Repository {
 	}
 
 	async getFileAsJson(filename: string): Promise<RepositoryJsonResponse> {
+		if (!this.active) {
+			return { error: RepositoryError.RepoInactive };
+		}
 		const response = await this.getFile(filename);
 		if (response.error) {
 			return response;
