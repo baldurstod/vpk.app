@@ -1,4 +1,4 @@
-import { Source1TextureManager, SourceEngineVTF, TEXTUREFLAGS_CLAMPS, TEXTUREFLAGS_CLAMPT, TEXTUREFLAGS_NORMAL, TEXTUREFLAGS_SRGB } from 'harmony-3d';
+import { Repositories, Source1TextureManager, SourceEngineVTF, TEXTUREFLAGS_CLAMPS, TEXTUREFLAGS_CLAMPT, TEXTUREFLAGS_NORMAL, TEXTUREFLAGS_SRGB } from 'harmony-3d';
 import { createElement, createShadowRoot, defineHarmonyTab, defineHarmonyTabGroup, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement, TabEventData } from 'harmony-ui';
 import { Map2 } from 'harmony-utils';
 import contentViewerCSS from '../../css/contentviewer.css';
@@ -8,8 +8,10 @@ import { ContentType, GameEngine } from '../enums';
 import { Texture, TextureParamType, TextureWrap } from '../model/texture';
 import { ModelViewer } from './modelviewer';
 import { SiteElement } from './siteelement';
+import { AudioPlayer } from './audioplayer';
 import { TextureViewer } from './textureviewer';
 import { TextViewer } from './textviewer';
+import { Audio, AudioType } from '../model/audio';
 
 const TypePerExtension: { [key: string]: ContentType } = {
 	'cfg': ContentType.Txt,
@@ -18,6 +20,8 @@ const TypePerExtension: { [key: string]: ContentType } = {
 	// Source 1
 	'vtf': ContentType.Source1Texture,
 	'mdl': ContentType.Source1Model,
+
+	'mp3': ContentType.AudioMp3,
 };
 
 export class Content {
@@ -34,6 +38,7 @@ export class ContentViewer extends SiteElement {
 	#htmlTextViewer?: TextViewer;
 	#htmlTextureViewer?: TextureViewer;
 	#htmlModelViewer?: ModelViewer;
+	#htmlAudioPlayer?: AudioPlayer;
 	#openViewers = new Map2<string, string, HTMLHarmonyTabElement>();
 
 	initHTML() {
@@ -55,13 +60,16 @@ export class ContentViewer extends SiteElement {
 		this.initHTML();
 	}
 
-	async viewFile(repository: string, path: string, engine: GameEngine, file: File) {
-		let tab = this.#openViewers.get(repository, path);
+	async viewFile(repository: string, path: string, engine: GameEngine, file: File): Promise<void> {
+		let tab: HTMLHarmonyTabElement | undefined | null = this.#openViewers.get(repository, path);
 		if (tab) {
 			tab.activate();
 			return;
 		}
 		tab = await this.#viewFile(repository, path, engine, file);
+		if (!tab) {
+			return;//TODO: error ?
+		}
 		tab.activate();
 		tab.addEventListener('activated', (event: Event) => Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.SelectFile, { detail: { repository: repository, path: path } })));
 
@@ -80,7 +88,7 @@ export class ContentViewer extends SiteElement {
 		return true;
 	}
 
-	async #viewFile(repository: string, path: string, engine: GameEngine, file: File): Promise<HTMLHarmonyTabElement> {
+	async #viewFile(repository: string, path: string, engine: GameEngine, file: File): Promise<HTMLHarmonyTabElement | null> {
 		const extension = path.split('.').pop() ?? '';
 		const filename = path.split('/').pop() ?? '';
 		const fileType = TypePerExtension[extension];
@@ -90,6 +98,8 @@ export class ContentViewer extends SiteElement {
 				return await this.#addSource1TextureContent(repository, path, filename, engine, await file.arrayBuffer());
 			case ContentType.Source1Model:
 				return await this.#addSource1ModelContent(repository, path, filename, engine, await file.arrayBuffer());
+			case ContentType.AudioMp3:
+				return await this.#addMp3Content(repository, path, filename, GameEngine.None, await file.arrayBuffer());
 			case ContentType.Txt:
 			default:
 				return this.#addTxtContent(repository, path, filename, engine, new TextDecoder().decode(await file.arrayBuffer()));
@@ -191,6 +201,58 @@ export class ContentViewer extends SiteElement {
 			$activated: () => {
 				this.#htmlContent?.replaceChildren(this.#htmlModelViewer!.getHTML());
 				this.#htmlModelViewer?.setModel(repository, path);
+			},
+		}) as HTMLHarmonyTabElement;
+
+		return tab;
+	}
+
+	async #addMp3Content(repository: string, path: string, filename: string, engine: GameEngine, content: ArrayBuffer): Promise<HTMLHarmonyTabElement | null> {
+		/*
+		const audioPlay = async (data: ArrayBuffer) => {
+			const context = new AudioContext();
+			const source = context.createBufferSource();
+
+			source.buffer = await context.decodeAudioData(data);
+			source.connect(context.destination);
+			source.start();
+		};
+		*/
+
+
+		this.initHTML();
+
+		const response = await Repositories.getFileAsArrayBuffer(repository, path);
+
+		if (response.error) {
+			return null;
+		}
+
+		//audioPlay(response.buffer as ArrayBuffer);
+
+		if (!this.#htmlAudioPlayer) {
+			this.#htmlAudioPlayer = new AudioPlayer();
+			this.#htmlContent?.append(this.#htmlAudioPlayer.getHTML());
+		}
+
+		this.#htmlAudioPlayer?.show();
+
+
+		const audio = new Audio(repository, path, AudioType.Mp3, response.buffer as ArrayBuffer);
+		this.#htmlAudioPlayer?.setAudio(audio);
+
+		const tab = createElement('harmony-tab', {
+			'data-text': filename,
+			'data-closable': true,
+			parent: this.#htmlTabs,
+			$close: (event: CustomEvent<TabEventData>) => {
+				if (this.#closeFile(repository, path) && event.detail.tab.isActive()) {
+					this.#htmlAudioPlayer?.hide();
+				};
+			},
+			$activated: () => {
+				this.#htmlContent?.replaceChildren(this.#htmlAudioPlayer!.getHTML());
+				this.#htmlAudioPlayer?.setAudio(audio);
 			},
 		}) as HTMLHarmonyTabElement;
 

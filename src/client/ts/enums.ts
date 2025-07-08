@@ -1,4 +1,5 @@
 export enum GameEngine {
+	None,
 	Source1,
 	Source2,
 }
@@ -13,4 +14,5 @@ export enum ContentType {
 	Source1Material,
 	Source1Particle,
 	Source2Model,
+	AudioMp3,
 }
