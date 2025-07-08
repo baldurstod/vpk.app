@@ -5,7 +5,7 @@ import { createElement, createShadowRoot } from 'harmony-ui';
 import textureViewerCSS from '../../css/textureviewer.css';
 import { Controller } from '../controller';
 import { ControllerEvents, SelectFile } from '../controllerevents';
-import { Texture, TextureParam, TextureParamType, TextureParamValue, TextureWrap } from '../model/texture';
+import { Texture, TextureParam, TextureParamType, TextureWrap } from '../model/texture';
 import { SiteElement } from './siteelement';
 
 enum TextureMode {
@@ -45,7 +45,7 @@ export class TextureViewer extends SiteElement {
 							innerHTML: downloadSVG,
 							$click: () => {
 								if (this.#texture) {
-									Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.DownloadFile, { detail: { origin: this.#texture.getOrigin(), path: this.#texture.getPath() } }));
+									Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.DownloadFile, { detail: { repository: this.#texture.getOrigin(), path: this.#texture.getPath() } }));
 								}
 							},
 						}),

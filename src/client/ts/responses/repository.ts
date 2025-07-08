@@ -13,3 +13,11 @@ export type getFileResponse = {
 		content: string,
 	}
 }
+
+export type ConcatFilesResponse = {
+	success: boolean,
+	error?: string,
+	result?: {
+		content: string,
+	}
+}

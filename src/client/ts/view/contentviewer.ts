@@ -5,7 +5,7 @@ import contentViewerCSS from '../../css/contentviewer.css';
 import { Controller } from '../controller';
 import { ControllerEvents, SelectFile } from '../controllerevents';
 import { ContentType, GameEngine } from '../enums';
-import { Texture, TextureParam, TextureParamType, TextureWrap } from '../model/texture';
+import { Texture, TextureParamType, TextureWrap } from '../model/texture';
 import { ModelViewer } from './modelviewer';
 import { SiteElement } from './siteelement';
 import { TextureViewer } from './textureviewer';
@@ -63,7 +63,7 @@ export class ContentViewer extends SiteElement {
 		}
 		tab = await this.#viewFile(repository, path, engine, file);
 		tab.activate();
-		tab.addEventListener('activated', (event: Event) => Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.SelectFile, { detail: { origin: repository, path: path } })));
+		tab.addEventListener('activated', (event: Event) => Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.SelectFile, { detail: { repository: repository, path: path } })));
 
 		this.#openViewers.set(repository, path, tab);
 	}

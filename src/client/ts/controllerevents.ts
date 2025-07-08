@@ -3,15 +3,17 @@ export enum ControllerEvents {
 	SelectRepository = 'selectrepository',
 	SelectFile = 'selectfile',
 	DownloadFile = 'downloadfile',
+	CreateRepositoryLink = 'createrepositorylink',
 	CreateFileLink = 'createfilelink',
 	ToogleOptions = 'toogleoptions',
+	DownloadMaterials = 'downloadmaterials',
 }
 
 export type SelectRepository = {
-	path: string,
+	repository: string,
 }
 
 export type SelectFile = {
-	origin: string,
+	repository: string,
 	path: string,
 }

@@ -15,6 +15,7 @@ const (
 	NoParamsError
 	InvalidParamRepository
 	InvalidParamPath
+	InvalidParamExtension
 )
 
 var apiErrorValues = map[ApiErrorCode]error{
@@ -22,6 +23,7 @@ var apiErrorValues = map[ApiErrorCode]error{
 	NoParamsError:          errors.New("no params provided"),
 	InvalidParamRepository: errors.New("invalid param repository"),
 	InvalidParamPath:       errors.New("invalid param path"),
+	InvalidParamExtension:  errors.New("invalid param extension"),
 }
 
 type apiError interface {

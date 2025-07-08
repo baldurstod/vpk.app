@@ -48,6 +48,8 @@ func apiHandler(c *gin.Context) {
 		apiError = apiGetFileList(c, request.Params)
 	case "get-file":
 		apiError = apiGetFile(c, request.Params)
+	case "concat-files":
+		apiError = apiConcatFiles(c, request.Params)
 	default:
 		jsonError(c, NotFoundError{})
 		return
@@ -208,5 +210,66 @@ func apiGetFile(c *gin.Context, params map[string]any) apiError {
 	}
 
 	jsonSuccess(c, map[string]any{"content": buf})
+	return nil
+}
+
+func apiConcatFiles(c *gin.Context, params map[string]any) apiError {
+	if params == nil {
+		return CreateApiError(NoParamsError)
+	}
+
+	repository, ok := params["repository"].(string)
+	if !ok {
+		return CreateApiError(InvalidParamRepository)
+	}
+
+	extension, ok := params["extension"].(string)
+	if !ok || extension == "" {
+		return CreateApiError(InvalidParamExtension)
+	}
+
+	extension = "." + extension
+
+	var pak vpk.VPK
+	var err error
+	inputFile := filepath.Join(repositoryRoot, repository)
+
+	if strings.HasSuffix(inputFile, "_dir.vpk") {
+		pak, err = vpk.OpenDir(inputFile)
+	} else {
+		pak, err = vpk.OpenSingle(inputFile)
+	}
+
+	if err != nil {
+		logError(c, err)
+		return CreateApiError(UnexpectedError)
+	}
+
+	var content = ""
+	for _, entry := range pak.Entries() {
+		//files = append(files, entry.Filename())
+		baseName := entry.Basename()
+		//log.Println(baseName)
+		if strings.HasSuffix(baseName, extension) {
+
+			reader, err := entry.Open()
+			if err != nil {
+				logError(c, err)
+				return CreateApiError(UnexpectedError)
+			}
+
+			buf, err := io.ReadAll(reader)
+			if err != nil {
+				logError(c, err)
+				return CreateApiError(UnexpectedError)
+			}
+
+			content += entry.Path() + "\n"
+			content += string(buf) + "\n"
+
+		}
+	}
+
+	jsonSuccess(c, map[string]any{"content": content})
 	return nil
 }

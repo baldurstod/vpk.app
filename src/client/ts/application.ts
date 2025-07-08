@@ -12,7 +12,7 @@ import { ControllerEvents, SelectFile, SelectRepository } from './controllereven
 import { GameEngine } from './enums';
 import { fetchApi } from './fetchapi';
 import { FileCache } from './filecache';
-import { RepositoryListResponse } from './responses/repository';
+import { ConcatFilesResponse, RepositoryListResponse } from './responses/repository';
 import { MainContent } from './view/maincontent';
 import { Toolbar } from './view/toolbar';
 
@@ -44,9 +44,11 @@ class Application {
 
 	#initEvents() {
 		Controller.addEventListener(ControllerEvents.RefreshRepositoryList, () => this.#refreshRepositoryList());
-		Controller.addEventListener(ControllerEvents.SelectRepository, (event: Event) => this.#selectRepository((event as CustomEvent<SelectRepository>).detail.path));
-		Controller.addEventListener(ControllerEvents.SelectFile, (event: Event) => this.#selectFile((event as CustomEvent<SelectFile>).detail.origin, (event as CustomEvent<SelectFile>).detail.path));
+		Controller.addEventListener(ControllerEvents.SelectRepository, (event: Event) => this.#selectRepository((event as CustomEvent<SelectRepository>).detail.repository));
+		Controller.addEventListener(ControllerEvents.SelectFile, (event: Event) => this.#selectFile((event as CustomEvent<SelectFile>).detail.repository, (event as CustomEvent<SelectFile>).detail.path));
 		Controller.addEventListener(ControllerEvents.DownloadFile, (event: Event) => this.#downloadFile(event as CustomEvent<SelectFile>));
+		Controller.addEventListener(ControllerEvents.DownloadMaterials, (event: Event) => this.#downloadMaterials(event as CustomEvent<SelectRepository>));
+		Controller.addEventListener(ControllerEvents.CreateRepositoryLink, (event: Event) => this.#createRepositoryLink(event as CustomEvent<SelectRepository>));
 		Controller.addEventListener(ControllerEvents.CreateFileLink, (event: Event) => this.#createFileLink(event as CustomEvent<SelectFile>));
 		Controller.addEventListener(ControllerEvents.ToogleOptions, () => this.#appContent.toogleOptions());
 	}
@@ -142,7 +144,7 @@ class Application {
 	}
 
 	async #downloadFile(event: CustomEvent<SelectFile>) {
-		const response = await Repositories.getFile(event.detail.origin, event.detail.path);
+		const response = await Repositories.getFile(event.detail.repository, event.detail.path);
 		if (response.error) {
 			return
 		}
@@ -150,11 +152,28 @@ class Application {
 		saveFile(response.file!);
 	}
 
-	async #createFileLink(event: CustomEvent<SelectFile>) {
-		const response = await Repositories.getFile(event.detail.origin, event.detail.path);
+	async #downloadMaterials(event: CustomEvent<SelectRepository>) {
+		const repository = event.detail.repository;
+		const { requestId, response } = await fetchApi('concat-files', 1, { repository: event.detail.repository, extension: "vmt" }) as { requestId: string, response: ConcatFilesResponse };
 
-		const url = `${document.location.origin}/@view/${encodeURI(event.detail.origin)}:${encodeURI(event.detail.path)}`;
-		console.info(url);
+		if (!response.success) {
+			return;
+		}
+
+		console.info(response);
+
+		saveFile(new File([response.result!.content], `${repository}_materials.txt`));
+	}
+
+	#createRepositoryLink(event: CustomEvent<SelectRepository>): void {
+		this.#copyLink(`${document.location.origin}/@view/${encodeURI(event.detail.repository)}`);
+	}
+
+	#createFileLink(event: CustomEvent<SelectFile>): void {
+		this.#copyLink(`${document.location.origin}/@view/${encodeURI(event.detail.repository)}:${encodeURI(event.detail.path)}`);
+	}
+
+	async #copyLink(url: string): Promise<void> {
 
 		let notificationText = `${I18n.getString('#share_this_url')}<input value='${url}'>`;
 		try {
@@ -165,6 +184,7 @@ class Application {
 		} catch (e) {
 			addNotification(notificationText, NotificationType.Info, 15);
 		}
+
 	}
 
 	async  #handleDrop(event: DragEvent): Promise<void> {

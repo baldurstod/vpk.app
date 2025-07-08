@@ -1,4 +1,4 @@
-import { downloadSVG, shareSVG } from 'harmony-svg';
+import { downloadSVG, mediationSVG, shareSVG } from 'harmony-svg';
 import { createElement, createShadowRoot, defineHarmonyTree, HTMLHarmonyTreeElement, ItemActionEventData, ItemClickEventData, TreeItem } from 'harmony-ui';
 import repositorySelectorCSS from '../../css/repositoryselector.css';
 import treeCSS from '../../css/tree.css';
@@ -45,10 +45,34 @@ export class RepositorySelector extends SiteElement {
 			]
 		});
 
-		this.#htmlFileTree.addAction('download', downloadSVG);
-		this.#htmlFileTree.addAction('sharelink', shareSVG);
+
+		this.#htmlList.addAction('sharelink', shareSVG, "#copy_link");
+		this.#htmlList.addAction('mergematerials', mediationSVG, "#merge_materials");
+		this.#htmlList.addEventListener('itemaction', (event: Event) => this.#handleRepositoryAction(event as CustomEvent<ItemActionEventData>));
+
+		this.#htmlFileTree.addAction('download', downloadSVG, "#download_file");
+		this.#htmlFileTree.addAction('sharelink', shareSVG, "#copy_link");
 		this.#htmlFileTree.addEventListener('itemaction', (event: Event) => this.#handleItemAction(event as CustomEvent<ItemActionEventData>));
 		this.#htmlList.adoptStyle(treeCSS);
+	}
+
+	#handleRepositoryAction(event: CustomEvent<ItemActionEventData>) {
+		const clickedItem = event.detail.item;
+
+		switch (event.detail.action) {
+			case 'mergematerials':
+				if (clickedItem) {
+					clickedItem.removeAction('mergematerials');
+					this.#htmlList?.refreshActions(clickedItem);
+					Controller.dispatchEvent(new CustomEvent<SelectRepository>(ControllerEvents.DownloadMaterials, { detail: { repository: clickedItem.getPath() } }));
+				}
+				break;
+			case 'sharelink':
+				if (clickedItem) {
+					Controller.dispatchEvent(new CustomEvent<SelectRepository>(ControllerEvents.CreateRepositoryLink, { detail: { repository: clickedItem.getPath() } }));
+				}
+				break;
+		}
 	}
 
 	#handleItemAction(event: CustomEvent<ItemActionEventData>) {
@@ -57,12 +81,12 @@ export class RepositorySelector extends SiteElement {
 		switch (event.detail.action) {
 			case 'download':
 				if (clickedItem) {
-					Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.DownloadFile, { detail: { origin: this.#repository, path: clickedItem.getPath() } }));
+					Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.DownloadFile, { detail: { repository: this.#repository, path: clickedItem.getPath() } }));
 				}
 				break;
 			case 'sharelink':
 				if (clickedItem) {
-					Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.CreateFileLink, { detail: { origin: this.#repository, path: clickedItem.getPath() } }));
+					Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.CreateFileLink, { detail: { repository: this.#repository, path: clickedItem.getPath() } }));
 				}
 				break;
 		}
@@ -74,6 +98,11 @@ export class RepositorySelector extends SiteElement {
 		if (this.#dirtyRepositoryList && this.#repositoryList) {
 			this.#htmlList?.replaceChildren();
 			this.#repositoryRoot = TreeItem.createFromPathList(this.#repositoryList);
+
+			for (let item of this.#repositoryRoot.walk({ type: 'file' })) {
+				item.addActions(['mergematerials', 'sharelink']);
+			}
+
 			this.#htmlList?.setRoot(this.#repositoryRoot);
 			this.#dirtyRepositoryList = false;
 		}
@@ -82,10 +111,8 @@ export class RepositorySelector extends SiteElement {
 			this.#htmlFileTree?.replaceChildren();
 			this.#fileRoot = TreeItem.createFromPathList(this.#fileList);
 
-			if (this.#fileRoot) {
-				for (let item of this.#fileRoot.walk({ type: 'file' })) {
-					item.addActions(['download', 'sharelink']);
-				}
+			for (let item of this.#fileRoot.walk({ type: 'file' })) {
+				item.addActions(['download', 'sharelink']);
 			}
 
 			this.#htmlFileTree?.setRoot(this.#fileRoot);
@@ -112,7 +139,7 @@ export class RepositorySelector extends SiteElement {
 			return;
 		}
 
-		Controller.dispatchEvent(new CustomEvent<SelectRepository>(ControllerEvents.SelectRepository, { detail: { path: clickedItem.getPath() } }));
+		Controller.dispatchEvent(new CustomEvent<SelectRepository>(ControllerEvents.SelectRepository, { detail: { repository: clickedItem.getPath() } }));
 	}
 
 	#fileItemClick(event: CustomEvent<ItemClickEventData>) {
@@ -121,7 +148,7 @@ export class RepositorySelector extends SiteElement {
 			return;
 		}
 
-		Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.SelectFile, { detail: { origin: this.#repository, path: clickedItem.getPath() } }));
+		Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.SelectFile, { detail: { repository: this.#repository, path: clickedItem.getPath() } }));
 	}
 
 	selectRepository(repository: string) {
