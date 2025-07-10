@@ -1,10 +1,10 @@
 import { createShadowRoot, toggle } from 'harmony-ui';
 import mainContentCSS from '../../css/maincontent.css';
-import { SiteElement } from './siteelement';
-import { RepositorySelector } from './repositoryselector';
-import { ContentViewer } from './contentviewer';
 import { GameEngine } from '../enums';
+import { ContentViewer } from './contentviewer';
 import { Options } from './options';
+import { RepositorySelector } from './repositoryselector';
+import { SiteElement } from './siteelement';
 
 export class MainContent extends SiteElement {
 	#repositorySelector = new RepositorySelector();
@@ -27,12 +27,12 @@ export class MainContent extends SiteElement {
 		this.#options.hide();
 	}
 
-	selectRepository(repository: string) {
-		this.#repositorySelector.selectRepository(repository);
+	selectRepository(repository: string, scrollIntoView: boolean) {
+		this.#repositorySelector.selectRepository(repository, scrollIntoView);
 	}
 
-	selectFile(path: string) {
-		this.#repositorySelector.selectFile(path);
+	selectFile(path: string, scrollIntoView: boolean) {
+		this.#repositorySelector.selectFile(path, scrollIntoView);
 	}
 
 	setRepositoryList(repositoryList: Array<string>) {

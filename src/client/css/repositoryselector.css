@@ -11,3 +11,11 @@
 harmony-tree {
 	overflow: auto;
 }
+
+.repositories {
+	flex: 0 0 20%;
+}
+
+.files {
+	flex: 0;
+}

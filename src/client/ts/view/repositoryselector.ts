@@ -33,9 +33,11 @@ export class RepositorySelector extends SiteElement {
 				}),
 				*/
 				this.#htmlList = createElement('harmony-tree', {
+					class: 'repositories',
 					$itemclick: (event: CustomEvent<ItemClickEventData>) => this.#itemClick(event),
 				}) as HTMLHarmonyTreeElement,
 				this.#htmlFileFilter = createElement('input', {
+					class: 'files',
 					type: 'text',
 					$input: (event: InputEvent) => this.setFileFilter((event.target as HTMLInputElement).value),
 				}) as HTMLInputElement,
@@ -151,7 +153,7 @@ export class RepositorySelector extends SiteElement {
 		Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.SelectFile, { detail: { repository: this.#repository, path: clickedItem.getPath() } }));
 	}
 
-	selectRepository(repository: string) {
+	selectRepository(repository: string, scrollIntoView: boolean) {
 		this.initHTML();
 
 		if (!this.#repositoryRoot) {
@@ -166,7 +168,7 @@ export class RepositorySelector extends SiteElement {
 		}
 	}
 
-	selectFile(path: string) {
+	selectFile(path: string, scrollIntoView: boolean) {
 		this.initHTML();
 
 		if (!this.#fileRoot) {

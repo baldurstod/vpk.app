@@ -38,14 +38,14 @@ class Application {
 		I18n.start();
 		this.#initEvents();
 		this.#initPage();
-		this.#refreshRepositoryList();
+		await this.#refreshRepositoryList();
 		await this.#startup();
 	}
 
 	#initEvents() {
 		Controller.addEventListener(ControllerEvents.RefreshRepositoryList, () => this.#refreshRepositoryList());
-		Controller.addEventListener(ControllerEvents.SelectRepository, (event: Event) => this.#selectRepository((event as CustomEvent<SelectRepository>).detail.repository));
-		Controller.addEventListener(ControllerEvents.SelectFile, (event: Event) => this.#selectFile((event as CustomEvent<SelectFile>).detail.repository, (event as CustomEvent<SelectFile>).detail.path));
+		Controller.addEventListener(ControllerEvents.SelectRepository, (event: Event) => this.#selectRepository((event as CustomEvent<SelectRepository>).detail.repository, false));
+		Controller.addEventListener(ControllerEvents.SelectFile, (event: Event) => this.#selectFile((event as CustomEvent<SelectFile>).detail.repository, (event as CustomEvent<SelectFile>).detail.path, false));
 		Controller.addEventListener(ControllerEvents.DownloadFile, (event: Event) => this.#downloadFile(event as CustomEvent<SelectFile>));
 		Controller.addEventListener(ControllerEvents.DownloadMaterials, (event: Event) => this.#downloadMaterials(event as CustomEvent<SelectRepository>));
 		Controller.addEventListener(ControllerEvents.CreateRepositoryLink, (event: Event) => this.#createRepositoryLink(event as CustomEvent<SelectRepository>));
@@ -97,8 +97,8 @@ class Application {
 	async #initViewFromUrl() {
 		let result = /@view\/([^\:]*)\:?(.*)/i.exec(document.location.pathname);
 		if (result) {
-			await this.#selectRepository(result[1]);
-			await this.#selectFile(result[1], result[2]);
+			await this.#selectRepository(result[1], true);
+			await this.#selectFile(result[1], result[2], true);
 		}
 	}
 
@@ -112,7 +112,7 @@ class Application {
 		this.#appContent.setRepositoryList(response.result!.files);
 	}
 
-	async #selectRepository(repository: string) {
+	async #selectRepository(repository: string, scrollIntoView: boolean) {
 		let repo = Repositories.getRepository(repository);
 		if (!repo) {
 			Repositories.addRepository(new MemoryCacheRepository(new ApiRepository(repository)));
@@ -126,10 +126,10 @@ class Application {
 			return;
 		}
 		this.#appContent.setFileList(repository, response.result!.files);
-		this.#appContent.selectRepository(repository);
+		this.#appContent.selectRepository(repository, scrollIntoView);
 	}
 
-	async #selectFile(repository: string, path: string) {
+	async #selectFile(repository: string, path: string, scrollIntoView: boolean) {
 		path = path.replace(/\.(vvd|dx80\.vtx|dx90\.vtx|sw\.vtx)$/, '.mdl');
 
 		const response = await Repositories.getFile(repository, path);
@@ -139,8 +139,8 @@ class Application {
 
 		console.info(response.file);
 		this.#appContent.viewFile(repository, path, GameEngine.Source1, response.file!);
-		this.#appContent.selectRepository(repository);
-		this.#appContent.selectFile(path);
+		this.#appContent.selectRepository(repository, scrollIntoView);
+		this.#appContent.selectFile(path, true);
 	}
 
 	async #downloadFile(event: CustomEvent<SelectFile>) {
@@ -208,7 +208,7 @@ class Application {
 	async #openLocalFile(file: File): Promise<void> {
 		//const extension = file.name.split('.').pop() ?? '';
 		localRepo.setFile(file.name, file);
-		await this.#selectFile('local', file.name);
+		await this.#selectFile('local', file.name, true);
 
 	}
 }
