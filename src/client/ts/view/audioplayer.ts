@@ -1,6 +1,6 @@
 import { downloadSVG, pauseSVG, playSVG } from 'harmony-svg';
 import { createElement, createShadowRoot } from 'harmony-ui';
-import textureViewerCSS from '../../css/textureviewer.css';
+import audioPlayerCSS from '../../css/audioplayer.css';
 import { Controller } from '../controller';
 import { ControllerEvents, SelectFile } from '../controllerevents';
 import { Audio, AudioParam, AudioParamType } from '../model/audio';
@@ -26,6 +26,13 @@ export class AudioPlayer extends SiteElement {
 	#loop = false;
 	#htmlVolume?: HTMLInputElement;
 	#gainNode = this.#audioContext.createGain();
+	#analyser = this.#audioContext.createAnalyser();
+
+	#bufferLength = this.#analyser.frequencyBinCount;
+	#dataArray = new Uint8Array(this.#bufferLength);
+	//this.#analyser.getByteTimeDomainData(this.#dataArray);
+	#htmlCanvas?: HTMLCanvasElement;// = createElement('canvas') as HTMLCanvasElement;
+	#canvasCtx: CanvasRenderingContext2D | null = null;// = this.#htmlCanvas.getContext("2d");
 
 	initHTML() {
 		if (this.shadowRoot) {
@@ -33,7 +40,7 @@ export class AudioPlayer extends SiteElement {
 		}
 
 		this.shadowRoot = createShadowRoot('section', {
-			adoptStyle: textureViewerCSS,
+			adoptStyle: audioPlayerCSS,
 			childs: [
 				this.#htmlToolbar = createElement('div', {
 					class: 'toolbar',
@@ -75,12 +82,20 @@ export class AudioPlayer extends SiteElement {
 					class: 'container',
 					childs: [
 						this.#htmlParams = createElement('div', { class: 'flags', }),
-						this.#htmlImageContainer = createElement('div', { class: 'image', }),
+						this.#htmlImageContainer = createElement('div', {
+							class: 'sound',
+							childs: [
+								this.#htmlCanvas = createElement('canvas') as HTMLCanvasElement,
+							]
+						}),
 
 					]
 				}),
 			]
 		});
+		this.#canvasCtx = this.#htmlCanvas.getContext("2d");
+
+		this.#draw();
 	}
 
 	protected refreshHTML(): void {
@@ -162,6 +177,7 @@ export class AudioPlayer extends SiteElement {
 		//this.#source.buffer = this.#audioBuffer;
 		//this.#source.connect(this.#audioContext.destination);
 		this.#source.connect(this.#gainNode).connect(this.#audioContext.destination);
+		this.#source.connect(this.#analyser);
 		this.#source.start();
 	}
 
@@ -175,6 +191,42 @@ export class AudioPlayer extends SiteElement {
 
 	#setVolume(volume: number): void {
 		this.#gainNode.gain.value = volume;
+	}
+
+	#draw(): void {
+		requestAnimationFrame(() => this.#draw());
+		if (!this.#canvasCtx || !this.#htmlCanvas) {
+			return;
+		}
+
+		this.#analyser.getByteFrequencyData(this.#dataArray);
+
+		this.#canvasCtx.fillStyle = "rgb(0 0 0)";
+		this.#canvasCtx.fillRect(0, 0, this.#htmlCanvas.width, this.#htmlCanvas.height);
+
+		this.#canvasCtx.lineWidth = 2;
+		this.#canvasCtx.strokeStyle = "rgb(255 255 255)";
+
+		this.#canvasCtx.beginPath();
+
+		const sliceWidth = (this.#htmlCanvas.width * 1.0) / this.#bufferLength;
+		let x = 0;
+
+		for (let i = 0; i < this.#bufferLength; i++) {
+			const v = this.#dataArray[i] / 128.0;
+			const y = this.#htmlCanvas.height - (v * this.#htmlCanvas.height) / 2;
+
+			if (i === 0) {
+				this.#canvasCtx.moveTo(x, y);
+			} else {
+				this.#canvasCtx.lineTo(x, y);
+			}
+
+			x += sliceWidth;
+		}
+
+		this.#canvasCtx.lineTo(this.#htmlCanvas.width, this.#htmlCanvas.height / 2);
+		this.#canvasCtx.stroke();
 	}
 }
 
