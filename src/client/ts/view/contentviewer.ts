@@ -5,13 +5,13 @@ import contentViewerCSS from '../../css/contentviewer.css';
 import { Controller } from '../controller';
 import { ControllerEvents, SelectFile } from '../controllerevents';
 import { ContentType, GameEngine } from '../enums';
+import { Audio, AudioType } from '../model/audio';
 import { Texture, TextureParamType, TextureWrap } from '../model/texture';
+import { AudioPlayer } from './audioplayer';
 import { ModelViewer } from './modelviewer';
 import { SiteElement } from './siteelement';
-import { AudioPlayer } from './audioplayer';
 import { TextureViewer } from './textureviewer';
 import { TextViewer } from './textviewer';
-import { Audio, AudioType } from '../model/audio';
 
 const TypePerExtension: { [key: string]: ContentType } = {
 	'cfg': ContentType.Txt,
@@ -22,6 +22,7 @@ const TypePerExtension: { [key: string]: ContentType } = {
 	'mdl': ContentType.Source1Model,
 
 	'mp3': ContentType.AudioMp3,
+	'wav': ContentType.AudioWav,
 };
 
 export class Content {
@@ -99,7 +100,8 @@ export class ContentViewer extends SiteElement {
 			case ContentType.Source1Model:
 				return await this.#addSource1ModelContent(repository, path, filename, engine, await file.arrayBuffer());
 			case ContentType.AudioMp3:
-				return await this.#addMp3Content(repository, path, filename, GameEngine.None, await file.arrayBuffer());
+			case ContentType.AudioWav:
+				return await this.#addAudioContent(repository, path, filename, GameEngine.None, await file.arrayBuffer(), fileType);
 			case ContentType.Txt:
 			default:
 				return this.#addTxtContent(repository, path, filename, engine, new TextDecoder().decode(await file.arrayBuffer()));
@@ -207,19 +209,7 @@ export class ContentViewer extends SiteElement {
 		return tab;
 	}
 
-	async #addMp3Content(repository: string, path: string, filename: string, engine: GameEngine, content: ArrayBuffer): Promise<HTMLHarmonyTabElement | null> {
-		/*
-		const audioPlay = async (data: ArrayBuffer) => {
-			const context = new AudioContext();
-			const source = context.createBufferSource();
-
-			source.buffer = await context.decodeAudioData(data);
-			source.connect(context.destination);
-			source.start();
-		};
-		*/
-
-
+	async #addAudioContent(repository: string, path: string, filename: string, engine: GameEngine, content: ArrayBuffer, fileType: ContentType.AudioMp3 | ContentType.AudioWav): Promise<HTMLHarmonyTabElement | null> {
 		this.initHTML();
 
 		const response = await Repositories.getFileAsArrayBuffer(repository, path);
@@ -228,8 +218,6 @@ export class ContentViewer extends SiteElement {
 			return null;
 		}
 
-		//audioPlay(response.buffer as ArrayBuffer);
-
 		if (!this.#htmlAudioPlayer) {
 			this.#htmlAudioPlayer = new AudioPlayer();
 			this.#htmlContent?.append(this.#htmlAudioPlayer.getHTML());
@@ -237,8 +225,7 @@ export class ContentViewer extends SiteElement {
 
 		this.#htmlAudioPlayer?.show();
 
-
-		const audio = new Audio(repository, path, AudioType.Mp3, response.buffer as ArrayBuffer);
+		const audio = new Audio(repository, path, fileTypeToAudioType(fileType), response.buffer as ArrayBuffer);
 		this.#htmlAudioPlayer?.setAudio(audio);
 
 		const tab = createElement('harmony-tab', {
@@ -257,6 +244,15 @@ export class ContentViewer extends SiteElement {
 		}) as HTMLHarmonyTabElement;
 
 		return tab;
+	}
+}
+
+function fileTypeToAudioType(fileType: ContentType.AudioMp3 | ContentType.AudioWav): AudioType {
+	switch (fileType) {
+		case ContentType.AudioMp3:
+			return AudioType.Mp3;
+		case ContentType.AudioWav:
+			return AudioType.Wav;
 	}
 }
 

@@ -15,4 +15,5 @@ export enum ContentType {
 	Source1Particle,
 	Source2Model,
 	AudioMp3,
+	AudioWav,
 }
