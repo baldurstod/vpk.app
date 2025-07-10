@@ -1,11 +1,11 @@
 export type AudioParam = {
 	name: string,
 	i18n: string,
-	type: TextureParamType,
+	type: AudioParamType,
 	value: AudioParamValue,
 }
 
-export enum TextureParamType {
+export enum AudioParamType {
 	Boolean = 0,
 	Number,
 	String,

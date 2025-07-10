@@ -3,9 +3,14 @@ import { createElement, createShadowRoot } from 'harmony-ui';
 import textureViewerCSS from '../../css/textureviewer.css';
 import { Controller } from '../controller';
 import { ControllerEvents, SelectFile } from '../controllerevents';
-import { Audio } from '../model/audio';
-import { TextureParam, TextureParamType, TextureWrap } from '../model/texture';
+import { Audio, AudioParam, AudioParamType } from '../model/audio';
 import { SiteElement } from './siteelement';
+
+type AudioOption = {
+	playing: boolean;
+	loop: boolean;
+	audioBuffer?: AudioBuffer;
+}
 
 export class AudioPlayer extends SiteElement {
 	#htmlToolbar?: HTMLElement;
@@ -17,8 +22,8 @@ export class AudioPlayer extends SiteElement {
 	#context = new AudioContext();
 	#audioBuffer?: AudioBuffer;
 	#source: AudioBufferSourceNode | null = null;
-	#elapsed: number = 0;
-	#start: number = 0;
+	#audioOptions = new Map<Audio, AudioOption>;
+	#loop = false;
 
 	initHTML() {
 		if (this.shadowRoot) {
@@ -68,17 +73,32 @@ export class AudioPlayer extends SiteElement {
 		this.initHTML();
 	}
 
-	setAudio(audio: Audio) {
+	async setAudio(audio: Audio) {
 		this.show();
 		if (audio == this.#audio) {
 			return;
 		}
 
-		this.#audio = audio;
-		this.#elapsed = 0;
+		if (this.#source) {
+			this.#source.playbackRate.value = 0.0;
+		}
 
-		this.#updateAudio();
+		this.#audio = audio;
+
+		let audioOption = this.#audioOptions.get(audio);
+		if (!audioOption) {
+			audioOption = { playing: true, loop: false };
+			this.#audioOptions.set(audio, audioOption);
+		}
+
+		this.#loop = audioOption.loop;
+
+		await this.#updateAudio();
 		this.#updateParams();
+
+		if (audioOption.playing) {
+			this.#play();
+		}
 	}
 
 	async #updateAudio() {
@@ -88,8 +108,16 @@ export class AudioPlayer extends SiteElement {
 
 		this.#source = null;
 
-		//this.#source.buffer =
-		this.#audioBuffer = await this.#context.decodeAudioData(this.#audio.getData());
+		const audioOption = this.#audioOptions.get(this.#audio);
+		const audioBuffer = audioOption?.audioBuffer;
+		if (audioBuffer) {
+			this.#audioBuffer = audioBuffer;
+		} else {
+			this.#audioBuffer = await this.#context.decodeAudioData(this.#audio.getData());
+			if (audioOption) {
+				audioOption.audioBuffer = this.#audioBuffer;
+			}
+		}
 	}
 
 	#updateParams() {
@@ -115,12 +143,11 @@ export class AudioPlayer extends SiteElement {
 			return;
 		}
 
-		this.#source = new AudioBufferSourceNode(this.#context, { buffer: this.#audioBuffer, loop: true, })//this.#context.createBufferSource();
+		this.#source = new AudioBufferSourceNode(this.#context, { buffer: this.#audioBuffer, loop: this.#loop, })//this.#context.createBufferSource();
 		//this.#source.addEventListener('ended', (event: Event) => this.#source = null);
 		//this.#source.buffer = this.#audioBuffer;
 		this.#source.connect(this.#context.destination);
-		this.#source.start(0, this.#elapsed);
-		this.#start = this.#context.currentTime;
+		this.#source.start();
 	}
 
 	#pause(): void {
@@ -132,29 +159,24 @@ export class AudioPlayer extends SiteElement {
 	}
 }
 
-function createParam(param: TextureParam): HTMLElement {
+function createParam(param: AudioParam): HTMLElement {
 	let htmlValue;
 	switch (param.type) {
-		case TextureParamType.String:
+		case AudioParamType.String:
 			htmlValue = createElement('span', {
 				innerText: param.value as string,
 			});
 			break;
-		case TextureParamType.Number:
+		case AudioParamType.Number:
 			htmlValue = createElement('span', {
 				innerText: String(param.value as number),
 			});
 			break;
-		case TextureParamType.Boolean:
+		case AudioParamType.Boolean:
 			htmlValue = createElement('input', {
 				type: 'checkbox',
 				checked: param.value as boolean,
 				disabled: true,
-			});
-			break;
-		case TextureParamType.TextureWrap:
-			htmlValue = createElement('span', {
-				i18n: param.value as TextureWrap == TextureWrap.Clamp ? '#clamp' : '#repeat',
 			});
 			break;
 	}
