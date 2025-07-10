@@ -8,6 +8,8 @@
 .toolbar {
 	flex: 0;
 	background-color: grey;
+	display: flex;
+	align-items: center;
 }
 
 .toolbar svg {

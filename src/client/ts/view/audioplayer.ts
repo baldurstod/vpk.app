@@ -1,4 +1,4 @@
-import { downloadSVG, pauseSVG, playSVG } from 'harmony-svg';
+import { downloadSVG, earthquakeSVG, equalizerSVG, pauseSVG, playSVG } from 'harmony-svg';
 import { createElement, createShadowRoot } from 'harmony-ui';
 import audioPlayerCSS from '../../css/audioplayer.css';
 import { Controller } from '../controller';
@@ -10,6 +10,11 @@ type AudioOption = {
 	playing: boolean;
 	loop: boolean;
 	audioBuffer?: AudioBuffer;
+}
+
+enum AnalyserMode {
+	Frequency = 0,
+	TimeDomain,
 }
 
 export class AudioPlayer extends SiteElement {
@@ -27,12 +32,12 @@ export class AudioPlayer extends SiteElement {
 	#htmlVolume?: HTMLInputElement;
 	#gainNode = this.#audioContext.createGain();
 	#analyser = this.#audioContext.createAnalyser();
-
 	#bufferLength = this.#analyser.frequencyBinCount;
 	#dataArray = new Uint8Array(this.#bufferLength);
 	//this.#analyser.getByteTimeDomainData(this.#dataArray);
 	#htmlCanvas?: HTMLCanvasElement;// = createElement('canvas') as HTMLCanvasElement;
 	#canvasCtx: CanvasRenderingContext2D | null = null;// = this.#htmlCanvas.getContext("2d");
+	#analyserMode = AnalyserMode.Frequency;
 
 	initHTML() {
 		if (this.shadowRoot) {
@@ -63,6 +68,16 @@ export class AudioPlayer extends SiteElement {
 							i18n: { title: '#pause' },
 							innerHTML: pauseSVG,
 							$click: () => this.#pause(),
+						}),
+						createElement('span', {
+							i18n: { title: '#oscilloscope' },
+							innerHTML: earthquakeSVG,
+							$click: () => this.#setAnalyserMode(AnalyserMode.TimeDomain),
+						}),
+						createElement('span', {
+							i18n: { title: '#frequency' },
+							innerHTML: equalizerSVG,
+							$click: () => this.#setAnalyserMode(AnalyserMode.Frequency),
 						}),
 						createElement('span', {
 							childs: [
@@ -193,13 +208,22 @@ export class AudioPlayer extends SiteElement {
 		this.#gainNode.gain.value = volume;
 	}
 
+	#setAnalyserMode(mode: AnalyserMode): void {
+		this.#analyserMode = mode;
+	}
+
 	#draw(): void {
 		requestAnimationFrame(() => this.#draw());
 		if (!this.#canvasCtx || !this.#htmlCanvas) {
 			return;
 		}
 
-		this.#analyser.getByteFrequencyData(this.#dataArray);
+		if (this.#analyserMode == AnalyserMode.Frequency) {
+			this.#analyser.getByteFrequencyData(this.#dataArray);
+
+		} else {
+			this.#analyser.getByteTimeDomainData(this.#dataArray);
+		}
 
 		this.#canvasCtx.fillStyle = "rgb(0 0 0)";
 		this.#canvasCtx.fillRect(0, 0, this.#htmlCanvas.width, this.#htmlCanvas.height);
