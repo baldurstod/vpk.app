@@ -61,13 +61,13 @@ export class ContentViewer extends SiteElement {
 		this.initHTML();
 	}
 
-	async viewFile(repository: string, path: string, engine: GameEngine, file: File): Promise<void> {
+	async viewFile(repository: string, path: string, engine: GameEngine, file: File, userAction: boolean): Promise<void> {
 		let tab: HTMLHarmonyTabElement | undefined | null = this.#openViewers.get(repository, path);
 		if (tab) {
 			tab.activate();
 			return;
 		}
-		tab = await this.#viewFile(repository, path, engine, file);
+		tab = await this.#viewFile(repository, path, engine, file, userAction);
 		if (!tab) {
 			return;//TODO: error ?
 		}
@@ -89,7 +89,7 @@ export class ContentViewer extends SiteElement {
 		return true;
 	}
 
-	async #viewFile(repository: string, path: string, engine: GameEngine, file: File): Promise<HTMLHarmonyTabElement | null> {
+	async #viewFile(repository: string, path: string, engine: GameEngine, file: File, userAction: boolean): Promise<HTMLHarmonyTabElement | null> {
 		const extension = path.split('.').pop() ?? '';
 		const filename = path.split('/').pop() ?? '';
 		const fileType = TypePerExtension[extension];
@@ -101,7 +101,7 @@ export class ContentViewer extends SiteElement {
 				return await this.#addSource1ModelContent(repository, path, filename, engine, await file.arrayBuffer());
 			case ContentType.AudioMp3:
 			case ContentType.AudioWav:
-				return await this.#addAudioContent(repository, path, filename, GameEngine.None, await file.arrayBuffer(), fileType);
+				return await this.#addAudioContent(repository, path, filename, GameEngine.None, await file.arrayBuffer(), fileType, userAction);
 			case ContentType.Txt:
 			default:
 				return this.#addTxtContent(repository, path, filename, engine, new TextDecoder().decode(await file.arrayBuffer()));
@@ -209,7 +209,7 @@ export class ContentViewer extends SiteElement {
 		return tab;
 	}
 
-	async #addAudioContent(repository: string, path: string, filename: string, engine: GameEngine, content: ArrayBuffer, fileType: ContentType.AudioMp3 | ContentType.AudioWav): Promise<HTMLHarmonyTabElement | null> {
+	async #addAudioContent(repository: string, path: string, filename: string, engine: GameEngine, content: ArrayBuffer, fileType: ContentType.AudioMp3 | ContentType.AudioWav, userAction: boolean): Promise<HTMLHarmonyTabElement | null> {
 		this.initHTML();
 
 		const response = await Repositories.getFileAsArrayBuffer(repository, path);
@@ -226,7 +226,7 @@ export class ContentViewer extends SiteElement {
 		this.#htmlAudioPlayer?.show();
 
 		const audio = new Audio(repository, path, fileTypeToAudioType(fileType), response.buffer as ArrayBuffer);
-		this.#htmlAudioPlayer?.setAudio(audio);
+		this.#htmlAudioPlayer?.setAudio(audio, userAction);
 
 		const tab = createElement('harmony-tab', {
 			'data-text': filename,
@@ -239,7 +239,7 @@ export class ContentViewer extends SiteElement {
 			},
 			$activated: () => {
 				this.#htmlContent?.replaceChildren(this.#htmlAudioPlayer!.getHTML());
-				this.#htmlAudioPlayer?.setAudio(audio);
+				this.#htmlAudioPlayer?.setAudio(audio, userAction);
 			},
 		}) as HTMLHarmonyTabElement;
 

@@ -19,11 +19,13 @@ export class AudioPlayer extends SiteElement {
 	#htmlImageContainer?: HTMLElement;
 	#audio?: Audio;
 	#htmlImage?: HTMLImageElement;
-	#context = new AudioContext();
+	#audioContext = new AudioContext();
 	#audioBuffer?: AudioBuffer;
 	#source: AudioBufferSourceNode | null = null;
 	#audioOptions = new Map<Audio, AudioOption>;
 	#loop = false;
+	#htmlVolume?: HTMLInputElement;
+	#gainNode = this.#audioContext.createGain();
 
 	initHTML() {
 		if (this.shadowRoot) {
@@ -55,6 +57,18 @@ export class AudioPlayer extends SiteElement {
 							innerHTML: pauseSVG,
 							$click: () => this.#pause(),
 						}),
+						createElement('span', {
+							childs: [
+								this.#htmlVolume = createElement('input', {
+									type: 'range',
+									min: 0,
+									max: 2,
+									step: 0.01,
+									value: 1,
+									$input: (event: Event) => this.#setVolume(Number((event.target as HTMLInputElement).value)),
+								}) as HTMLInputElement,
+							]
+						}),
 					],
 				}),
 				this.#htmlContainer = createElement('div', {
@@ -73,7 +87,7 @@ export class AudioPlayer extends SiteElement {
 		this.initHTML();
 	}
 
-	async setAudio(audio: Audio) {
+	async setAudio(audio: Audio, autoPlay: boolean) {
 		this.show();
 		if (audio == this.#audio) {
 			return;
@@ -96,7 +110,7 @@ export class AudioPlayer extends SiteElement {
 		await this.#updateAudio();
 		this.#updateParams();
 
-		if (audioOption.playing) {
+		if (autoPlay && audioOption.playing) {
 			this.#play();
 		}
 	}
@@ -113,7 +127,7 @@ export class AudioPlayer extends SiteElement {
 		if (audioBuffer) {
 			this.#audioBuffer = audioBuffer;
 		} else {
-			this.#audioBuffer = await this.#context.decodeAudioData(this.#audio.getData());
+			this.#audioBuffer = await this.#audioContext.decodeAudioData(this.#audio.getData());
 			if (audioOption) {
 				audioOption.audioBuffer = this.#audioBuffer;
 			}
@@ -143,10 +157,11 @@ export class AudioPlayer extends SiteElement {
 			return;
 		}
 
-		this.#source = new AudioBufferSourceNode(this.#context, { buffer: this.#audioBuffer, loop: this.#loop, })//this.#context.createBufferSource();
+		this.#source = new AudioBufferSourceNode(this.#audioContext, { buffer: this.#audioBuffer, loop: this.#loop, })//this.#context.createBufferSource();
 		//this.#source.addEventListener('ended', (event: Event) => this.#source = null);
 		//this.#source.buffer = this.#audioBuffer;
-		this.#source.connect(this.#context.destination);
+		//this.#source.connect(this.#audioContext.destination);
+		this.#source.connect(this.#gainNode).connect(this.#audioContext.destination);
 		this.#source.start();
 	}
 
@@ -156,6 +171,10 @@ export class AudioPlayer extends SiteElement {
 		}
 
 		//this.#elapsed = this.#context.currentTime - this.#start;
+	}
+
+	#setVolume(volume: number): void {
+		this.#gainNode.gain.value = volume;
 	}
 }
 

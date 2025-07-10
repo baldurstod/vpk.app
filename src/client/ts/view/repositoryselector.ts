@@ -177,7 +177,7 @@ export class RepositorySelector extends SiteElement {
 
 		for (let item of this.#fileRoot.walk()) {
 			if (item.getPath() == path) {
-				this.#htmlFileTree?.selectItem(item);
+				this.#htmlFileTree?.selectItem(item, scrollIntoView);
 				return;
 			}
 		}
