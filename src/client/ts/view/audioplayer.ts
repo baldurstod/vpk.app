@@ -35,9 +35,11 @@ export class AudioPlayer extends SiteElement {
 	#bufferLength = this.#analyser.frequencyBinCount;
 	#dataArray = new Uint8Array(this.#bufferLength);
 	//this.#analyser.getByteTimeDomainData(this.#dataArray);
-	#htmlCanvas?: HTMLCanvasElement;// = createElement('canvas') as HTMLCanvasElement;
-	#canvasCtx: CanvasRenderingContext2D | null = null;// = this.#htmlCanvas.getContext("2d");
+	#htmlCanvas?: HTMLCanvasElement;
+	#canvasCtx: CanvasRenderingContext2D | null = null;
 	#analyserMode = AnalyserMode.Frequency;
+	#htmlTrackCanvas?: HTMLCanvasElement;
+	#trackContext: CanvasRenderingContext2D | null = null;
 
 	initHTML() {
 		if (this.shadowRoot) {
@@ -100,6 +102,7 @@ export class AudioPlayer extends SiteElement {
 						this.#htmlImageContainer = createElement('div', {
 							class: 'sound',
 							childs: [
+								this.#htmlTrackCanvas = createElement('canvas') as HTMLCanvasElement,
 								this.#htmlCanvas = createElement('canvas') as HTMLCanvasElement,
 							]
 						}),
@@ -109,6 +112,7 @@ export class AudioPlayer extends SiteElement {
 			]
 		});
 		this.#canvasCtx = this.#htmlCanvas.getContext("2d");
+		this.#trackContext = this.#htmlTrackCanvas.getContext("2d");
 
 		this.#draw();
 	}
@@ -214,21 +218,28 @@ export class AudioPlayer extends SiteElement {
 
 	#draw(): void {
 		requestAnimationFrame(() => this.#draw());
-		if (!this.#canvasCtx || !this.#htmlCanvas) {
+		if (!this.#canvasCtx || !this.#htmlCanvas || !this.#htmlContainer) {
 			return;
 		}
 
+		const styles = getComputedStyle(this.#htmlContainer)
+		this.#htmlCanvas.width = parseInt(styles.getPropertyValue("width"), 10)
+		this.#htmlCanvas.height = parseInt(styles.getPropertyValue("height"), 10) * 0.5;
+
+		let endY: number;
 		if (this.#analyserMode == AnalyserMode.Frequency) {
 			this.#analyser.getByteFrequencyData(this.#dataArray);
+			endY = this.#htmlCanvas.height;
 
 		} else {
 			this.#analyser.getByteTimeDomainData(this.#dataArray);
+			endY = this.#htmlCanvas.height / 2;
 		}
 
 		this.#canvasCtx.fillStyle = "rgb(0 0 0)";
 		this.#canvasCtx.fillRect(0, 0, this.#htmlCanvas.width, this.#htmlCanvas.height);
 
-		this.#canvasCtx.lineWidth = 2;
+		this.#canvasCtx.lineWidth = 1;
 		this.#canvasCtx.strokeStyle = "rgb(255 255 255)";
 
 		this.#canvasCtx.beginPath();
@@ -251,6 +262,50 @@ export class AudioPlayer extends SiteElement {
 
 		this.#canvasCtx.lineTo(this.#htmlCanvas.width, this.#htmlCanvas.height / 2);
 		this.#canvasCtx.stroke();
+
+		this.#drawChannel(0);
+	}
+
+	#drawChannel(channel: number): void {
+		if (!this.#trackContext || !this.#htmlTrackCanvas || !this.#audioBuffer || !this.#htmlContainer) {
+			return;
+		}
+
+		const styles = getComputedStyle(this.#htmlContainer)
+		this.#htmlTrackCanvas.width = parseInt(styles.getPropertyValue("width"), 10)
+		this.#htmlTrackCanvas.height = parseInt(styles.getPropertyValue("height"), 10) * 0.5;
+
+		const dataArray = this.#audioBuffer.getChannelData(channel);
+
+		this.#trackContext.fillStyle = "rgb(0 0 0)";
+		this.#trackContext.fillRect(0, 0, this.#htmlTrackCanvas.width, this.#htmlTrackCanvas.height);
+
+		this.#trackContext.lineWidth = 1;
+		this.#trackContext.strokeStyle = "rgb(255 255 255)";
+
+		this.#trackContext.beginPath();
+
+		const sliceWidth = (this.#htmlTrackCanvas.width * 1.0) / this.#bufferLength;
+		let x = 0;
+
+		const mul = Math.floor(dataArray.length / this.#bufferLength);
+		for (let i = 0; i < this.#bufferLength; i++) {
+			const v = dataArray[i * mul] * 1;// / 128.0;
+			const y = this.#htmlTrackCanvas.height / 2 - (v * this.#htmlTrackCanvas.height) / 2;
+
+			if (i === 0) {
+				this.#trackContext.moveTo(x, y);
+			} else {
+				this.#trackContext.lineTo(x, y);
+			}
+
+			x += sliceWidth;
+		}
+
+		this.#trackContext.lineTo(this.#htmlTrackCanvas.width, this.#htmlTrackCanvas.height / 2);
+		this.#trackContext.stroke();
+
+
 	}
 }
 

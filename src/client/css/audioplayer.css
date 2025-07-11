@@ -38,13 +38,17 @@
 
 .sound {
 	display: flex;
+	flex-direction: column;
 	flex: 1;
 	overflow: hidden;
 	justify-items: center;
 }
 
 .sound>canvas {
-	object-fit: contain;
+	object-fit: none;
+	/*
 	width: 100%;
-	height: 100%;
+	height: 50%;
+	flex: 1;
+	*/
 }
