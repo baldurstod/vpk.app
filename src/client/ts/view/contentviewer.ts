@@ -23,6 +23,7 @@ const TypePerExtension: { [key: string]: ContentType } = {
 
 	'mp3': ContentType.AudioMp3,
 	'wav': ContentType.AudioWav,
+	'flac': ContentType.AudioFlac,
 };
 
 export class Content {
@@ -101,6 +102,7 @@ export class ContentViewer extends SiteElement {
 				return await this.#addSource1ModelContent(repository, path, filename, engine, await file.arrayBuffer());
 			case ContentType.AudioMp3:
 			case ContentType.AudioWav:
+			case ContentType.AudioFlac:
 				return await this.#addAudioContent(repository, path, filename, GameEngine.None, await file.arrayBuffer(), fileType, userAction);
 			case ContentType.Txt:
 			default:
@@ -209,7 +211,7 @@ export class ContentViewer extends SiteElement {
 		return tab;
 	}
 
-	async #addAudioContent(repository: string, path: string, filename: string, engine: GameEngine, content: ArrayBuffer, fileType: ContentType.AudioMp3 | ContentType.AudioWav, userAction: boolean): Promise<HTMLHarmonyTabElement | null> {
+	async #addAudioContent(repository: string, path: string, filename: string, engine: GameEngine, content: ArrayBuffer, fileType: ContentType.AudioMp3 | ContentType.AudioWav | ContentType.AudioFlac, userAction: boolean): Promise<HTMLHarmonyTabElement | null> {
 		this.initHTML();
 
 		const response = await Repositories.getFileAsArrayBuffer(repository, path);
@@ -247,12 +249,14 @@ export class ContentViewer extends SiteElement {
 	}
 }
 
-function fileTypeToAudioType(fileType: ContentType.AudioMp3 | ContentType.AudioWav): AudioType {
+function fileTypeToAudioType(fileType: ContentType.AudioMp3 | ContentType.AudioWav| ContentType.AudioFlac): AudioType {
 	switch (fileType) {
 		case ContentType.AudioMp3:
 			return AudioType.Mp3;
 		case ContentType.AudioWav:
 			return AudioType.Wav;
+		case ContentType.AudioFlac:
+			return AudioType.Flac;
 	}
 }
 

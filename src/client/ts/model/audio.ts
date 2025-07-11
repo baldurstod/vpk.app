@@ -14,6 +14,7 @@ export enum AudioParamType {
 export enum AudioType {
 	Wav = 0,
 	Mp3,
+	Flac,
 }
 
 export type AudioParamValue = boolean | number | string;
