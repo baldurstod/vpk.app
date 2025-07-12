@@ -312,8 +312,6 @@ export class AudioPlayer extends SiteElement {
 
 		this.#trackContext.beginPath();
 
-		let x = 0;
-
 		const mul = Math.floor(dataArray.length / canvasWidth);
 		for (let i = 0; i < canvasWidth; i++) {
 			let min = 0;
@@ -339,45 +337,37 @@ export class AudioPlayer extends SiteElement {
 			}
 
 			if (maxCount != 0) {
-				averageMax[i] = min / maxCount;
+				averageMax[i] = max / maxCount;
 			} else {
 				averageMax[i] = 0;
 			}
-
-			/*
-			if (i === 0) {
-				this.#trackContext.moveTo(x, y);
-			} else {
-				this.#trackContext.lineTo(x, y);
-			}
-				*/
-
-			//x += sliceWidth;
 		}
+
+		this.#trackContext.beginPath();
 		for (let i = 0; i < canvasWidth; i++) {
 			const v = averageMin[i];
 			const y = canvasHeight / 2 - (v * canvasHeight) / 2;
-			if (i === 0) {
-				this.#trackContext.moveTo(x, y);
+			if (i == 0) {
+				this.#trackContext.moveTo(i, y);
 			} else {
-				this.#trackContext.lineTo(x, y);
+				this.#trackContext.lineTo(i, y);
 			}
-			x++;
 		}
-		for (let i = 0; i < canvasWidth; i++) {
-			const v = averageMax[i];
-			const y = canvasHeight / 2 - (v * canvasHeight) / 2;
-			if (i === 0) {
-				this.#trackContext.moveTo(x, y);
-			} else {
-				this.#trackContext.lineTo(x, y);
-			}
-			x++;
-		}
-
 		this.#trackContext.lineTo(canvasWidth, canvasHeight / 2);
 		this.#trackContext.stroke();
 
+		this.#trackContext.beginPath();
+		for (let i = 0; i < canvasWidth; i++) {
+			const v = averageMax[i];
+			const y = canvasHeight / 2 - (v * canvasHeight) / 2;
+			if (i == 0) {
+				this.#trackContext.moveTo(i, y);
+			} else {
+				this.#trackContext.lineTo(i, y);
+			}
+		}
+		this.#trackContext.lineTo(canvasWidth, canvasHeight / 2);
+		this.#trackContext.stroke();
 
 		this.#trackContext.beginPath();
 		this.#trackContext.lineWidth = 3;
