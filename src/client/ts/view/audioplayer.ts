@@ -167,6 +167,7 @@ export class AudioPlayer extends SiteElement {
 			if (audioOption) {
 				audioOption.audioBuffer = this.#audioBuffer;
 			}
+
 		}
 	}
 
@@ -220,11 +221,11 @@ export class AudioPlayer extends SiteElement {
 
 	#draw(): void {
 		requestAnimationFrame(() => this.#draw());
-		if (!this.#canvasCtx || !this.#htmlCanvas || !this.#htmlContainer) {
+		if (!this.#canvasCtx || !this.#htmlCanvas || !this.#htmlImageContainer) {
 			return;
 		}
 
-		const styles = getComputedStyle(this.#htmlContainer)
+		const styles = getComputedStyle(this.#htmlImageContainer)
 		this.#htmlCanvas.width = parseInt(styles.getPropertyValue("width"), 10)
 		this.#htmlCanvas.height = parseInt(styles.getPropertyValue("height"), 10) * 0.5;
 
@@ -268,42 +269,93 @@ export class AudioPlayer extends SiteElement {
 	}
 
 	#drawChannel(channel: number): void {
-		if (!this.#trackContext || !this.#htmlTrackCanvas || !this.#audioBuffer || !this.#htmlContainer || !this.#source) {
+		if (!this.#trackContext || !this.#htmlTrackCanvas || !this.#audioBuffer || !this.#htmlImageContainer || !this.#source) {
 			return;
 		}
 
-		const styles = getComputedStyle(this.#htmlContainer)
-		this.#htmlTrackCanvas.width = parseInt(styles.getPropertyValue("width"), 10)
-		this.#htmlTrackCanvas.height = parseInt(styles.getPropertyValue("height"), 10) * 0.5;
+		const styles = getComputedStyle(this.#htmlImageContainer)
+		const canvasWidth = parseInt(styles.getPropertyValue("width"), 10);
+		this.#htmlTrackCanvas.width = canvasWidth;
+		const canvasHeight = parseInt(styles.getPropertyValue("height"), 10) * 0.5;
+		this.#htmlTrackCanvas.height = canvasHeight;
 
 		const dataArray = this.#audioBuffer.getChannelData(channel);
+		const averageMin = new Array(canvasWidth);
+		const averageMax = new Array(canvasWidth);
 
 		this.#trackContext.fillStyle = "rgb(0 0 0)";
-		this.#trackContext.fillRect(0, 0, this.#htmlTrackCanvas.width, this.#htmlTrackCanvas.height);
+		this.#trackContext.fillRect(0, 0, canvasWidth, canvasHeight);
 
 		this.#trackContext.lineWidth = 1;
 		this.#trackContext.strokeStyle = "rgb(255 255 255)";
 
 		this.#trackContext.beginPath();
 
-		const sliceWidth = (this.#htmlTrackCanvas.width * 1.0) / this.#bufferLength;
+		const sliceWidth = (canvasWidth * 1.0) / this.#bufferLength;
 		let x = 0;
 
-		const mul = Math.floor(dataArray.length / this.#bufferLength);
-		for (let i = 0; i < this.#bufferLength; i++) {
-			const v = dataArray[i * mul] * 1;// / 128.0;
-			const y = this.#htmlTrackCanvas.height / 2 - (v * this.#htmlTrackCanvas.height) / 2;
+		const mul = Math.floor(dataArray.length / canvasWidth);
+		for (let i = 0; i < canvasWidth; i++) {
+			let min = 0;
+			let max = 0;
+			let minCount = 0;
+			let maxCount = 0;
 
+			for (let j = 0; j < mul; j++) {
+				const v = dataArray[i * mul + j];
+				if (v < 0) {
+					min += v;
+					minCount += 1;
+				} else {
+					max += v;
+					maxCount += 1;
+				}
+			}
+			//const y = canvasHeight / 2 - (v * canvasHeight) / 2;
+			if (minCount != 0) {
+				averageMin[i] = min / minCount;
+			} else {
+				averageMin[i] = 0;
+			}
+
+			if (maxCount != 0) {
+				averageMax[i] = min / maxCount;
+			} else {
+				averageMax[i] = 0;
+			}
+
+			/*
 			if (i === 0) {
 				this.#trackContext.moveTo(x, y);
 			} else {
 				this.#trackContext.lineTo(x, y);
 			}
+				*/
 
+			//x += sliceWidth;
+		}
+		for (let i = 0; i < canvasWidth; i++) {
+			const v = averageMin[i];
+			const y = canvasHeight / 2 - (v * canvasHeight) / 2;
+			if (i === 0) {
+				this.#trackContext.moveTo(x, y);
+			} else {
+				this.#trackContext.lineTo(x, y);
+			}
+			x += sliceWidth;
+		}
+		for (let i = 0; i < canvasWidth; i++) {
+			const v = averageMax[i];
+			const y = canvasHeight / 2 - (v * canvasHeight) / 2;
+			if (i === 0) {
+				this.#trackContext.moveTo(x, y);
+			} else {
+				this.#trackContext.lineTo(x, y);
+			}
 			x += sliceWidth;
 		}
 
-		this.#trackContext.lineTo(this.#htmlTrackCanvas.width, this.#htmlTrackCanvas.height / 2);
+		this.#trackContext.lineTo(canvasWidth, canvasHeight / 2);
 		this.#trackContext.stroke();
 
 
