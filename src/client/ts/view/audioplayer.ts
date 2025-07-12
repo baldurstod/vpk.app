@@ -4,8 +4,8 @@ import audioPlayerCSS from '../../css/audioplayer.css';
 import { Controller } from '../controller';
 import { ControllerEvents, SelectFile } from '../controllerevents';
 import { Audio, AudioParam, AudioParamType } from '../model/audio';
-import { SiteElement } from './siteelement';
 import { PlaybackPositionNode } from '../utils/playbackpositionnode';
+import { SiteElement } from './siteelement';
 
 type AudioOption = {
 	playing: boolean;
@@ -291,7 +291,6 @@ export class AudioPlayer extends SiteElement {
 
 		this.#trackContext.beginPath();
 
-		const sliceWidth = (canvasWidth * 1.0) / this.#bufferLength;
 		let x = 0;
 
 		const mul = Math.floor(dataArray.length / canvasWidth);
@@ -342,7 +341,7 @@ export class AudioPlayer extends SiteElement {
 			} else {
 				this.#trackContext.lineTo(x, y);
 			}
-			x += sliceWidth;
+			x ++;
 		}
 		for (let i = 0; i < canvasWidth; i++) {
 			const v = averageMax[i];
@@ -352,7 +351,7 @@ export class AudioPlayer extends SiteElement {
 			} else {
 				this.#trackContext.lineTo(x, y);
 			}
-			x += sliceWidth;
+			x ++;
 		}
 
 		this.#trackContext.lineTo(canvasWidth, canvasHeight / 2);
