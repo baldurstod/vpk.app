@@ -313,6 +313,8 @@ export class AudioPlayer extends SiteElement {
 		this.#trackContext.beginPath();
 
 		const mul = Math.floor(dataArray.length / canvasWidth);
+		let minMin = 0;
+		let maxMax = 0;
 		for (let i = 0; i < canvasWidth; i++) {
 			let min = 0;
 			let max = 0;
@@ -335,17 +337,29 @@ export class AudioPlayer extends SiteElement {
 			} else {
 				averageMin[i] = 0;
 			}
+			//averageMin[i] = min;
 
 			if (maxCount != 0) {
 				averageMax[i] = max / maxCount;
 			} else {
 				averageMax[i] = 0;
 			}
+			//averageMax[i] = max;
+
+			minMin = Math.min(averageMin[i], minMin);
+			maxMax = Math.max(averageMax[i], maxMax);
+		}
+
+		let coeff = Math.max(-minMin, maxMax);
+		if (coeff == 0) {
+			coeff = 1;
+		} else {
+			coeff = 0.95 / coeff;
 		}
 
 		this.#trackContext.beginPath();
 		for (let i = 0; i < canvasWidth; i++) {
-			const v = averageMin[i];
+			const v = averageMin[i] * coeff;
 			const y = canvasHeight / 2 - (v * canvasHeight) / 2;
 			if (i == 0) {
 				this.#trackContext.moveTo(i, y);
@@ -358,7 +372,7 @@ export class AudioPlayer extends SiteElement {
 
 		this.#trackContext.beginPath();
 		for (let i = 0; i < canvasWidth; i++) {
-			const v = averageMax[i];
+			const v = averageMax[i] * coeff;
 			const y = canvasHeight / 2 - (v * canvasHeight) / 2;
 			if (i == 0) {
 				this.#trackContext.moveTo(i, y);
