@@ -88,6 +88,11 @@ export class PlaybackPositionNode {
 		this.#bufferSource.start(when, offset, duration);
 	}
 
+	stop(when?: number) {
+		this.#bufferSource.stop(when);
+
+	}
+
 	connect(destinationNode: AudioNode, output?: number, input?: number): AudioNode {
 		this.#out.connect(destinationNode, output, input);
 		return destinationNode;

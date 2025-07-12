@@ -18,6 +18,8 @@ enum AnalyserMode {
 	TimeDomain,
 }
 
+const TRACK_MOVE_DELAY = 200;//ms
+
 export class AudioPlayer extends SiteElement {
 	#htmlToolbar?: HTMLElement;
 	#htmlContainer?: HTMLElement;
@@ -41,6 +43,7 @@ export class AudioPlayer extends SiteElement {
 	#analyserMode = AnalyserMode.Frequency;
 	#htmlTrackCanvas?: HTMLCanvasElement;
 	#trackContext: CanvasRenderingContext2D | null = null;
+	#lastMove = performance.now();
 
 	initHTML() {
 		if (this.shadowRoot) {
@@ -103,7 +106,12 @@ export class AudioPlayer extends SiteElement {
 						this.#htmlImageContainer = createElement('div', {
 							class: 'sound',
 							childs: [
-								this.#htmlTrackCanvas = createElement('canvas') as HTMLCanvasElement,
+								this.#htmlTrackCanvas = createElement('canvas', {
+									class: 'tracks',
+									$mousedown: (event: MouseEvent) => this.#onTrackMouseDown(event),
+									$mousemove: (event: MouseEvent) => this.#onTrackMouseMove(event),
+
+								}) as HTMLCanvasElement,
 								this.#htmlCanvas = createElement('canvas') as HTMLCanvasElement,
 							]
 						}),
@@ -183,24 +191,17 @@ export class AudioPlayer extends SiteElement {
 		}
 	}
 
-	async #play(): Promise<void> {
-		if (this.#source) {
-			//this.#source.stop();
-			this.#source.playbackRate.value = 1.0;
-			return;
-		}
+	async #play(offset?: number): Promise<void> {
+		this.#source?.stop();
 
 		if (!this.#audioBuffer) {
 			return;
 		}
 
-		this.#source = new PlaybackPositionNode(this.#audioContext, { buffer: this.#audioBuffer, loop: this.#loop, })//this.#context.createBufferSource();
-		//this.#source.addEventListener('ended', (event: Event) => this.#source = null);
-		//this.#source.buffer = this.#audioBuffer;
-		//this.#source.connect(this.#audioContext.destination);
+		this.#source = new PlaybackPositionNode(this.#audioContext, { buffer: this.#audioBuffer, loop: this.#loop, });
 		this.#source.connect(this.#gainNode).connect(this.#audioContext.destination);
 		this.#source.connect(this.#analyser);
-		this.#source.start();
+		this.#source.start(undefined, offset);
 	}
 
 	#pause(): void {
@@ -217,6 +218,26 @@ export class AudioPlayer extends SiteElement {
 
 	#setAnalyserMode(mode: AnalyserMode): void {
 		this.#analyserMode = mode;
+	}
+
+	#onTrackMouseDown(event: MouseEvent) {
+		if (!this.#audioBuffer) {
+			return;
+		}
+		this.#play(event.offsetX / this.#htmlTrackCanvas!.width * this.#audioBuffer?.duration);
+	}
+
+	#onTrackMouseMove(event: MouseEvent) {
+		if (!this.#audioBuffer || (event.buttons & 1) != 1) {
+			return;
+		}
+		const now = performance.now();
+		if (now - this.#lastMove < TRACK_MOVE_DELAY) {
+			return;
+		}
+		this.#lastMove = now;
+		this.#play(event.offsetX / this.#htmlTrackCanvas!.width * this.#audioBuffer?.duration);
+
 	}
 
 	#draw(): void {
@@ -341,7 +362,7 @@ export class AudioPlayer extends SiteElement {
 			} else {
 				this.#trackContext.lineTo(x, y);
 			}
-			x ++;
+			x++;
 		}
 		for (let i = 0; i < canvasWidth; i++) {
 			const v = averageMax[i];
@@ -351,13 +372,15 @@ export class AudioPlayer extends SiteElement {
 			} else {
 				this.#trackContext.lineTo(x, y);
 			}
-			x ++;
+			x++;
 		}
 
 		this.#trackContext.lineTo(canvasWidth, canvasHeight / 2);
 		this.#trackContext.stroke();
 
 
+		this.#trackContext.beginPath();
+		this.#trackContext.lineWidth = 3;
 
 		const cursorX = this.#source.playbackPosition * this.#htmlTrackCanvas.width;
 		this.#trackContext.moveTo(cursorX, 0);
