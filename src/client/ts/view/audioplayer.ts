@@ -5,6 +5,7 @@ import { Controller } from '../controller';
 import { ControllerEvents, SelectFile } from '../controllerevents';
 import { Audio, AudioParam, AudioParamType } from '../model/audio';
 import { SiteElement } from './siteelement';
+import { PlaybackPositionNode } from '../utils/playbackpositionnode';
 
 type AudioOption = {
 	playing: boolean;
@@ -26,7 +27,7 @@ export class AudioPlayer extends SiteElement {
 	#htmlImage?: HTMLImageElement;
 	#audioContext = new AudioContext();
 	#audioBuffer?: AudioBuffer;
-	#source: AudioBufferSourceNode | null = null;
+	#source: PlaybackPositionNode | null = null;
 	#audioOptions = new Map<Audio, AudioOption>;
 	#loop = false;
 	#htmlVolume?: HTMLInputElement;
@@ -162,6 +163,7 @@ export class AudioPlayer extends SiteElement {
 			this.#audioBuffer = audioBuffer;
 		} else {
 			this.#audioBuffer = await this.#audioContext.decodeAudioData(this.#audio.getData());
+			//this.#drawChannel(0);
 			if (audioOption) {
 				audioOption.audioBuffer = this.#audioBuffer;
 			}
@@ -191,7 +193,7 @@ export class AudioPlayer extends SiteElement {
 			return;
 		}
 
-		this.#source = new AudioBufferSourceNode(this.#audioContext, { buffer: this.#audioBuffer, loop: this.#loop, })//this.#context.createBufferSource();
+		this.#source = new PlaybackPositionNode(this.#audioContext, { buffer: this.#audioBuffer, loop: this.#loop, })//this.#context.createBufferSource();
 		//this.#source.addEventListener('ended', (event: Event) => this.#source = null);
 		//this.#source.buffer = this.#audioBuffer;
 		//this.#source.connect(this.#audioContext.destination);
@@ -262,12 +264,11 @@ export class AudioPlayer extends SiteElement {
 
 		this.#canvasCtx.lineTo(this.#htmlCanvas.width, this.#htmlCanvas.height / 2);
 		this.#canvasCtx.stroke();
-
 		this.#drawChannel(0);
 	}
 
 	#drawChannel(channel: number): void {
-		if (!this.#trackContext || !this.#htmlTrackCanvas || !this.#audioBuffer || !this.#htmlContainer) {
+		if (!this.#trackContext || !this.#htmlTrackCanvas || !this.#audioBuffer || !this.#htmlContainer || !this.#source) {
 			return;
 		}
 
@@ -303,6 +304,13 @@ export class AudioPlayer extends SiteElement {
 		}
 
 		this.#trackContext.lineTo(this.#htmlTrackCanvas.width, this.#htmlTrackCanvas.height / 2);
+		this.#trackContext.stroke();
+
+
+
+		const cursorX = this.#source.playbackPosition * this.#htmlTrackCanvas.width;
+		this.#trackContext.moveTo(cursorX, 0);
+		this.#trackContext.lineTo(cursorX, this.#htmlTrackCanvas.height);
 		this.#trackContext.stroke();
 
 
