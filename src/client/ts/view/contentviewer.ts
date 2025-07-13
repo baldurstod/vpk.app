@@ -115,6 +115,7 @@ export class ContentViewer extends SiteElement {
 
 		if (!this.#htmlTextViewer) {
 			this.#htmlTextViewer = new TextViewer();
+			this.#htmlContent?.append(this.#htmlTextViewer.getHTML());
 		}
 
 		this.#htmlTextViewer?.show();
