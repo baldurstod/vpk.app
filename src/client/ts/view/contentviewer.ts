@@ -1,4 +1,4 @@
-import { Repositories, Source1TextureManager, SourceEngineVTF, TEXTUREFLAGS_CLAMPS, TEXTUREFLAGS_CLAMPT, TEXTUREFLAGS_NORMAL, TEXTUREFLAGS_SRGB } from 'harmony-3d';
+import { Repositories, Source1TextureManager, Source2TextureManager, SourceEnginePCFLoader, SourceEngineVTF, SourcePCF, TEXTUREFLAGS_CLAMPS, TEXTUREFLAGS_CLAMPT, TEXTUREFLAGS_NORMAL, TEXTUREFLAGS_SRGB, getLoader, pcfToSTring } from 'harmony-3d';
 import { createElement, createShadowRoot, defineHarmonyTab, defineHarmonyTabGroup, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement, TabEventData } from 'harmony-ui';
 import { Map2 } from 'harmony-utils';
 import contentViewerCSS from '../../css/contentviewer.css';
@@ -20,6 +20,10 @@ const TypePerExtension: { [key: string]: ContentType } = {
 	// Source 1
 	'vtf': ContentType.Source1Texture,
 	'mdl': ContentType.Source1Model,
+	'pcf': ContentType.Source1Particle,
+
+	// Source 2
+	'vtex_c': ContentType.Source2Texture,
 
 	'mp3': ContentType.AudioMp3,
 	'wav': ContentType.AudioWav,
@@ -100,6 +104,10 @@ export class ContentViewer extends SiteElement {
 				return await this.#addSource1TextureContent(repository, path, filename, engine, await file.arrayBuffer());
 			case ContentType.Source1Model:
 				return await this.#addSource1ModelContent(repository, path, filename, engine, await file.arrayBuffer());
+			case ContentType.Source1Particle:
+				return await this.#addSource1ParticleContent(repository, path, filename, engine, await file.arrayBuffer());
+			case ContentType.Source2Texture:
+				return await this.#addSource2TextureContent(repository, path, filename, engine, await file.arrayBuffer());
 			case ContentType.AudioMp3:
 			case ContentType.AudioWav:
 			case ContentType.AudioFlac:
@@ -212,6 +220,82 @@ export class ContentViewer extends SiteElement {
 		return tab;
 	}
 
+	async #addSource1ParticleContent(repository: string, path: string, filename: string, engine: GameEngine, content: ArrayBuffer): Promise<HTMLHarmonyTabElement> {
+		this.initHTML();
+
+		if (!this.#htmlTextViewer) {
+			this.#htmlTextViewer = new TextViewer();
+			this.#htmlContent?.append(this.#htmlTextViewer.getHTML());
+		}
+
+		this.#htmlTextViewer?.show();
+
+		const tab = createElement('harmony-tab', {
+			'data-text': filename,
+			'data-closable': true,
+			parent: this.#htmlTabs,
+			$close: (event: CustomEvent<TabEventData>) => {
+				if (this.#closeFile(repository, path) && event.detail.tab.isActive()) {
+					this.#htmlTextViewer?.hide();
+				};
+			},
+			$activated: () => {
+				this.#htmlContent?.replaceChildren(this.#htmlTextViewer!.getHTML());
+				this.#htmlTextViewer?.setText(String(content));
+			},
+		}) as HTMLHarmonyTabElement;
+
+		const pcfLoader = getLoader('SourceEnginePCFLoader') as typeof SourceEnginePCFLoader;
+		const pcf = await new pcfLoader().load(repository, path) as SourcePCF;
+
+
+		this.#htmlTextViewer?.setText(pcfToSTring(pcf));
+		return tab;
+	}
+
+	async #addSource2TextureContent(repository: string, path: string, filename: string, engine: GameEngine, content: ArrayBuffer): Promise<HTMLHarmonyTabElement> {
+		this.initHTML();
+
+		if (!this.#htmlTextureViewer) {
+			this.#htmlTextureViewer = new TextureViewer();
+			this.#htmlContent?.append(this.#htmlTextureViewer.getHTML());
+		}
+
+		this.#htmlTextureViewer?.show();
+
+		const vtf = await Source1TextureManager.getVtf(repository, path);
+		let texture: Texture;
+		if (vtf) {
+			const imageData = await vtf.getImageData();
+			console.info(vtf, imageData);
+
+			if (imageData) {
+				texture = new Texture(repository, path, imageData);
+				vtfToTextureFlags(vtf, texture);
+				this.#htmlTextureViewer?.setTexture(texture);
+			}
+		}
+
+		const tab = createElement('harmony-tab', {
+			'data-text': filename,
+			'data-closable': true,
+			parent: this.#htmlTabs,
+			$close: (event: CustomEvent<TabEventData>) => {
+				if (this.#closeFile(repository, path) && event.detail.tab.isActive()) {
+					this.#htmlTextureViewer?.hide();
+				};
+			},
+			$activated: () => {
+				this.#htmlContent?.replaceChildren(this.#htmlTextureViewer!.getHTML());
+				if (texture) {
+					this.#htmlTextureViewer?.setTexture(texture);
+				}
+			},
+		}) as HTMLHarmonyTabElement;
+
+		return tab;
+	}
+
 	async #addAudioContent(repository: string, path: string, filename: string, engine: GameEngine, content: ArrayBuffer, fileType: ContentType.AudioMp3 | ContentType.AudioWav | ContentType.AudioFlac, userAction: boolean): Promise<HTMLHarmonyTabElement | null> {
 		this.initHTML();
 
@@ -250,7 +334,7 @@ export class ContentViewer extends SiteElement {
 	}
 }
 
-function fileTypeToAudioType(fileType: ContentType.AudioMp3 | ContentType.AudioWav| ContentType.AudioFlac): AudioType {
+function fileTypeToAudioType(fileType: ContentType.AudioMp3 | ContentType.AudioWav | ContentType.AudioFlac): AudioType {
 	switch (fileType) {
 		case ContentType.AudioMp3:
 			return AudioType.Mp3;
