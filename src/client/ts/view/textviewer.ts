@@ -46,6 +46,12 @@ export class TextViewer extends SiteElement {
 		this.#aceEditor.setValue(text);
 	}
 
+	async gotoLine(line: number, column?:number): Promise<void> {
+		await this.#aceEditorReady;
+		this.#aceEditor.resize(true);
+		this.#aceEditor.gotoLine(line, column);
+	}
+
 	show() {
 		this.initHTML();
 		show(this.#htmlText);

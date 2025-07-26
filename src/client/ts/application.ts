@@ -45,7 +45,7 @@ class Application {
 	#initEvents() {
 		Controller.addEventListener(ControllerEvents.RefreshRepositoryList, () => this.#refreshRepositoryList());
 		Controller.addEventListener(ControllerEvents.SelectRepository, (event: Event) => this.#selectRepository((event as CustomEvent<SelectRepository>).detail.repository, false));
-		Controller.addEventListener(ControllerEvents.SelectFile, (event: Event) => this.#selectFile((event as CustomEvent<SelectFile>).detail.repository, (event as CustomEvent<SelectFile>).detail.path, true));
+		Controller.addEventListener(ControllerEvents.SelectFile, (event: Event) => this.#selectFile((event as CustomEvent<SelectFile>).detail.repository, (event as CustomEvent<SelectFile>).detail.path, (event as CustomEvent<SelectFile>).detail.hash ?? '', true));
 		Controller.addEventListener(ControllerEvents.DownloadFile, (event: Event) => this.#downloadFile(event as CustomEvent<SelectFile>));
 		Controller.addEventListener(ControllerEvents.DownloadMaterials, (event: Event) => this.#downloadMaterials(event as CustomEvent<SelectRepository>));
 		Controller.addEventListener(ControllerEvents.CreateRepositoryLink, (event: Event) => this.#createRepositoryLink(event as CustomEvent<SelectRepository>));
@@ -98,7 +98,7 @@ class Application {
 		let result = /@view\/([^\:]*)\:?(.*)/i.exec(document.location.pathname);
 		if (result) {
 			await this.#selectRepository(result[1], true);
-			await this.#selectFile(result[1], result[2], false);
+			await this.#selectFile(result[1], result[2], document.location.hash.substring(1), false);
 		}
 	}
 
@@ -129,7 +129,7 @@ class Application {
 		this.#appContent.selectRepository(repository, scrollIntoView);
 	}
 
-	async #selectFile(repository: string, path: string, userAction: boolean) {
+	async #selectFile(repository: string, path: string, hash: string, userAction: boolean) {
 		path = path.replace(/\.(vvd|dx80\.vtx|dx90\.vtx|sw\.vtx)$/, '.mdl');
 
 		const response = await Repositories.getFile(repository, path);
@@ -138,7 +138,7 @@ class Application {
 		}
 
 		console.info(response.file);
-		this.#appContent.viewFile(repository, path, GameEngine.Source1, response.file!, userAction);
+		this.#appContent.viewFile(repository, path, hash, GameEngine.Source1, response.file!, userAction);
 		this.#appContent.selectRepository(repository, !userAction);
 		this.#appContent.selectFile(path, !userAction);
 	}
@@ -208,7 +208,7 @@ class Application {
 	async #openLocalFile(file: File): Promise<void> {
 		//const extension = file.name.split('.').pop() ?? '';
 		localRepo.setFile(file.name, file);
-		await this.#selectFile('local', file.name, false);
+		await this.#selectFile('local', file.name, '', false);
 
 	}
 }

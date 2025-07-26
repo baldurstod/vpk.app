@@ -43,8 +43,8 @@ export class MainContent extends SiteElement {
 		this.#repositorySelector.setFileList(repository, fileList);
 	}
 
-	viewFile(repository: string, path: string, engine: GameEngine, file: File, userAction: boolean) {
-		this.#contentViewer.viewFile(repository, path, engine, file, userAction);
+	viewFile(repository: string, path: string, hash: string, engine: GameEngine, file: File, userAction: boolean) {
+		this.#contentViewer.viewFile(repository, path, hash, engine, file, userAction);
 	}
 
 	toogleOptions() {

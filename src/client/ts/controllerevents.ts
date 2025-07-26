@@ -16,4 +16,5 @@ export type SelectRepository = {
 export type SelectFile = {
 	repository: string,
 	path: string,
+	hash?: string,
 }
