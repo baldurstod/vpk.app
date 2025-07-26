@@ -11,7 +11,7 @@ import { AudioPlayer } from './audioplayer';
 import { ModelViewer } from './modelviewer';
 import { SiteElement } from './siteelement';
 import { TextureViewer } from './textureviewer';
-import { TextViewer } from './textviewer';
+import { TextViewer, TextViewerRange } from './textviewer';
 
 const TypePerExtension: { [key: string]: ContentType } = {
 	'cfg': ContentType.Txt,
@@ -249,7 +249,19 @@ export class ContentViewer extends SiteElement {
 		const pcf = await new pcfLoader().load(repository, path) as SourcePCF;
 
 
-		await this.#htmlTextViewer?.setText(pcfToSTring(pcf));
+		const pcfResult = pcfToSTring(pcf);
+		if (pcfResult) {
+
+			const anchors = new Map<string, TextViewerRange>();
+			for (const [id, line] of pcfResult.elementsLine) {
+				anchors.set(id, {
+					startRow: line,
+					startCol: 0,
+				});
+			}
+
+			await this.#htmlTextViewer?.setText(pcfResult.text, anchors);
+		}
 
 		const line = Number(hash);
 		if (!Number.isNaN(line)) {
