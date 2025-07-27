@@ -103,10 +103,10 @@ export class TextViewer extends SiteElement {
 		}
 	};
 
-	#getMatchAround(regExp: RegExp, string: string, col: number) {
+	#getMatchAround(regExp: RegExp, line: string, col: number) {
 		let match: undefined | Token;
 		regExp.lastIndex = 0;
-		string.replace(regExp, (str: string, ...args: any[]): string => {
+		line.replace(regExp, (str: string, ...args: any[]): string => {
 			const offset = args[args.length - 2] as number;
 			const length = str.length;
 			if (offset <= col && offset + length >= col) {
@@ -122,10 +122,14 @@ export class TextViewer extends SiteElement {
 		return match;
 	};
 
-	#findUuid(row: number, column: number) {
+	#findUuid(row: number, column: number): Token | undefined {
 		const editor = this.#aceEditor;
 		const session = editor.session;
-		const line = session.getLine(row);
+		const line: string = session.getLine(row);
+
+		if (line.includes('"id" "elementid"')) {
+			return;
+		}
 
 		// example 946f0e0f-6b2b-4cd3-9117-8f5468f20936
 		const match = this.#getMatchAround(/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/g, line, column);
