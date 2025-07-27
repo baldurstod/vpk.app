@@ -84,15 +84,22 @@ export class TextViewer extends SiteElement {
 	}
 
 	#onClick(event: MouseEvent) {
-		if (!this.#uuid || !this.#anchors) {
+		if (!this.#uuid) {
+			return;
+		}
+		this.#selectToken(this.#uuid.value);
+	}
+
+	#selectToken(token: string) {
+		if (!this.#anchors) {
 			return;
 		}
 
-		const range = this.#anchors.get(this.#uuid.value);
-		console.info(this.#anchors.get(this.#uuid.value));
+		const range = this.#anchors.get(token);
+		console.info(this.#anchors.get(token));
 
+		this.#aceEditor.resize(true);
 		this.#aceEditor.gotoLine(range?.startRow, 0);
-
 	}
 
 	#clear() {
@@ -155,10 +162,15 @@ export class TextViewer extends SiteElement {
 		this.#aceEditor.setValue(text);
 	}
 
-	async gotoLine(line: number, column?: number): Promise<void> {
-		await this.#aceEditorReady;
-		this.#aceEditor.resize(true);
-		this.#aceEditor.gotoLine(line, column);
+	async select(hash: string): Promise<void> {
+		const line = Number(hash);
+		if (Number.isNaN(line)) {
+			this.#selectToken(hash);
+		} else {
+			await this.#aceEditorReady;
+			this.#aceEditor.resize(true);
+			this.#aceEditor.gotoLine(line);
+		}
 
 		const range = new (globalThis as any).ace.Range(1000, 1, 1000, 20);
 		const marker = this.#aceEditor.getSession().addMarker(range, "ace_selected_word", "text");

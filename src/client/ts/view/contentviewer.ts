@@ -263,10 +263,7 @@ export class ContentViewer extends SiteElement {
 			await this.#htmlTextViewer?.setText(pcfResult.text, anchors);
 		}
 
-		const line = Number(hash);
-		if (!Number.isNaN(line)) {
-			await this.#htmlTextViewer?.gotoLine(line);
-		}
+		await this.#htmlTextViewer?.select(hash);
 
 		return tab;
 	}
