@@ -64,7 +64,7 @@ func apiGetRepositoryList(c *gin.Context) apiError {
 	//files, err = FilePathWalkDir(root)
 	var files []string
 	err := Walk(repositoryRoot, func(path string, info os.FileInfo, err error) error {
-		if !info.IsDir() && strings.HasSuffix(path, "_dir.vpk") {
+		if info != nil && !info.IsDir() && strings.HasSuffix(path, "_dir.vpk") {
 			//files = append(files, strings.TrimSuffix(info.Name(), "_dir.vpk"))
 			//dir, file := filepath.Split(strings.TrimPrefix(path, root))
 			//fmt.Printf("input: %q\n\tdir: %q\n\tfile: %q\n", path, dir, file)
