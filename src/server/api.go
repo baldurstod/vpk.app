@@ -4,9 +4,11 @@ import (
 	"encoding/gob"
 	"errors"
 	"io"
+	"log"
 	"os"
 	"path"
 	"path/filepath"
+	"runtime/debug"
 	"strings"
 
 	"github.com/baldurstod/go-vpk"
@@ -33,6 +35,13 @@ type apiRequest struct {
 func apiHandler(c *gin.Context) {
 	var request apiRequest
 	var err error
+
+	defer func() {
+		if err := recover(); err != nil {
+			jsonError(c, CreateApiError(UnexpectedError))
+			log.Println(err, string(debug.Stack()))
+		}
+	}()
 
 	if err = c.ShouldBindJSON(&request); err != nil {
 		logError(c, err)
