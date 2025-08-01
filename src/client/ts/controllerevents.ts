@@ -6,6 +6,7 @@ export enum ControllerEvents {
 	CreateRepositoryLink = 'createrepositorylink',
 	CreateFileLink = 'createfilelink',
 	ToogleOptions = 'toogleoptions',
+	OpenAdvancedOptions = 'openadvancedoptions',
 	DownloadMaterials = 'downloadmaterials',
 }
 

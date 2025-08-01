@@ -5,6 +5,7 @@ import treeCSS from '../../css/tree.css';
 import { Controller } from '../controller';
 import { ControllerEvents, SelectFile, SelectRepository } from '../controllerevents';
 import { SiteElement } from './siteelement';
+import { setTimeoutPromise } from 'harmony-utils';
 
 export class RepositorySelector extends SiteElement {
 	#htmlList?: HTMLHarmonyTreeElement;
@@ -77,19 +78,28 @@ export class RepositorySelector extends SiteElement {
 		}
 	}
 
-	#handleItemAction(event: CustomEvent<ItemActionEventData>) {
+	async #handleItemAction(event: CustomEvent<ItemActionEventData>): Promise<void> {
 		const clickedItem = event.detail.item;
+		if (!clickedItem) {
+			return;
+		}
 
 		switch (event.detail.action) {
 			case 'download':
-				if (clickedItem) {
+				if (clickedItem.type == 'file') {
 					Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.DownloadFile, { detail: { repository: this.#repository, path: clickedItem.getPath() } }));
+				} else {
+					for (const child of clickedItem.childs) {
+						if (child.type == 'file') {
+							Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.DownloadFile, { detail: { repository: this.#repository, path: child.getPath() } }));
+							await setTimeoutPromise(100);
+						}
+					}
+					console.info(clickedItem);
 				}
 				break;
 			case 'sharelink':
-				if (clickedItem) {
-					Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.CreateFileLink, { detail: { repository: this.#repository, path: clickedItem.getPath() } }));
-				}
+				Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.CreateFileLink, { detail: { repository: this.#repository, path: clickedItem.getPath() } }));
 				break;
 		}
 	}
@@ -113,7 +123,7 @@ export class RepositorySelector extends SiteElement {
 			this.#htmlFileTree?.replaceChildren();
 			this.#fileRoot = TreeItem.createFromPathList(this.#fileList);
 
-			for (let item of this.#fileRoot.walk({ type: 'file' })) {
+			for (let item of this.#fileRoot.walk({})) {
 				item.addActions(['download', 'sharelink']);
 			}
 

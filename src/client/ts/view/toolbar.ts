@@ -1,4 +1,4 @@
-import { bugReportSVG, settingsSVG } from 'harmony-svg';
+import { bugReportSVG, manufacturingSVG, settingsSVG } from 'harmony-svg';
 import { createElement, createShadowRoot } from 'harmony-ui';
 import toolbarCSS from '../../css/toolbar.css';
 import { DISCORD_BUG_URL } from '../constants';
@@ -26,6 +26,11 @@ export class Toolbar extends SiteElement {
 					innerHTML: settingsSVG,
 					i18n: { title: '#options' },
 					$click: () => Controller.dispatchEvent(new CustomEvent(ControllerEvents.ToogleOptions)),
+				}),
+				createElement('span', {
+					innerHTML: manufacturingSVG,
+					i18n: { title: '#advanced_options' },
+					$click: () => Controller.dispatchEvent(new CustomEvent(ControllerEvents.OpenAdvancedOptions)),
 				}),
 			],
 		});

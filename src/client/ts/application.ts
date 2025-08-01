@@ -1,6 +1,6 @@
 
 import { MemoryCacheRepository, MemoryRepository, Repositories, Source1TextureManager } from 'harmony-3d';
-import { addNotification, NotificationType, saveFile } from 'harmony-browser-utils';
+import { addNotification, NotificationType, OptionsManager, saveFile } from 'harmony-browser-utils';
 import { themeCSS } from 'harmony-css';
 import { createShadowRoot, documentStyle, I18n } from 'harmony-ui';
 import applicationCSS from '../css/application.css';
@@ -15,6 +15,7 @@ import { FileCache } from './filecache';
 import { ConcatFilesResponse, RepositoryListResponse } from './responses/repository';
 import { MainContent } from './view/maincontent';
 import { Toolbar } from './view/toolbar';
+import optionsmanager from '../json/optionsmanager.json';
 
 documentStyle(htmlCSS);
 documentStyle(themeCSS);
@@ -40,6 +41,7 @@ class Application {
 		this.#initPage();
 		await this.#refreshRepositoryList();
 		await this.#startup();
+		OptionsManager.init({ json: optionsmanager });
 	}
 
 	#initEvents() {
@@ -51,6 +53,7 @@ class Application {
 		Controller.addEventListener(ControllerEvents.CreateRepositoryLink, (event: Event) => this.#createRepositoryLink(event as CustomEvent<SelectRepository>));
 		Controller.addEventListener(ControllerEvents.CreateFileLink, (event: Event) => this.#createFileLink(event as CustomEvent<SelectFile>));
 		Controller.addEventListener(ControllerEvents.ToogleOptions, () => this.#appContent.toogleOptions());
+		Controller.addEventListener(ControllerEvents.OpenAdvancedOptions, () => OptionsManager.showOptionsManager());
 	}
 
 	#initPage() {
@@ -134,7 +137,7 @@ class Application {
 
 		const response = await Repositories.getFile(repository, path);
 		if (response.error) {
-			return
+			return;
 		}
 
 		console.info(response.file);
@@ -149,7 +152,12 @@ class Application {
 			return
 		}
 
-		saveFile(response.file!);
+		let file = response.file!;
+		if (OptionsManager.getItem('app.files.export.namingscheme') == 'name') {
+			file = new File([file], file.name.split('/').pop() ?? file.name, { type: file.type });
+		}
+
+		saveFile(file);
 	}
 
 	async #downloadMaterials(event: CustomEvent<SelectRepository>) {
@@ -187,7 +195,7 @@ class Application {
 
 	}
 
-	async  #handleDrop(event: DragEvent): Promise<void> {
+	async #handleDrop(event: DragEvent): Promise<void> {
 		event.preventDefault();
 
 		if (!event.dataTransfer) {

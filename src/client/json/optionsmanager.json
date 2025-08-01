@@ -1,0 +1,27 @@
+{
+	"categories": [
+		"app.lang",
+		"app"
+	],
+	"options": [
+		{
+			"name": "app.css.theme",
+			"type": "list",
+			"default": "",
+			"datalist": [
+				"",
+				"dark",
+				"light"
+			]
+		},
+		{
+			"name": "app.files.export.namingscheme",
+			"type": "list",
+			"default": "name",
+			"datalist": [
+				"name",
+				"path"
+			]
+		}
+	]
+}
