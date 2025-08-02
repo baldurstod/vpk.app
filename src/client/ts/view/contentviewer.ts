@@ -77,7 +77,7 @@ export class ContentViewer extends SiteElement {
 			return;//TODO: error ?
 		}
 		tab.activate();
-		tab.addEventListener('activated', (event: Event) => Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.SelectFile, { detail: { repository: repository, path: path } })));
+		tab.addEventListener('click', (event: Event) => Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.SelectFile, { detail: { repository: repository, path: path } })));
 
 		this.#openViewers.set(repository, path, tab);
 	}

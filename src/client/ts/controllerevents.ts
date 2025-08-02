@@ -8,6 +8,7 @@ export enum ControllerEvents {
 	ToogleOptions = 'toogleoptions',
 	OpenAdvancedOptions = 'openadvancedoptions',
 	DownloadMaterials = 'downloadmaterials',
+	NavigateTo = 'navigateto',
 }
 
 export type SelectRepository = {
@@ -18,4 +19,9 @@ export type SelectFile = {
 	repository: string,
 	path: string,
 	hash?: string,
+}
+
+export type NavigateTo = {
+	url: string,
+	replaceSate: boolean,
 }

@@ -8,7 +8,7 @@ import htmlCSS from '../css/html.css';
 import english from '../json/i18n/english.json';
 import { ApiRepository } from './apirepository';
 import { Controller } from './controller';
-import { ControllerEvents, SelectFile, SelectRepository } from './controllerevents';
+import { ControllerEvents, NavigateTo, SelectFile, SelectRepository } from './controllerevents';
 import { GameEngine } from './enums';
 import { fetchApi } from './fetchapi';
 import { FileCache } from './filecache';
@@ -54,6 +54,8 @@ class Application {
 		Controller.addEventListener(ControllerEvents.CreateFileLink, (event: Event) => this.#createFileLink(event as CustomEvent<SelectFile>));
 		Controller.addEventListener(ControllerEvents.ToogleOptions, () => this.#appContent.toogleOptions());
 		Controller.addEventListener(ControllerEvents.OpenAdvancedOptions, () => OptionsManager.showOptionsManager());
+		Controller.addEventListener(ControllerEvents.NavigateTo, (event: Event) => this.#navigateTo((event as CustomEvent<NavigateTo>).detail.url, (event as CustomEvent).detail.replaceSate));
+		addEventListener('popstate', event => this.#startup(event.state ?? {}));
 	}
 
 	#initPage() {
@@ -101,7 +103,7 @@ class Application {
 		let result = /@view\/([^\:]*)\:?(.*)/i.exec(document.location.pathname);
 		if (result) {
 			await this.#selectRepository(result[1], true);
-			await this.#selectFile(result[1], result[2], document.location.hash.substring(1), false);
+			await this.#viewFile(result[1], result[2], document.location.hash.substring(1), false);
 		}
 	}
 
@@ -133,6 +135,10 @@ class Application {
 	}
 
 	async #selectFile(repository: string, path: string, hash: string, userAction: boolean) {
+		this.#navigateTo(this.#getFileLink(repository, path));
+	}
+
+	async #viewFile(repository: string, path: string, hash: string, userAction: boolean) {
 		path = path.replace(/\.(vvd|dx80\.vtx|dx90\.vtx|sw\.vtx)$/, '.mdl');
 
 		const response = await Repositories.getFile(repository, path);
@@ -177,8 +183,12 @@ class Application {
 		this.#copyLink(`${document.location.origin}/@view/${encodeURI(event.detail.repository)}`);
 	}
 
+	#getFileLink(repository: string, path: string): string {
+		return `${document.location.origin}/@view/${encodeURI(repository)}:${encodeURI(path)}`
+	}
+
 	#createFileLink(event: CustomEvent<SelectFile>): void {
-		this.#copyLink(`${document.location.origin}/@view/${encodeURI(event.detail.repository)}:${encodeURI(event.detail.path)}`);
+		this.#copyLink(this.#getFileLink(event.detail.repository, event.detail.path));
 	}
 
 	async #copyLink(url: string): Promise<void> {
@@ -192,7 +202,6 @@ class Application {
 		} catch (e) {
 			addNotification(notificationText, NotificationType.Info, 15);
 		}
-
 	}
 
 	async #handleDrop(event: DragEvent): Promise<void> {
@@ -216,7 +225,7 @@ class Application {
 	async #openLocalFile(file: File): Promise<void> {
 		//const extension = file.name.split('.').pop() ?? '';
 		localRepo.setFile(file.name, file);
-		await this.#selectFile('local', file.name, '', false);
+		await this.#viewFile('local', file.name, '', false);
 
 	}
 }
