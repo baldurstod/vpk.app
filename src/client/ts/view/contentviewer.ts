@@ -1,5 +1,5 @@
 import { Repositories, Source1TextureManager, Source2TextureManager, SourceEnginePCFLoader, SourceEngineVTF, SourcePCF, TEXTUREFLAGS_CLAMPS, TEXTUREFLAGS_CLAMPT, TEXTUREFLAGS_NORMAL, TEXTUREFLAGS_SRGB, getLoader, pcfToSTring } from 'harmony-3d';
-import { createElement, createShadowRoot, defineHarmonyTab, defineHarmonyTabGroup, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement, TabEventData } from 'harmony-ui';
+import { createElement, createShadowRoot, defineHarmonyMenu, defineHarmonyTab, defineHarmonyTabGroup, HTMLHarmonyMenuElement, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement, TabEventData } from 'harmony-ui';
 import { Map2, setTimeoutPromise } from 'harmony-utils';
 import contentViewerCSS from '../../css/contentviewer.css';
 import { Controller } from '../controller';
@@ -46,6 +46,7 @@ export class ContentViewer extends SiteElement {
 	#htmlModelViewer?: ModelViewer;
 	#htmlAudioPlayer?: AudioPlayer;
 	#openViewers = new Map2<string, string, HTMLHarmonyTabElement>();
+	#htmlContextMenu?: HTMLHarmonyMenuElement;
 
 	initHTML() {
 		if (this.shadowRoot) {
@@ -118,6 +119,40 @@ export class ContentViewer extends SiteElement {
 		}
 	}
 
+	#createTab(filename: string, closeFn: (event: CustomEvent<TabEventData>) => void, activatedFn: () => void): HTMLHarmonyTabElement {
+		return createElement('harmony-tab', {
+			'data-text': filename,
+			'data-closable': true,
+			parent: this.#htmlTabs,
+			$close: closeFn,
+			$activated: activatedFn,
+			$contextmenu: (event: CustomEvent<TabEventData>) => this.#onTabContextMenu(event),
+		}) as HTMLHarmonyTabElement;
+	}
+
+	#onTabContextMenu(event: CustomEvent<TabEventData>) {
+		defineHarmonyMenu();
+		const originalEvent = event.detail.originalEvent as PointerEvent;
+		originalEvent.preventDefault();
+
+		if (!this.#htmlContextMenu) {
+			this.#htmlContextMenu = createElement('harmony-menu') as HTMLHarmonyMenuElement;
+		}
+
+		const tab = event.detail.tab;
+
+		const contextMenu = {
+			close: { i18n: '#close', f: () => tab.close() },
+			closeall: { i18n: '#close_all', f: () => this.#htmlTabs?.closeAllTabs() },
+		};
+
+		this.#htmlContextMenu.showContextual(contextMenu, originalEvent.clientX, originalEvent.clientY, null);
+
+
+		console.info(event);
+
+	}
+
 	#addTxtContent(repository: string, path: string, filename: string, engine: GameEngine, content: string): HTMLHarmonyTabElement {
 		this.initHTML();
 
@@ -128,20 +163,17 @@ export class ContentViewer extends SiteElement {
 
 		this.#htmlTextViewer?.show();
 
-		const tab = createElement('harmony-tab', {
-			'data-text': filename,
-			'data-closable': true,
-			parent: this.#htmlTabs,
-			$close: (event: CustomEvent<TabEventData>) => {
+		const tab = this.#createTab(filename,
+			(event: CustomEvent<TabEventData>) => {
 				if (this.#closeFile(repository, path) && event.detail.tab.isActive()) {
 					this.#htmlTextViewer?.hide();
 				};
 			},
-			$activated: () => {
+			() => {
 				this.#htmlContent?.replaceChildren(this.#htmlTextViewer!.getHTML());
 				this.#htmlTextViewer?.setText(String(content));
-			},
-		}) as HTMLHarmonyTabElement;
+			}
+		);
 
 		this.#htmlTextViewer?.setText(String(content));
 		return tab;
@@ -169,23 +201,19 @@ export class ContentViewer extends SiteElement {
 				this.#htmlTextureViewer?.setTexture(texture);
 			}
 		}
-
-		const tab = createElement('harmony-tab', {
-			'data-text': filename,
-			'data-closable': true,
-			parent: this.#htmlTabs,
-			$close: (event: CustomEvent<TabEventData>) => {
+		const tab = this.#createTab(filename,
+			(event: CustomEvent<TabEventData>) => {
 				if (this.#closeFile(repository, path) && event.detail.tab.isActive()) {
 					this.#htmlTextureViewer?.hide();
 				};
 			},
-			$activated: () => {
+			() => {
 				this.#htmlContent?.replaceChildren(this.#htmlTextureViewer!.getHTML());
 				if (texture) {
 					this.#htmlTextureViewer?.setTexture(texture);
 				}
-			},
-		}) as HTMLHarmonyTabElement;
+			}
+		);
 
 		return tab;
 	}
@@ -202,20 +230,17 @@ export class ContentViewer extends SiteElement {
 
 		this.#htmlModelViewer?.setModel(repository, path);
 
-		const tab = createElement('harmony-tab', {
-			'data-text': filename,
-			'data-closable': true,
-			parent: this.#htmlTabs,
-			$close: (event: CustomEvent<TabEventData>) => {
+		const tab = this.#createTab(filename,
+			(event: CustomEvent<TabEventData>) => {
 				if (this.#closeFile(repository, path) && event.detail.tab.isActive()) {
 					this.#htmlModelViewer?.hide();
 				};
 			},
-			$activated: () => {
+			() => {
 				this.#htmlContent?.replaceChildren(this.#htmlModelViewer!.getHTML());
 				this.#htmlModelViewer?.setModel(repository, path);
-			},
-		}) as HTMLHarmonyTabElement;
+			}
+		);
 
 		return tab;
 	}
@@ -230,20 +255,17 @@ export class ContentViewer extends SiteElement {
 
 		this.#htmlTextViewer?.show();
 
-		const tab = createElement('harmony-tab', {
-			'data-text': filename,
-			'data-closable': true,
-			parent: this.#htmlTabs,
-			$close: (event: CustomEvent<TabEventData>) => {
+		const tab = this.#createTab(filename,
+			(event: CustomEvent<TabEventData>) => {
 				if (this.#closeFile(repository, path) && event.detail.tab.isActive()) {
 					this.#htmlTextViewer?.hide();
 				};
 			},
-			$activated: () => {
+			() => {
 				this.#htmlContent?.replaceChildren(this.#htmlTextViewer!.getHTML());
 				this.#htmlTextViewer?.setText(String(content));
-			},
-		}) as HTMLHarmonyTabElement;
+			}
+		);
 
 		const pcfLoader = getLoader('SourceEnginePCFLoader') as typeof SourceEnginePCFLoader;
 		const pcf = await new pcfLoader().load(repository, path) as SourcePCF;
@@ -291,22 +313,19 @@ export class ContentViewer extends SiteElement {
 			}
 		}
 
-		const tab = createElement('harmony-tab', {
-			'data-text': filename,
-			'data-closable': true,
-			parent: this.#htmlTabs,
-			$close: (event: CustomEvent<TabEventData>) => {
+		const tab = this.#createTab(filename,
+			(event: CustomEvent<TabEventData>) => {
 				if (this.#closeFile(repository, path) && event.detail.tab.isActive()) {
 					this.#htmlTextureViewer?.hide();
 				};
 			},
-			$activated: () => {
+			() => {
 				this.#htmlContent?.replaceChildren(this.#htmlTextureViewer!.getHTML());
 				if (texture) {
 					this.#htmlTextureViewer?.setTexture(texture);
 				}
-			},
-		}) as HTMLHarmonyTabElement;
+			}
+		);
 
 		return tab;
 	}
@@ -330,20 +349,17 @@ export class ContentViewer extends SiteElement {
 		const audio = new Audio(repository, path, fileTypeToAudioType(fileType), response.buffer as ArrayBuffer);
 		this.#htmlAudioPlayer?.setAudio(audio, userAction);
 
-		const tab = createElement('harmony-tab', {
-			'data-text': filename,
-			'data-closable': true,
-			parent: this.#htmlTabs,
-			$close: (event: CustomEvent<TabEventData>) => {
+		const tab = this.#createTab(filename,
+			(event: CustomEvent<TabEventData>) => {
 				if (this.#closeFile(repository, path) && event.detail.tab.isActive()) {
 					this.#htmlAudioPlayer?.hide();
 				};
 			},
-			$activated: () => {
+			() => {
 				this.#htmlContent?.replaceChildren(this.#htmlAudioPlayer!.getHTML());
 				this.#htmlAudioPlayer?.setAudio(audio, userAction);
-			},
-		}) as HTMLHarmonyTabElement;
+			}
+		);
 
 		return tab;
 	}
