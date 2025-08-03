@@ -75,7 +75,7 @@ export class ApiRepository implements Repository {
 	async getFileList(): Promise<RepositoryFileListResponse> {
 		const files = await getFileList(this.#name);
 		const root = new RepositoryEntry(this, '', true, 0);
-		for (const [_, filename] of files) {
+		for (const filename of files) {
 			root.addPath(filename);
 		}
 		return { root: root };

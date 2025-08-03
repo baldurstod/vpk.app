@@ -29,6 +29,8 @@ class Application {
 	#appContent = new MainContent();
 	#toolbar = new Toolbar();
 	#fileCache = new FileCache();
+	#currentRepository = '';
+	#currentFile = '';
 
 	constructor() {
 		this.#init();
@@ -117,20 +119,28 @@ class Application {
 		this.#appContent.setRepositoryList(response.result!.files);
 	}
 
-	async #selectRepository(repository: string, scrollIntoView: boolean) {
-		let repo = Repositories.getRepository(repository);
-		if (!repo) {
-			Repositories.addRepository(new MemoryCacheRepository(new ApiRepository(repository)));
-		}
-
-
-		const { requestId, response } = await fetchApi('get-file-list', 1, { repository: repository }) as { requestId: string, response: RepositoryListResponse };
-
-		console.info(event, response);
-		if (!response.success) {
+	async #selectRepository(repository: string, scrollIntoView: boolean): Promise<void> {
+		if (this.#currentRepository == repository) {
 			return;
 		}
-		this.#appContent.setFileList(repository, response.result!.files);
+
+		let repo = Repositories.getRepository(repository);
+		if (!repo) {
+			repo = Repositories.addRepository(new MemoryCacheRepository(new ApiRepository(repository)));
+		}
+
+		const response = await repo.getFileList();
+		if (response.error || !response.root) {
+			// TODO: log error
+			return;
+		}
+
+		let files = new Set<string>
+		for (const child of response.root.getAllChilds()) {
+			files.add(child.getFullName());
+		}
+
+		this.#appContent.setFileList(repository, files);
 		this.#appContent.selectRepository(repository, scrollIntoView);
 	}
 

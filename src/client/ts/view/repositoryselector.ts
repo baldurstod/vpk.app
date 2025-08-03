@@ -13,7 +13,7 @@ export class RepositorySelector extends SiteElement {
 	#htmlFileTree?: HTMLHarmonyTreeElement;
 	#repository: string = '';
 	#repositoryList?: Array<string>;
-	#fileList?: Array<string>;
+	#fileList?: Set<string>;
 	#repositoryRoot?: TreeItem;
 	#fileRoot?: TreeItem;
 	#dirtyRepositoryList = true;
@@ -138,7 +138,7 @@ export class RepositorySelector extends SiteElement {
 		this.refreshHTML();
 	}
 
-	setFileList(repository: string, fileList: Array<string>) {
+	setFileList(repository: string, fileList: Set<string>) {
 		this.#repository = repository;
 		this.#fileList = fileList;
 		this.#dirtyFileList = true;

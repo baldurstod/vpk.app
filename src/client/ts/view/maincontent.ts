@@ -39,7 +39,7 @@ export class MainContent extends SiteElement {
 		this.#repositorySelector.setRepositoryList(repositoryList);
 	}
 
-	setFileList(repository: string, fileList: Array<string>) {
+	setFileList(repository: string, fileList: Set<string>) {
 		this.#repositorySelector.setFileList(repository, fileList);
 	}
 
