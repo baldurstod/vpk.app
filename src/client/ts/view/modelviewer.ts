@@ -1,5 +1,5 @@
 import { vec3 } from 'gl-matrix';
-import { AmbientLight, ColorBackground, PointLight, Scene, Source1ModelManager } from 'harmony-3d';
+import { AmbientLight, ColorBackground, PointLight, Scene, Source1ModelManager, Source2ModelManager } from 'harmony-3d';
 import { downloadSVG } from 'harmony-svg';
 import { createElement, createShadowRoot, hide, show } from 'harmony-ui';
 import { Map2 } from 'harmony-utils';
@@ -45,7 +45,7 @@ export class ModelViewer extends SiteElement {
 		this.initHTML();
 	}
 
-	async setModel(repository: string, path: string): Promise<void> {
+	async setSource1Model(repository: string, path: string): Promise<void> {
 		startupRenderer();
 		this.show();
 		this.#repository = repository;
@@ -67,6 +67,40 @@ export class ModelViewer extends SiteElement {
 				if (seq) {
 					model.playSequence(seq.name);
 				}
+			}
+
+			scene.addChild(new PointLight({ position: vec3.fromValues(0, -500, 0) }));
+			scene.addChild(new AmbientLight({ position: vec3.fromValues(0, -500, 0) }));
+		}
+
+		setScene(scene);
+		//.append(getCanvas());
+		setParent(this.#htmlText!);
+	}
+
+	async setSource2Model(repository: string, path: string): Promise<void> {
+		startupRenderer();
+		this.show();
+		this.#repository = repository;
+		this.#path = path;
+
+		let scene = this.#scenes.get(repository, path);
+		if (!scene) {
+			scene = new Scene();
+
+			scene.background = new ColorBackground();
+			this.#scenes.set(repository, path, scene);
+			const model = await Source2ModelManager.createInstance(repository, path, true);
+
+			if (model) {
+				scene.addChild(model);
+				//model.frame = 0.;
+/*
+				let seq = model.sourceModel.mdl.getSequenceById(0);
+				if (seq) {
+					model.playSequence(seq.name);
+				}
+					*/
 			}
 
 			scene.addChild(new PointLight({ position: vec3.fromValues(0, -500, 0) }));

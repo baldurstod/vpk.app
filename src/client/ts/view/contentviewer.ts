@@ -24,6 +24,7 @@ const TypePerExtension: { [key: string]: ContentType } = {
 
 	// Source 2
 	'vtex_c': ContentType.Source2Texture,
+	'vmdl_c': ContentType.Source2Model,
 
 	'mp3': ContentType.AudioMp3,
 	'wav': ContentType.AudioWav,
@@ -109,6 +110,8 @@ export class ContentViewer extends SiteElement {
 				return await this.#addSource1ParticleContent(repository, path, hash, filename, engine, await file.arrayBuffer());
 			case ContentType.Source2Texture:
 				return await this.#addSource2TextureContent(repository, path, filename, engine, await file.arrayBuffer());
+			case ContentType.Source2Model:
+				return await this.#addSource2ModelContent(repository, path, filename, engine, await file.arrayBuffer());
 			case ContentType.AudioMp3:
 			case ContentType.AudioWav:
 			case ContentType.AudioFlac:
@@ -252,7 +255,7 @@ export class ContentViewer extends SiteElement {
 
 		this.#htmlModelViewer?.show();
 
-		this.#htmlModelViewer?.setModel(repository, path);
+		this.#htmlModelViewer?.setSource1Model(repository, path);
 
 		const tab = this.#createTab(filename,
 			(event: CustomEvent<TabEventData>) => {
@@ -262,7 +265,7 @@ export class ContentViewer extends SiteElement {
 			},
 			() => {
 				this.#htmlContent?.replaceChildren(this.#htmlModelViewer!.getHTML());
-				this.#htmlModelViewer?.setModel(repository, path);
+				this.#htmlModelViewer?.setSource1Model(repository, path);
 			}
 		);
 
@@ -348,6 +351,33 @@ export class ContentViewer extends SiteElement {
 				if (texture) {
 					this.#htmlTextureViewer?.setTexture(texture);
 				}
+			}
+		);
+
+		return tab;
+	}
+
+	async #addSource2ModelContent(repository: string, path: string, filename: string, engine: GameEngine, content: ArrayBuffer): Promise<HTMLHarmonyTabElement> {
+		this.initHTML();
+
+		if (!this.#htmlModelViewer) {
+			this.#htmlModelViewer = new ModelViewer();
+			this.#htmlContent?.append(this.#htmlModelViewer.getHTML());
+		}
+
+		this.#htmlModelViewer?.show();
+
+		this.#htmlModelViewer?.setSource2Model(repository, path);
+
+		const tab = this.#createTab(filename,
+			(event: CustomEvent<TabEventData>) => {
+				if (this.#closeFile(repository, path) && event.detail.tab.isActive()) {
+					this.#htmlModelViewer?.hide();
+				};
+			},
+			() => {
+				this.#htmlContent?.replaceChildren(this.#htmlModelViewer!.getHTML());
+				this.#htmlModelViewer?.setSource2Model(repository, path);
 			}
 		);
 
