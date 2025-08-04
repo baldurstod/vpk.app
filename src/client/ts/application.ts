@@ -103,7 +103,7 @@ class Application {
 	}
 
 	async #initViewFromUrl() {
-		let result = /@view\/([^\:]*)\:?(.*)/i.exec(document.location.pathname);
+		let result = /@view\/([^\:]*)\:?(.*)/i.exec(decodeURI(document.location.pathname));
 		if (result) {
 			await this.#selectRepository(result[1], true);
 			await this.#viewFile(result[1], result[2], document.location.hash.substring(1), false);
@@ -156,6 +156,8 @@ class Application {
 
 	async #viewFile(repository: string, path: string, hash: string, userAction: boolean) {
 		path = path.replace(/\.(vvd|dx80\.vtx|dx90\.vtx|sw\.vtx)$/, '.mdl');
+		this.#appContent.selectRepository(repository, !userAction);
+		this.#appContent.selectFile(path, !userAction);
 
 		const response = await Repositories.getFile(repository, path);
 		if (response.error) {
@@ -164,8 +166,6 @@ class Application {
 
 		console.info(response.file);
 		this.#appContent.viewFile(repository, path, hash, GameEngine.Source1, response.file!, userAction);
-		this.#appContent.selectRepository(repository, !userAction);
-		this.#appContent.selectFile(path, !userAction);
 	}
 
 	async #downloadFile(event: CustomEvent<SelectFile>) {
