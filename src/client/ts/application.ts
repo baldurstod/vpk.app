@@ -250,15 +250,16 @@ class Application {
 		}
 		if (extension == 'vpk' || extension == 'zip') {
 			let repo: Repository;
+			const repoName = 'local_' + file.name;
 			if (extension == 'vpk') {
-				repo = new VpkRepository('local_' + file.name, [file]);
-
+				repo = new VpkRepository(repoName, [file]);
 			} else {
-				repo = new ZipRepository('local_' + file.name, file);
+				repo = new ZipRepository(repoName, file);
 			}
 			Repositories.addRepository(repo);
 			this.#localRepositories.push(repo);
-			this.#refreshRepositoryList();
+			await this.#refreshRepositoryList();
+			this.#selectRepository(repoName, true);
 		} else {
 			this.#localRepo.setFile(file.name, file);
 			await this.#viewFile('local', file.name, '', false);
