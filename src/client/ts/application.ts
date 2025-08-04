@@ -1,5 +1,5 @@
 
-import { MemoryCacheRepository, MemoryRepository, Repositories, Repository, Source1TextureManager, VpkRepository, ZipRepository } from 'harmony-3d';
+import { MemoryCacheRepository, MemoryRepository, Repositories, Repository, Source1TextureManager, SourceEngineMaterialManager, VpkRepository, ZipRepository } from 'harmony-3d';
 import { addNotification, NotificationType, OptionsManager, saveFile } from 'harmony-browser-utils';
 import { themeCSS } from 'harmony-css';
 import { createShadowRoot, documentStyle, I18n } from 'harmony-ui';
@@ -21,7 +21,9 @@ documentStyle(htmlCSS);
 documentStyle(themeCSS);
 
 Repositories.addRepository(new MemoryCacheRepository(new ApiRepository('tf2/tf/tf2_textures_dir.vpk')));
+Repositories.addRepository(new MemoryCacheRepository(new ApiRepository('tf2/tf/tf2_misc_dir.vpk')));
 Source1TextureManager.fallbackRepository = 'tf2/tf/tf2_textures_dir.vpk';
+SourceEngineMaterialManager.fallbackRepository = 'tf2/tf/tf2_misc_dir.vpk';
 
 class Application {
 	#shadowRoot!: ShadowRoot;
@@ -256,6 +258,7 @@ class Application {
 			} else {
 				repo = new ZipRepository(repoName, file);
 			}
+			//Repositories.addRepository(new MergeRepository(repoName, repo, tf2MaterialsRepo));
 			Repositories.addRepository(repo);
 			this.#localRepositories.push(repo);
 			await this.#refreshRepositoryList();
