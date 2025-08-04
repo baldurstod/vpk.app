@@ -1,11 +1,12 @@
 
-import { MemoryCacheRepository, MemoryRepository, Repositories, Source1TextureManager } from 'harmony-3d';
+import { MemoryCacheRepository, MemoryRepository, Repositories, Repository, Source1TextureManager, VpkRepository, ZipRepository } from 'harmony-3d';
 import { addNotification, NotificationType, OptionsManager, saveFile } from 'harmony-browser-utils';
 import { themeCSS } from 'harmony-css';
 import { createShadowRoot, documentStyle, I18n } from 'harmony-ui';
 import applicationCSS from '../css/application.css';
 import htmlCSS from '../css/html.css';
 import english from '../json/i18n/english.json';
+import optionsmanager from '../json/optionsmanager.json';
 import { ApiRepository } from './apirepository';
 import { Controller } from './controller';
 import { ControllerEvents, NavigateTo, SelectFile, SelectRepository } from './controllerevents';
@@ -15,13 +16,11 @@ import { FileCache } from './filecache';
 import { ConcatFilesResponse, RepositoryListResponse } from './responses/repository';
 import { MainContent } from './view/maincontent';
 import { Toolbar } from './view/toolbar';
-import optionsmanager from '../json/optionsmanager.json';
 
 documentStyle(htmlCSS);
 documentStyle(themeCSS);
 
 Repositories.addRepository(new MemoryCacheRepository(new ApiRepository('tf2/tf/tf2_textures_dir.vpk')));
-const localRepo = Repositories.addRepository(new MemoryRepository('local')) as MemoryRepository;
 Source1TextureManager.fallbackRepository = 'tf2/tf/tf2_textures_dir.vpk';
 
 class Application {
@@ -31,6 +30,8 @@ class Application {
 	#fileCache = new FileCache();
 	#currentRepository = '';
 	#currentFile = '';
+	#localRepo = Repositories.addRepository(new MemoryRepository('local')) as MemoryRepository;
+	#localRepositories: Repository[] = [this.#localRepo];
 
 	constructor() {
 		this.#init();
@@ -116,7 +117,12 @@ class Application {
 			return;
 		}
 
-		this.#appContent.setRepositoryList(response.result!.files);
+		const localRepositories: string[] = [];
+		for (const localRepository of this.#localRepositories) {
+			localRepositories.push(localRepository.name);
+		}
+
+		this.#appContent.setRepositoryList(response.result!.files.concat(localRepositories));
 	}
 
 	async #selectRepository(repository: string, scrollIntoView: boolean): Promise<void> {
@@ -233,9 +239,30 @@ class Application {
 	}
 
 	async #openLocalFile(file: File): Promise<void> {
-		//const extension = file.name.split('.').pop() ?? '';
-		localRepo.setFile(file.name, file);
-		await this.#viewFile('local', file.name, '', false);
+		const extension = file.name.split('.').pop() ?? '';
+		switch (extension) {
+			case 'vpk':
+
+				break;
+
+			default:
+				break;
+		}
+		if (extension == 'vpk' || extension == 'zip') {
+			let repo: Repository;
+			if (extension == 'vpk') {
+				repo = new VpkRepository('local_' + file.name, [file]);
+
+			} else {
+				repo = new ZipRepository('local_' + file.name, file);
+			}
+			Repositories.addRepository(repo);
+			this.#localRepositories.push(repo);
+			this.#refreshRepositoryList();
+		} else {
+			this.#localRepo.setFile(file.name, file);
+			await this.#viewFile('local', file.name, '', false);
+		}
 
 	}
 }
