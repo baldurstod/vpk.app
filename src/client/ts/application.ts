@@ -131,6 +131,7 @@ class Application {
 		if (this.#currentRepository == repository) {
 			return;
 		}
+		this.#currentRepository = repository;
 
 		let repo = Repositories.getRepository(repository);
 		if (!repo) {
