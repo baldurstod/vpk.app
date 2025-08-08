@@ -327,15 +327,15 @@ export class ContentViewer extends SiteElement {
 
 		this.#htmlTextureViewer?.show();
 
-		const vtf = await Source1TextureManager.getVtf(repository, path);
+		const vtex = await Source2TextureManager.getVtex(repository, path);
 		let texture: Texture;
-		if (vtf) {
-			const imageData = await vtf.getImageData();
-			console.info(vtf, imageData);
+		if (vtex) {
+			const imageData = await vtex.getImageData();
+			console.info(vtex, imageData);
 
 			if (imageData) {
 				texture = new Texture(repository, path, imageData);
-				vtfToTextureFlags(vtf, texture);
+				//vtfToTextureFlags(vtex, texture);
 				this.#htmlTextureViewer?.setTexture(texture);
 			}
 		}
