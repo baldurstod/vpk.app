@@ -272,7 +272,7 @@ export class AudioPlayer extends SiteElement {
 		let x = 0;
 
 		for (let i = 0; i < this.#bufferLength; i++) {
-			const v = this.#dataArray[i] / 128.0;
+			const v = this.#dataArray[i]! / 128.0;
 			const y = this.#htmlCanvas.height - (v * this.#htmlCanvas.height) / 2;
 
 			if (i === 0) {
@@ -322,7 +322,7 @@ export class AudioPlayer extends SiteElement {
 			let maxCount = 0;
 
 			for (let j = 0; j < mul; j++) {
-				const v = dataArray[i * mul + j];
+				const v = dataArray[i * mul + j]!;
 				if (v < 0) {
 					min += v;
 					minCount += 1;

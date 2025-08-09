@@ -130,7 +130,7 @@ export class TextureViewer extends SiteElement {
 		switch (this.#mode) {
 			case TextureMode.Alpha:
 				for (let i = 0; i < imageData?.data.length; i += 4) {
-					const alpha = imageData.data[i + 3];
+					const alpha = imageData.data[i + 3]!;
 					imageData.data[i] = alpha;
 					imageData.data[i + 1] = alpha;
 					imageData.data[i + 2] = alpha;

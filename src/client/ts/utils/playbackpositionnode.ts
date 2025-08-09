@@ -29,9 +29,9 @@ export class PlaybackPositionNode {
 	}
 
 	// get current progress between 0 and 1
-	get playbackPosition() {
+	get playbackPosition(): number {
 		this.#analyser?.getFloatTimeDomainData(this.#sampleHolder);
-		return this.#sampleHolder[0];
+		return this.#sampleHolder[0]!;
 	}
 
 	// creates an AudioBuffer with an extra `position` track
