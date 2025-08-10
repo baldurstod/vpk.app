@@ -92,13 +92,14 @@ export class RepositorySelector extends SiteElement {
 				if (clickedItem.type == 'file') {
 					Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.DownloadFile, { detail: { repository: this.#repository, path: clickedItem.getPath() } }));
 				} else {
-					for (const child of clickedItem.childs) {
-						if (child.type == 'file') {
-							Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.DownloadFile, { detail: { repository: this.#repository, path: child.getPath() } }));
-							await setTimeoutPromise(100);
-						}
-					}
-					console.info(clickedItem);
+
+					const downloadAction = async (repository: string, path: string, params?: any): Promise<boolean> => {
+						Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.DownloadFile, { detail: { repository: this.#repository, path: path } }));
+						await setTimeoutPromise(100);
+						return true;
+					};
+
+					TaskRunner.addTask(new Task(downloadAction, { repository: this.#repository, root: clickedItem.userData, filter: { files: true } }));
 				}
 				break;
 			case 'sharelink':
