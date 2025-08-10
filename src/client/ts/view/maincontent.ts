@@ -1,3 +1,4 @@
+import { RepositoryEntry } from 'harmony-3d';
 import { createShadowRoot, toggle } from 'harmony-ui';
 import mainContentCSS from '../../css/maincontent.css';
 import { GameEngine } from '../enums';
@@ -35,11 +36,11 @@ export class MainContent extends SiteElement {
 		this.#repositorySelector.selectFile(path, scrollIntoView);
 	}
 
-	setRepositoryList(repositoryList: Array<string>) {
+	setRepositoryList(repositoryList: Set<string>) {
 		this.#repositorySelector.setRepositoryList(repositoryList);
 	}
 
-	setFileList(repository: string, fileList: Set<string>) {
+	setFileList(repository: string, fileList: Map<string, RepositoryEntry>) {
 		this.#repositorySelector.setFileList(repository, fileList);
 	}
 

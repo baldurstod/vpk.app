@@ -1,5 +1,5 @@
 
-import { MemoryCacheRepository, MemoryRepository, Repositories, Repository, Source1TextureManager, SourceEngineMaterialManager, VpkRepository, ZipRepository } from 'harmony-3d';
+import { MemoryCacheRepository, MemoryRepository, Repositories, Repository, RepositoryEntry, Source1TextureManager, SourceEngineMaterialManager, VpkRepository, ZipRepository } from 'harmony-3d';
 import { addNotification, NotificationType, OptionsManager, saveFile } from 'harmony-browser-utils';
 import { themeCSS } from 'harmony-css';
 import { createShadowRoot, documentStyle, I18n } from 'harmony-ui';
@@ -124,7 +124,12 @@ class Application {
 			localRepositories.push(localRepository.name);
 		}
 
-		this.#appContent.setRepositoryList(response.result!.files.concat(localRepositories));
+		let repositories = new Set<string>();
+		for (const child of response.result?.files!) {
+			repositories.add(child);
+		}
+
+		this.#appContent.setRepositoryList(repositories/*response.result!.files.concat(localRepositories)*/);
 	}
 
 	async #selectRepository(repository: string, scrollIntoView: boolean): Promise<void> {
@@ -144,9 +149,9 @@ class Application {
 			return;
 		}
 
-		let files = new Set<string>
+		let files = new Map<string, RepositoryEntry>();
 		for (const child of response.root.getAllChilds()) {
-			files.add(child.getFullName());
+			files.set(child.getFullName(), child);
 		}
 
 		this.#appContent.setFileList(repository, files);

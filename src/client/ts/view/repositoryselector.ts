@@ -1,19 +1,22 @@
+import { RepositoryEntry } from 'harmony-3d';
 import { downloadSVG, mediationSVG, shareSVG } from 'harmony-svg';
 import { createElement, createShadowRoot, defineHarmonyTree, HTMLHarmonyTreeElement, ItemActionEventData, ItemClickEventData, TreeItem } from 'harmony-ui';
+import { setTimeoutPromise } from 'harmony-utils';
 import repositorySelectorCSS from '../../css/repositoryselector.css';
 import treeCSS from '../../css/tree.css';
 import { Controller } from '../controller';
 import { ControllerEvents, SelectFile, SelectRepository } from '../controllerevents';
+import { Task } from '../tasks/task';
+import { TaskRunner } from '../tasks/taskrunner';
 import { SiteElement } from './siteelement';
-import { setTimeoutPromise } from 'harmony-utils';
 
 export class RepositorySelector extends SiteElement {
 	#htmlList?: HTMLHarmonyTreeElement;
 	#htmlFileFilter?: HTMLInputElement;
 	#htmlFileTree?: HTMLHarmonyTreeElement;
 	#repository: string = '';
-	#repositoryList?: Array<string>;
-	#fileList?: Set<string>;
+	#repositoryList?: Set<string>;
+	#fileList?: Map<string, RepositoryEntry>;
 	#repositoryRoot?: TreeItem;
 	#fileRoot?: TreeItem;
 	#dirtyRepositoryList = true;
@@ -132,13 +135,13 @@ export class RepositorySelector extends SiteElement {
 		}
 	}
 
-	setRepositoryList(repositoryList: Array<string>) {
+	setRepositoryList(repositoryList: Set<string>) {
 		this.#repositoryList = repositoryList;
 		this.#dirtyRepositoryList = true;
 		this.refreshHTML();
 	}
 
-	setFileList(repository: string, fileList: Set<string>) {
+	setFileList(repository: string, fileList: Map<string, RepositoryEntry>) {
 		this.#repository = repository;
 		this.#fileList = fileList;
 		this.#dirtyFileList = true;
