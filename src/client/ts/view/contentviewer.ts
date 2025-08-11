@@ -1,6 +1,6 @@
-import { Repositories, Source1TextureManager, Source2TextureManager, SourceEnginePCFLoader, SourceEngineVTF, SourcePCF, TEXTUREFLAGS_CLAMPS, TEXTUREFLAGS_CLAMPT, TEXTUREFLAGS_NORMAL, TEXTUREFLAGS_SRGB, getLoader, pcfToSTring } from 'harmony-3d';
+import { getLoader, pcfToSTring, Repositories, Source1TextureManager, Source2TextureManager, SourceEnginePCFLoader, SourceEngineVTF, SourcePCF, TEXTUREFLAGS_CLAMPS, TEXTUREFLAGS_CLAMPT, TEXTUREFLAGS_NORMAL, TEXTUREFLAGS_SRGB } from 'harmony-3d';
 import { createElement, createShadowRoot, defineHarmonyMenu, defineHarmonyTab, defineHarmonyTabGroup, HTMLHarmonyMenuElement, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement, TabEventData } from 'harmony-ui';
-import { Map2, setTimeoutPromise } from 'harmony-utils';
+import { Map2 } from 'harmony-utils';
 import contentViewerCSS from '../../css/contentviewer.css';
 import { Controller } from '../controller';
 import { ControllerEvents, SelectFile } from '../controllerevents';
@@ -8,6 +8,7 @@ import { ContentType, GameEngine } from '../enums';
 import { Audio, AudioType } from '../model/audio';
 import { Texture, TextureParamType, TextureWrap } from '../model/texture';
 import { AudioPlayer } from './audioplayer';
+import { MaterialViewer } from './materialviewer';
 import { ModelViewer } from './modelviewer';
 import { SiteElement } from './siteelement';
 import { TextureViewer } from './textureviewer';
@@ -23,6 +24,7 @@ const TypePerExtension: { [key: string]: ContentType } = {
 	'pcf': ContentType.Source1Particle,
 
 	// Source 2
+	'vmat_c': ContentType.Source2Material,
 	'vtex_c': ContentType.Source2Texture,
 	'vmdl_c': ContentType.Source2Model,
 
@@ -45,6 +47,7 @@ export class ContentViewer extends SiteElement {
 	#htmlTextViewer?: TextViewer;
 	#htmlTextureViewer?: TextureViewer;
 	#htmlModelViewer?: ModelViewer;
+	#htmlMaterialViewer?: MaterialViewer;
 	#htmlAudioPlayer?: AudioPlayer;
 	#openViewers = new Map2<string, string, HTMLHarmonyTabElement>();
 	#htmlContextMenu?: HTMLHarmonyMenuElement;
@@ -112,6 +115,8 @@ export class ContentViewer extends SiteElement {
 				return await this.#addSource2TextureContent(repository, path, filename, engine, await file.arrayBuffer());
 			case ContentType.Source2Model:
 				return await this.#addSource2ModelContent(repository, path, filename, engine, await file.arrayBuffer());
+			case ContentType.Source2Material:
+				return await this.#addSource2MaterialContent(repository, path, filename, engine, await file.arrayBuffer());
 			case ContentType.AudioMp3:
 			case ContentType.AudioWav:
 			case ContentType.AudioFlac:
@@ -378,6 +383,33 @@ export class ContentViewer extends SiteElement {
 			() => {
 				this.#htmlContent?.replaceChildren(this.#htmlModelViewer!.getHTML());
 				this.#htmlModelViewer?.setSource2Model(repository, path);
+			}
+		);
+
+		return tab;
+	}
+
+	async #addSource2MaterialContent(repository: string, path: string, filename: string, engine: GameEngine, content: ArrayBuffer): Promise<HTMLHarmonyTabElement> {
+		this.initHTML();
+
+		if (!this.#htmlMaterialViewer) {
+			this.#htmlMaterialViewer = new MaterialViewer();
+			this.#htmlContent?.append(this.#htmlMaterialViewer.getHTML());
+		}
+
+		this.#htmlMaterialViewer?.show();
+
+		this.#htmlMaterialViewer?.setSource2Material(repository, path);
+
+		const tab = this.#createTab(filename,
+			(event: CustomEvent<TabEventData>) => {
+				if (this.#closeFile(repository, path) && event.detail.tab.isActive()) {
+					this.#htmlMaterialViewer?.hide();
+				};
+			},
+			() => {
+				this.#htmlContent?.replaceChildren(this.#htmlMaterialViewer!.getHTML());
+				this.#htmlMaterialViewer?.setSource2Material(repository, path);
 			}
 		);
 

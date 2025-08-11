@@ -13,7 +13,9 @@ export function setScene(s: Scene) {
 	startupRenderer();
 	scene = s;
 	new SceneExplorer().setScene(scene);
-	s.activeCamera = activeCamera;
+	if (!s.activeCamera) {
+		s.activeCamera = activeCamera;
+	}
 }
 
 export function setParent(parent: HTMLElement): void {
