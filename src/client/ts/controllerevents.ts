@@ -1,3 +1,5 @@
+import { RepositoryEntry } from 'harmony-3d'
+
 export enum ControllerEvents {
 	RefreshRepositoryList = 'refreshrepositorylist',
 	SelectRepository = 'selectrepository',
@@ -9,6 +11,7 @@ export enum ControllerEvents {
 	OpenAdvancedOptions = 'openadvancedoptions',
 	DownloadMaterials = 'downloadmaterials',
 	NavigateTo = 'navigateto',
+	AddTask = 'addtask',
 }
 
 export type SelectRepository = {
@@ -24,4 +27,8 @@ export type SelectFile = {
 export type NavigateTo = {
 	url: string,
 	replaceSate: boolean,
+}
+
+export type AddTask = {
+	root: RepositoryEntry,
 }

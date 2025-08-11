@@ -33,7 +33,7 @@ export function startupRenderer() {
 	let canvas: HTMLCanvasElement;
 
 	canvasContainer = createElement('div', {
-		style: "width:100%;height:100%;",
+		style: 'width:100%;height:100%;',
 		child: canvas = createElement('canvas') as HTMLCanvasElement,
 	});
 

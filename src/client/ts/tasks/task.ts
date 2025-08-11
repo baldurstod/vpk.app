@@ -7,7 +7,7 @@ export enum TaskResult {
 }
 
 export type TaskAction = (repository: string, path: string, params?: any) => Promise<boolean>;
-export type TaskParams = { repository: string, root: RepositoryEntry, filter: RepositoryFilter };
+export type TaskParams = { root: RepositoryEntry, filter: RepositoryFilter };
 
 export class Task {
 	#action: TaskAction;
@@ -33,7 +33,7 @@ export class Task {
 			return TaskResult.Error;
 		}
 
-		return await this.#action(this.#params.repository, next.getFullName()) ? TaskResult.Ok : TaskResult.Error;
+		return await this.#action(this.#params.root.getRepository().name, next.getFullName()) ? TaskResult.Ok : TaskResult.Error;
 	}
 
 	#getNextItem(): RepositoryEntry | null {

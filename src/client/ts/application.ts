@@ -9,12 +9,13 @@ import english from '../json/i18n/english.json';
 import optionsmanager from '../json/optionsmanager.json';
 import { ApiRepository } from './apirepository';
 import { Controller } from './controller';
-import { ControllerEvents, NavigateTo, SelectFile, SelectRepository } from './controllerevents';
+import { AddTask, ControllerEvents, NavigateTo, SelectFile, SelectRepository } from './controllerevents';
 import { GameEngine } from './enums';
 import { fetchApi } from './fetchapi';
 import { FileCache } from './filecache';
 import { ConcatFilesResponse, RepositoryListResponse } from './responses/repository';
 import { MainContent } from './view/maincontent';
+import { TaskManager } from './view/taskmanager';
 import { Toolbar } from './view/toolbar';
 
 documentStyle(htmlCSS);
@@ -29,6 +30,7 @@ class Application {
 	#shadowRoot!: ShadowRoot;
 	#appContent = new MainContent();
 	#toolbar = new Toolbar();
+	#taskManager = new TaskManager();
 	#fileCache = new FileCache();
 	#currentRepository = '';
 	#currentFile = '';
@@ -60,6 +62,7 @@ class Application {
 		Controller.addEventListener(ControllerEvents.ToogleOptions, () => this.#appContent.toogleOptions());
 		Controller.addEventListener(ControllerEvents.OpenAdvancedOptions, () => OptionsManager.showOptionsManager());
 		Controller.addEventListener(ControllerEvents.NavigateTo, (event: Event) => this.#navigateTo((event as CustomEvent<NavigateTo>).detail.url, (event as CustomEvent).detail.replaceSate));
+		Controller.addEventListener(ControllerEvents.AddTask, (event: Event) => this.#addTask((event as CustomEvent<AddTask>).detail.root));
 		addEventListener('popstate', event => this.#startup(event.state ?? {}));
 	}
 
@@ -99,6 +102,11 @@ class Application {
 	#navigateTo(url: string, replaceSate = false) {
 		history[replaceSate ? 'replaceState' : 'pushState']({}, '', url);
 		this.#startup();
+	}
+
+	#addTask(root: RepositoryEntry) {
+		console.info(root);
+		this.#taskManager.createTask(root);
 	}
 
 	#restoreHistoryState({ } = {}) {
@@ -173,7 +181,7 @@ class Application {
 		}
 
 		console.info(response.file);
-		this.#appContent.viewFile(repository, path, hash, GameEngine.Source1, response.file!, userAction);
+		this.#appContent.viewFile(repository, path, hash, GameEngine.Source1/*TODO: param*/, response.file!, userAction);
 	}
 
 	async #downloadFile(event: CustomEvent<SelectFile>) {
@@ -192,7 +200,7 @@ class Application {
 
 	async #downloadMaterials(event: CustomEvent<SelectRepository>) {
 		const repository = event.detail.repository;
-		const { requestId, response } = await fetchApi('concat-files', 1, { repository: event.detail.repository, extension: "vmt" }) as { requestId: string, response: ConcatFilesResponse };
+		const { requestId, response } = await fetchApi('concat-files', 1, { repository: event.detail.repository, extension: 'vmt' }) as { requestId: string, response: ConcatFilesResponse };
 
 		if (!response.success) {
 			return;
@@ -236,7 +244,7 @@ class Application {
 		}
 
 		for (const item of event.dataTransfer.items) {
-			if (item.kind === "file") {
+			if (item.kind === 'file') {
 				const file = item.getAsFile();
 				if (file) {
 					console.log(`… file.name = ${file.name}`, file);

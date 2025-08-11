@@ -39,7 +39,7 @@ export class TextViewer extends SiteElement {
 			await loadScripts(['./js/ace-builds/src-min/ace.js']);
 			this.#aceEditor = (globalThis as any).ace.edit(this.#htmlText);
 			this.#aceEditor.setTheme('ace/theme/monokai');
-			//this.#aceEditor.session.setMode("ace/mode/javascript");
+			//this.#aceEditor.session.setMode('ace/mode/javascript');
 			this.#aceEditor.renderer.attachToShadowRoot();
 			this.#aceEditorResolve();
 			this.#initEditorEvents();
@@ -75,12 +75,12 @@ export class TextViewer extends SiteElement {
 			return this.#clear();
 		}
 		this.#isOpen = true
-		this.#aceEditor.renderer.setCursorStyle("pointer");
+		this.#aceEditor.renderer.setCursorStyle('pointer');
 
 		session.removeMarker(this.#marker);
 
 		const range = new (globalThis as any).ace.Range(token.row, token.start, token.row, token.start + token.value.length);
-		this.#marker = session.addMarker(range, "ace_link_marker", "text", true);
+		this.#marker = session.addMarker(range, 'ace_link_marker', 'text', true);
 	}
 
 	#onClick(event: MouseEvent) {
@@ -105,7 +105,7 @@ export class TextViewer extends SiteElement {
 	#clear() {
 		if (this.#isOpen) {
 			this.#aceEditor.session.removeMarker(this.#marker);
-			this.#aceEditor.renderer.setCursorStyle("");
+			this.#aceEditor.renderer.setCursorStyle('');
 			this.#isOpen = false;
 		}
 	};
@@ -173,7 +173,7 @@ export class TextViewer extends SiteElement {
 		}
 
 		const range = new (globalThis as any).ace.Range(1000, 1, 1000, 20);
-		const marker = this.#aceEditor.getSession().addMarker(range, "ace_selected_word", "text");
+		const marker = this.#aceEditor.getSession().addMarker(range, 'ace_selected_word', 'text');
 	}
 
 	show() {

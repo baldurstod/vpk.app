@@ -1,11 +1,11 @@
 import { RepositoryEntry } from 'harmony-3d';
-import { downloadSVG, mediationSVG, shareSVG } from 'harmony-svg';
+import { addTaskSVG, downloadSVG, mediationSVG, shareSVG } from 'harmony-svg';
 import { createElement, createShadowRoot, defineHarmonyTree, HTMLHarmonyTreeElement, ItemActionEventData, ItemClickEventData, TreeItem } from 'harmony-ui';
 import { setTimeoutPromise } from 'harmony-utils';
 import repositorySelectorCSS from '../../css/repositoryselector.css';
 import treeCSS from '../../css/tree.css';
 import { Controller } from '../controller';
-import { ControllerEvents, SelectFile, SelectRepository } from '../controllerevents';
+import { AddTask, ControllerEvents, SelectFile, SelectRepository } from '../controllerevents';
 import { Task } from '../tasks/task';
 import { TaskRunner } from '../tasks/taskrunner';
 import { SiteElement } from './siteelement';
@@ -52,12 +52,13 @@ export class RepositorySelector extends SiteElement {
 		});
 
 
-		this.#htmlList.addAction('sharelink', shareSVG, "#copy_link");
-		this.#htmlList.addAction('mergematerials', mediationSVG, "#merge_materials");
+		this.#htmlList.addAction('sharelink', shareSVG, '#copy_link');
+		this.#htmlList.addAction('mergematerials', mediationSVG, '#merge_materials');
 		this.#htmlList.addEventListener('itemaction', (event: Event) => this.#handleRepositoryAction(event as CustomEvent<ItemActionEventData>));
 
-		this.#htmlFileTree.addAction('download', downloadSVG, "#download_file");
-		this.#htmlFileTree.addAction('sharelink', shareSVG, "#copy_link");
+		this.#htmlFileTree.addAction('add task', addTaskSVG, '#add_task');
+		this.#htmlFileTree.addAction('download', downloadSVG, '#download_file');
+		this.#htmlFileTree.addAction('sharelink', shareSVG, '#copy_link');
 		this.#htmlFileTree.addEventListener('itemaction', (event: Event) => this.#handleItemAction(event as CustomEvent<ItemActionEventData>));
 		this.#htmlList.adoptStyle(treeCSS);
 	}
@@ -88,6 +89,9 @@ export class RepositorySelector extends SiteElement {
 		}
 
 		switch (event.detail.action) {
+			case 'add task':
+				Controller.dispatchEvent(new CustomEvent<AddTask>(ControllerEvents.AddTask, { detail: { root: clickedItem.userData } }));
+				break;
 			case 'download':
 				if (clickedItem.type == 'file') {
 					Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.DownloadFile, { detail: { repository: this.#repository, path: clickedItem.getPath() } }));
@@ -99,7 +103,7 @@ export class RepositorySelector extends SiteElement {
 						return true;
 					};
 
-					TaskRunner.addTask(new Task(downloadAction, { repository: this.#repository, root: clickedItem.userData, filter: { files: true } }));
+					TaskRunner.addTask(new Task(downloadAction, { root: clickedItem.userData, filter: { files: true } }));
 				}
 				break;
 			case 'sharelink':
@@ -128,6 +132,9 @@ export class RepositorySelector extends SiteElement {
 			this.#fileRoot = TreeItem.createFromPathList(this.#fileList);
 
 			for (let item of this.#fileRoot.walk({})) {
+				if (item.type == 'directory') {
+					item.addActions(['add task']);
+				}
 				item.addActions(['download', 'sharelink']);
 			}
 

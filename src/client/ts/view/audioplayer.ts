@@ -120,8 +120,8 @@ export class AudioPlayer extends SiteElement {
 				}),
 			]
 		});
-		this.#canvasCtx = this.#htmlCanvas.getContext("2d");
-		this.#trackContext = this.#htmlTrackCanvas.getContext("2d");
+		this.#canvasCtx = this.#htmlCanvas.getContext('2d');
+		this.#trackContext = this.#htmlTrackCanvas.getContext('2d');
 
 		this.#draw();
 	}
@@ -247,8 +247,8 @@ export class AudioPlayer extends SiteElement {
 		}
 
 		const styles = getComputedStyle(this.#htmlImageContainer)
-		this.#htmlCanvas.width = parseInt(styles.getPropertyValue("width"), 10)
-		this.#htmlCanvas.height = parseInt(styles.getPropertyValue("height"), 10) * 0.5;
+		this.#htmlCanvas.width = parseInt(styles.getPropertyValue('width'), 10)
+		this.#htmlCanvas.height = parseInt(styles.getPropertyValue('height'), 10) * 0.5;
 
 		let endY: number;
 		if (this.#analyserMode == AnalyserMode.Frequency) {
@@ -260,11 +260,11 @@ export class AudioPlayer extends SiteElement {
 			endY = this.#htmlCanvas.height / 2;
 		}
 
-		this.#canvasCtx.fillStyle = "rgb(0 0 0)";
+		this.#canvasCtx.fillStyle = 'rgb(0 0 0)';
 		this.#canvasCtx.fillRect(0, 0, this.#htmlCanvas.width, this.#htmlCanvas.height);
 
 		this.#canvasCtx.lineWidth = 1;
-		this.#canvasCtx.strokeStyle = "rgb(255 255 255)";
+		this.#canvasCtx.strokeStyle = 'rgb(255 255 255)';
 
 		this.#canvasCtx.beginPath();
 
@@ -295,20 +295,20 @@ export class AudioPlayer extends SiteElement {
 		}
 
 		const styles = getComputedStyle(this.#htmlImageContainer)
-		const canvasWidth = parseInt(styles.getPropertyValue("width"), 10);
+		const canvasWidth = parseInt(styles.getPropertyValue('width'), 10);
 		this.#htmlTrackCanvas.width = canvasWidth;
-		const canvasHeight = parseInt(styles.getPropertyValue("height"), 10) * 0.5;
+		const canvasHeight = parseInt(styles.getPropertyValue('height'), 10) * 0.5;
 		this.#htmlTrackCanvas.height = canvasHeight;
 
 		const dataArray = this.#audioBuffer.getChannelData(channel);
 		const averageMin = new Array(canvasWidth);
 		const averageMax = new Array(canvasWidth);
 
-		this.#trackContext.fillStyle = "rgb(0 0 0)";
+		this.#trackContext.fillStyle = 'rgb(0 0 0)';
 		this.#trackContext.fillRect(0, 0, canvasWidth, canvasHeight);
 
 		this.#trackContext.lineWidth = 1;
-		this.#trackContext.strokeStyle = "rgb(255 255 255)";
+		this.#trackContext.strokeStyle = 'rgb(255 255 255)';
 
 		this.#trackContext.beginPath();
 

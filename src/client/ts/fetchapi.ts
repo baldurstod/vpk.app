@@ -1,4 +1,4 @@
-import { JSONObject } from "./types"
+import { JSONObject } from './types'
 
 export async function fetchApi(action: string, version: number, params: any = {}): Promise<{ requestId: string, response: JSONObject }> {
 	const requestId = crypto.randomUUID();
