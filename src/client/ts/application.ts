@@ -151,6 +151,10 @@ class Application {
 			repo = Repositories.addRepository(new MemoryCacheRepository(new ApiRepository(repository)));
 		}
 
+		this.#selectRepository2(repository, repo, scrollIntoView);
+	}
+
+	async #selectRepository2(repository: string, repo: Repository, scrollIntoView: boolean): Promise<void> {
 		const response = await repo.getFileList();
 		if (response.error || !response.root) {
 			// TODO: log error
