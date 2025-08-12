@@ -9,6 +9,7 @@ import { AddTask, ControllerEvents, SelectFile, SelectRepository } from '../cont
 import { Task } from '../tasks/task';
 import { TaskRunner } from '../tasks/taskrunner';
 import { SiteElement } from './siteelement';
+import { downloadFile } from '../tasks/downloadfile';
 
 export class RepositorySelector extends SiteElement {
 	#htmlList?: HTMLHarmonyTreeElement;
@@ -57,7 +58,6 @@ export class RepositorySelector extends SiteElement {
 		this.#htmlList.addEventListener('itemaction', (event: Event) => this.#handleRepositoryAction(event as CustomEvent<ItemActionEventData>));
 
 		this.#htmlFileTree.addAction('add task', addTaskSVG, '#add_task');
-		this.#htmlFileTree.addAction('download', downloadSVG, '#download_file');
 		this.#htmlFileTree.addAction('sharelink', shareSVG, '#copy_link');
 		this.#htmlFileTree.addEventListener('itemaction', (event: Event) => this.#handleItemAction(event as CustomEvent<ItemActionEventData>));
 		this.#htmlList.adoptStyle(treeCSS);
@@ -92,20 +92,6 @@ export class RepositorySelector extends SiteElement {
 			case 'add task':
 				Controller.dispatchEvent(new CustomEvent<AddTask>(ControllerEvents.AddTask, { detail: { root: clickedItem.userData } }));
 				break;
-			case 'download':
-				if (clickedItem.type == 'file') {
-					Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.DownloadFile, { detail: { repository: this.#repository, path: clickedItem.getPath() } }));
-				} else {
-
-					const downloadAction = async (repository: string, path: string, params?: any): Promise<boolean> => {
-						Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.DownloadFile, { detail: { repository: this.#repository, path: path } }));
-						await setTimeoutPromise(100);
-						return true;
-					};
-
-					TaskRunner.addTask(new Task(downloadAction, { root: clickedItem.userData, filter: { files: true } }));
-				}
-				break;
 			case 'sharelink':
 				Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.CreateFileLink, { detail: { repository: this.#repository, path: clickedItem.getPath() } }));
 				break;
@@ -135,7 +121,7 @@ export class RepositorySelector extends SiteElement {
 				if (item.type == 'directory') {
 					item.addActions(['add task']);
 				}
-				item.addActions(['download', 'sharelink']);
+				item.addActions(['sharelink']);
 			}
 
 			this.#htmlFileTree?.setRoot(this.#fileRoot);
