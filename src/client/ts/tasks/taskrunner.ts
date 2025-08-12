@@ -13,6 +13,13 @@ export class TaskRunner {
 
 
 	static addTask(task: Task): void {
+		const remaining = task.getRemainingCount();
+		if (remaining > 100/*TODO: create a variable*/) {
+			if (!confirm(`This task will be executed on ${remaining} files. Proceed ?`)) {
+				return;
+			}
+		}
+
 		this.#tasks.push(task);
 		this.#channel.port2.postMessage(null);
 	}

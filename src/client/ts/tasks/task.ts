@@ -33,6 +33,10 @@ export class Task {
 		this.#files = params.root.getAllChilds(params.filter);
 	}
 
+	getRemainingCount():number {
+		return this.#files.size;
+	}
+
 	async process(): Promise<TaskResult> {
 		this.#runBegin();
 		const next = this.#getNextItem();
