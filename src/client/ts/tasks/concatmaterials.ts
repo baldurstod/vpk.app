@@ -1,5 +1,6 @@
 import { Repositories } from 'harmony-3d';
 import { Task } from './task';
+import { saveFile } from 'harmony-browser-utils';
 
 const txtPerTask = new Map<number, string>();
 
@@ -27,11 +28,12 @@ export async function concatMaterials(task: Task, repository: string, path: stri
 
 
 export async function concatMaterialsBegin(task: Task): Promise<boolean> {
-	txtPerTask.set(task.id, '');
+	txtPerTask.set(task.id, `Repository: ${task.getRepository()}\nRoot: ${task.getRoot()}\n\n`);
 	return true;
 }
 
 export async function concatMaterialsEnd(task: Task): Promise<boolean> {
-	console.info(txtPerTask.get(task.id));
+	saveFile(new File([txtPerTask.get(task.id)!], 'materials.txt'));
+	txtPerTask.delete(task.id)
 	return true;
 }

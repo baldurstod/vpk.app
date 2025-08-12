@@ -33,8 +33,16 @@ export class Task {
 		this.#files = params.root.getAllChilds(params.filter);
 	}
 
-	getRemainingCount():number {
+	getRemainingCount(): number {
 		return this.#files.size;
+	}
+
+	getRepository(): string {
+		return this.#params.root.getRepository().name;
+	}
+
+	getRoot(): string {
+		return this.#params.root.getFullName();
 	}
 
 	async process(): Promise<TaskResult> {
