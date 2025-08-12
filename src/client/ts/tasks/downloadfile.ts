@@ -1,7 +1,8 @@
 import { Repositories } from 'harmony-3d';
 import { OptionsManager, saveFile } from 'harmony-browser-utils';
+import { Task } from './task';
 
-export async function downloadFile(repository: string, path: string, params?: any): Promise<boolean> {
+export async function downloadFile(task: Task, repository: string, path: string, params?: any): Promise<boolean> {
 
 	const response = await Repositories.getFile(repository, path);
 	if (response.error) {
