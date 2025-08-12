@@ -63,9 +63,11 @@ export class TextViewer extends SiteElement {
 
 		const selectionRange = this.#aceEditor.selection.getRange();
 		if (!selectionRange.isEmpty()) {
+			/*
 			if (selectionRange.start.row <= row && selectionRange.end.row >= row) {
 				console.info('clear');
 			}
+				*/
 			//return this.clear();
 		}
 		const token = this.#findUuid(docPos.row, docPos.column);
