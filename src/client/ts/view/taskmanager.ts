@@ -6,6 +6,7 @@ import { downloadFile } from '../tasks/downloadfile';
 import { Task } from '../tasks/task';
 import { TaskRunner } from '../tasks/taskrunner';
 import { SiteElement } from './siteelement';
+import { concatMaterials, concatMaterialsBegin, concatMaterialsEnd } from '../tasks/concatmaterials';
 export * as test from '../files/export';
 
 export class TaskManager extends SiteElement {
@@ -39,6 +40,17 @@ export class TaskManager extends SiteElement {
 						}
 
 						TaskRunner.addTask(new Task(downloadFile, { root: this.#root, filter: { files: true } }));
+
+					}
+				}),
+				createElement('button', {
+					i18n: 'merge materials',
+					$click: () => {
+						if (!this.#root) {
+							return;
+						}
+
+						TaskRunner.addTask(new Task(concatMaterials, { root: this.#root, filter: { files: true, extension: 'vmt' } }, concatMaterialsBegin, concatMaterialsEnd));
 
 					}
 				}),
