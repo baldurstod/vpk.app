@@ -9,7 +9,6 @@ export enum ControllerEvents {
 	CreateFileLink = 'createfilelink',
 	ToogleOptions = 'toogleoptions',
 	OpenAdvancedOptions = 'openadvancedoptions',
-	DownloadMaterials = 'downloadmaterials',
 	NavigateTo = 'navigateto',
 	AddTask = 'addtask',
 }

@@ -54,7 +54,6 @@ export class RepositorySelector extends SiteElement {
 
 
 		this.#htmlList.addAction('sharelink', shareSVG, '#copy_link');
-		this.#htmlList.addAction('mergematerials', mediationSVG, '#merge_materials');
 		this.#htmlList.addEventListener('itemaction', (event: Event) => this.#handleRepositoryAction(event as CustomEvent<ItemActionEventData>));
 
 		this.#htmlFileTree.addAction('add task', addTaskSVG, '#add_task');
@@ -67,13 +66,6 @@ export class RepositorySelector extends SiteElement {
 		const clickedItem = event.detail.item;
 
 		switch (event.detail.action) {
-			case 'mergematerials':
-				if (clickedItem) {
-					clickedItem.removeAction('mergematerials');
-					this.#htmlList?.refreshActions(clickedItem);
-					Controller.dispatchEvent(new CustomEvent<SelectRepository>(ControllerEvents.DownloadMaterials, { detail: { repository: clickedItem.getPath() } }));
-				}
-				break;
 			case 'sharelink':
 				if (clickedItem) {
 					Controller.dispatchEvent(new CustomEvent<SelectRepository>(ControllerEvents.CreateRepositoryLink, { detail: { repository: clickedItem.getPath() } }));
@@ -106,7 +98,7 @@ export class RepositorySelector extends SiteElement {
 			this.#repositoryRoot = TreeItem.createFromPathList(this.#repositoryList);
 
 			for (let item of this.#repositoryRoot.walk({ type: 'file' })) {
-				item.addActions(['mergematerials', 'sharelink']);
+				item.addActions(['sharelink']);
 			}
 
 			this.#htmlList?.setRoot(this.#repositoryRoot);

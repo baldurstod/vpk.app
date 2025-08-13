@@ -56,7 +56,6 @@ class Application {
 		Controller.addEventListener(ControllerEvents.SelectRepository, (event: Event) => this.#selectRepository((event as CustomEvent<SelectRepository>).detail.repository, false));
 		Controller.addEventListener(ControllerEvents.SelectFile, (event: Event) => this.#selectFile((event as CustomEvent<SelectFile>).detail.repository, (event as CustomEvent<SelectFile>).detail.path, (event as CustomEvent<SelectFile>).detail.hash ?? '', true));
 		Controller.addEventListener(ControllerEvents.DownloadFile, (event: Event) => this.#downloadFile(event as CustomEvent<SelectFile>));
-		Controller.addEventListener(ControllerEvents.DownloadMaterials, (event: Event) => this.#downloadMaterials(event as CustomEvent<SelectRepository>));
 		Controller.addEventListener(ControllerEvents.CreateRepositoryLink, (event: Event) => this.#createRepositoryLink(event as CustomEvent<SelectRepository>));
 		Controller.addEventListener(ControllerEvents.CreateFileLink, (event: Event) => this.#createFileLink(event as CustomEvent<SelectFile>));
 		Controller.addEventListener(ControllerEvents.ToogleOptions, () => this.#appContent.toogleOptions());
@@ -115,7 +114,7 @@ class Application {
 	async #initViewFromUrl() {
 		let result = /@view\/([^\:]*)\:?(.*)/i.exec(decodeURI(document.location.pathname));
 		if (result && result.length > 2) {
-			await this.#selectRepository(result[1]!, true);
+			await this.#selectRepository(result[1]!, true, result[2]!);
 			await this.#viewFile(result[1]!, result[2]!, document.location.hash.substring(1), false);
 		}
 	}
@@ -140,7 +139,7 @@ class Application {
 		this.#appContent.setRepositoryList(repositories/*response.result!.files.concat(localRepositories)*/);
 	}
 
-	async #selectRepository(repository: string, scrollIntoView: boolean): Promise<void> {
+	async #selectRepository(repository: string, scrollIntoView: boolean, path?: string): Promise<void> {
 		if (this.#currentRepository == repository) {
 			return;
 		}
@@ -151,10 +150,10 @@ class Application {
 			repo = Repositories.addRepository(new MemoryCacheRepository(new ApiRepository(repository)));
 		}
 
-		this.#selectRepository2(repository, repo, scrollIntoView);
+		this.#selectRepository2(repository, repo, scrollIntoView, path);
 	}
 
-	async #selectRepository2(repository: string, repo: Repository, scrollIntoView: boolean): Promise<void> {
+	async #selectRepository2(repository: string, repo: Repository, scrollIntoView: boolean, path?: string): Promise<void> {
 		const response = await repo.getFileList();
 		if (response.error || !response.root) {
 			// TODO: log error
@@ -168,6 +167,9 @@ class Application {
 
 		this.#appContent.setFileList(repository, files);
 		this.#appContent.selectRepository(repository, scrollIntoView);
+		if (path) {
+			this.#appContent.selectFile(path, scrollIntoView);
+		}
 	}
 
 	async #selectFile(repository: string, path: string, hash: string, userAction: boolean) {
@@ -200,19 +202,6 @@ class Application {
 		}
 
 		saveFile(file);
-	}
-
-	async #downloadMaterials(event: CustomEvent<SelectRepository>) {
-		const repository = event.detail.repository;
-		const { requestId, response } = await fetchApi('concat-files', 1, { repository: event.detail.repository, extension: 'vmt' }) as { requestId: string, response: ConcatFilesResponse };
-
-		if (!response.success) {
-			return;
-		}
-
-		console.info(response);
-
-		saveFile(new File([response.result!.content], `${repository}_materials.txt`));
 	}
 
 	#createRepositoryLink(event: CustomEvent<SelectRepository>): void {

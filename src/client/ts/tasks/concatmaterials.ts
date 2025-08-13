@@ -26,7 +26,6 @@ export async function concatMaterials(task: Task, repository: string, path: stri
 	return true;
 };
 
-
 export async function concatMaterialsBegin(task: Task): Promise<boolean> {
 	txtPerTask.set(task.id, `Repository: ${task.getRepository()}\nRoot: ${task.getRoot()}\n\n`);
 	return true;
