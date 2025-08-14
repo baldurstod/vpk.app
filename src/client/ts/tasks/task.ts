@@ -1,5 +1,12 @@
 import { RepositoryEntry, RepositoryFilter } from 'harmony-3d';
 
+export enum TaskStatus {
+	Pending,
+	Completed,
+	Failed,
+	Stopped,
+}
+
 export enum TaskResult {
 	Error = 1,
 	Ok = 2,
@@ -18,13 +25,14 @@ export class Task {
 	#params: TaskParams;
 	#begin?: TaskInit;
 	#end?: TaskInit;
-	active = true;
+	paused = false;
 	#result = false;
 	#files: Set<RepositoryEntry>;
 	#beginFired = false;
 	#endFired = false;
 	readonly initialCount: number;
 	currentPath: string = '';
+	#status: TaskStatus = TaskStatus.Pending;
 
 	constructor(action: TaskAction, params: TaskParams, begin?: TaskInit, end?: TaskInit) {
 		this.#action = action;
@@ -52,11 +60,13 @@ export class Task {
 		const next = this.#getNextItem();
 		if (!next) {
 			this.#runEnd();
+			this.#status = TaskStatus.Completed;
 			return TaskResult.Done;
 		}
 
 		const path = next.getFullName();
 		if (!path) {
+			this.#status = TaskStatus.Failed;
 			return TaskResult.Error;
 		}
 		this.currentPath = path;
@@ -88,5 +98,13 @@ export class Task {
 
 		this.#files.delete(first.value);
 		return first.value;
+	}
+
+	getStatus(): TaskStatus {
+		return this.#status;
+	}
+
+	isActive(): boolean {
+		return this.#status == TaskStatus.Pending && !this.paused;
 	}
 }

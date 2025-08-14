@@ -3,7 +3,7 @@ import { createElement, createShadowRoot } from 'harmony-ui';
 import taskManagerCSS from '../../css/taskmanager.css';
 import { exportToPng } from '../tasks/converttopng';
 import { downloadFile } from '../tasks/downloadfile';
-import { Task } from '../tasks/task';
+import { Task, TaskStatus } from '../tasks/task';
 import { TaskEvent, TaskRunner, TaskRunnerEvents } from '../tasks/taskrunner';
 import { SiteElement } from './siteelement';
 import { concatMaterials, concatMaterialsBegin, concatMaterialsEnd } from '../tasks/concatmaterials';
@@ -13,6 +13,8 @@ export * as test from '../files/export';
 export class TaskManager extends SiteElement {
 	#root?: RepositoryEntry;
 	#htmlRoot?: HTMLElement;
+	#htmlRootCount?: HTMLElement;
+	#htmlCompletedList?: HTMLElement;
 	#htmlTaskList?: HTMLElement;
 	#htmlTasks = new Map<Task, TaskView>();
 
@@ -21,6 +23,7 @@ export class TaskManager extends SiteElement {
 		TaskRunner.addEventListener(TaskRunnerEvents.TaskAdded, (event: Event) => this.#addTask((event as CustomEvent<TaskEvent>).detail.task));
 		TaskRunner.addEventListener(TaskRunnerEvents.TaskRunning, (event: Event) => this.#updateTask((event as CustomEvent<TaskEvent>).detail.task));
 		TaskRunner.addEventListener(TaskRunnerEvents.TaskRemoved, (event: Event) => this.#removeTask((event as CustomEvent<TaskEvent>).detail.task));
+		TaskRunner.addEventListener(TaskRunnerEvents.TaskCompleted, (event: Event) => this.#updateTask((event as CustomEvent<TaskEvent>).detail.task));
 	}
 
 	initHTML() {
@@ -37,6 +40,7 @@ export class TaskManager extends SiteElement {
 					childs: [
 						createElement('span', { i18n: '#root', }),
 						this.#htmlRoot = createElement('span'),
+						this.#htmlRootCount = createElement('span'),
 					]
 				}),
 				createElement('button', {
@@ -78,6 +82,9 @@ export class TaskManager extends SiteElement {
 				this.#htmlTaskList = createElement('div', {
 					class: 'tasks',
 				}),
+				this.#htmlCompletedList = createElement('div', {
+					class: 'tasks',
+				}),
 			]
 		});
 	}
@@ -105,10 +112,18 @@ export class TaskManager extends SiteElement {
 		const taskHtml = this.#htmlTasks.get(task);
 		if (taskHtml) {
 			taskHtml.refreshHTML();
+			const html = taskHtml.getHTML();
+			if (task.getStatus() != TaskStatus.Pending && html.parentElement == this.#htmlTaskList) {
+				this.#htmlCompletedList!.append(html);
+			}
 		}
 	}
 
 	#removeTask(task: Task) {
+		const taskHtml = this.#htmlTasks.get(task);
+		if (taskHtml) {
+			taskHtml.getHTML().remove();
+		}
 		this.#htmlTasks.delete(task);
 	}
 }
@@ -141,7 +156,7 @@ class TaskView extends SiteElement {
 
 	refreshHTML(): void {
 		this.initHTML();
-		this.#htmlCount!.innerText = `${this.#task.initialCount - this.#task.getRemainingCount() } / ${this.#task.initialCount}`;
+		this.#htmlCount!.innerText = `${this.#task.initialCount - this.#task.getRemainingCount()} / ${this.#task.initialCount}`;
 		this.#htmlPath!.innerText = this.#task.currentPath;
 	}
 

@@ -75,7 +75,7 @@ export class TaskRunner {
 
 	static #getFirstActiveTask(): Task | null {
 		for (const task of this.#tasks) {
-			if (task.active) {
+			if (task.isActive()) {
 				return task;
 			}
 		}
