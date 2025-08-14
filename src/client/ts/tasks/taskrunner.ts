@@ -1,16 +1,27 @@
 import { Task, TaskResult } from './task';
 
+export enum TaskRunnerEvents {
+	TaskAdded = 'taskadded',
+	TaskRunning = 'taskruning',
+	TaskCompleted = 'taskcompleted',
+	TaskRemoved = 'taskremoved',
+}
+
+export type TaskEvent = {
+	task: Task;
+}
+
 export class TaskRunner {
 	static readonly #tasks: Task[] = [];
 	static #running = true;
 	static #processing = false;
 	static #channel = new MessageChannel();
+	static #eventTarget = new EventTarget();
 
 	static {
 		this.#channel.port1.onmessage = () => this.#process();
 		this.#channel.port2.postMessage(null);
 	}
-
 
 	static addTask(task: Task): void {
 		const remaining = task.getRemainingCount();
@@ -21,6 +32,7 @@ export class TaskRunner {
 		}
 
 		activateBeforeUnload();
+		this.#dispatchEvent(TaskRunnerEvents.TaskAdded, { task: task });
 		this.#tasks.push(task);
 		this.#channel.port2.postMessage(null);
 	}
@@ -50,10 +62,10 @@ export class TaskRunner {
 
 		try {
 			this.#processing = true;
-
+			this.#dispatchEvent(TaskRunnerEvents.TaskRunning, { task: task });
 			const taskResult = await task.process();
 			if (taskResult == TaskResult.Done) {
-				this.#removeTask(task);
+				this.#taskCompleted(task);
 			}
 		} finally {
 			this.#processing = false;
@@ -71,7 +83,8 @@ export class TaskRunner {
 		return null;
 	}
 
-	static #removeTask(task: Task): void {
+	static #taskCompleted(task: Task): void {
+		this.#dispatchEvent(TaskRunnerEvents.TaskCompleted, { task: task });
 		const index = this.#tasks.indexOf(task);
 		if (index != -1) {
 			this.#tasks.splice(index, 1);
@@ -80,6 +93,14 @@ export class TaskRunner {
 
 	static hasActiveTasks(): boolean {
 		return this.#getFirstActiveTask() != null
+	}
+
+	static addEventListener(type: TaskRunnerEvents, callback: EventListenerOrEventListenerObject | null, options?: AddEventListenerOptions | boolean): void {
+		this.#eventTarget.addEventListener(type, callback, options);
+	}
+
+	static #dispatchEvent(type: TaskRunnerEvents, detail: TaskEvent): boolean {
+		return this.#eventTarget.dispatchEvent(new CustomEvent<typeof detail>(type, { detail: detail }));
 	}
 }
 

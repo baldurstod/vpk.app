@@ -23,7 +23,8 @@ export class Task {
 	#files: Set<RepositoryEntry>;
 	#beginFired = false;
 	#endFired = false;
-
+	readonly initialCount: number;
+	currentPath: string = '';
 
 	constructor(action: TaskAction, params: TaskParams, begin?: TaskInit, end?: TaskInit) {
 		this.#action = action;
@@ -31,6 +32,7 @@ export class Task {
 		this.#begin = begin;
 		this.#end = end;
 		this.#files = params.root.getAllChilds(params.filter);
+		this.initialCount = this.#files.size;
 	}
 
 	getRemainingCount(): number {
@@ -57,6 +59,7 @@ export class Task {
 		if (!path) {
 			return TaskResult.Error;
 		}
+		this.currentPath = path;
 
 		return await this.#action(this, this.#params.root.getRepository().name, next.getFullName()) ? TaskResult.Ok : TaskResult.Error;
 	}

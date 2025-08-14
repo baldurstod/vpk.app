@@ -73,6 +73,7 @@ class Application {
 				//this.#appToolbar.getHTML(),
 				this.#toolbar.getHTML(),
 				this.#appContent.getHTML(),
+				this.#taskManager.getHTML(),
 				//this.#appFooter.getHTML(),
 			],
 			$dragover: (event: Event) => event.preventDefault(),
