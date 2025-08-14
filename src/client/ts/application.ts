@@ -13,7 +13,7 @@ import { AddTask, ControllerEvents, NavigateTo, SelectFile, SelectRepository } f
 import { GameEngine } from './enums';
 import { fetchApi } from './fetchapi';
 import { FileCache } from './filecache';
-import { ConcatFilesResponse, RepositoryListResponse } from './responses/repository';
+import { RepositoryListResponse } from './responses/repository';
 import { MainContent } from './view/maincontent';
 import { TaskManager } from './view/taskmanager';
 import { Toolbar } from './view/toolbar';
@@ -274,7 +274,6 @@ class Application {
 			this.#localRepo.setFile(file.name, file);
 			await this.#viewFile('local', file.name, '', false);
 		}
-
 	}
 }
 const app = new Application();

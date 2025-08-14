@@ -20,6 +20,7 @@ export class TaskRunner {
 			}
 		}
 
+		activateBeforeUnload();
 		this.#tasks.push(task);
 		this.#channel.port2.postMessage(null);
 	}
@@ -43,6 +44,7 @@ export class TaskRunner {
 
 		const task = this.#getFirstActiveTask();
 		if (!task) {
+			deactivateBeforeUnload();
 			return;
 		}
 
@@ -74,6 +76,27 @@ export class TaskRunner {
 		if (index != -1) {
 			this.#tasks.splice(index, 1);
 		}
-
 	}
+
+	static hasActiveTasks(): boolean {
+		return this.#getFirstActiveTask() != null
+	}
+}
+
+function beforeUnloadListener(event: BeforeUnloadEvent) {
+	if (TaskRunner.hasActiveTasks()) {
+		event.preventDefault();
+	}
+};
+
+let activated = false;
+function activateBeforeUnload() {
+	if (!activated) {
+		window.addEventListener('beforeunload', beforeUnloadListener);
+		activated = true;
+	}
+}
+function deactivateBeforeUnload() {
+	window.removeEventListener('beforeunload', beforeUnloadListener);
+	activated = false;
 }
