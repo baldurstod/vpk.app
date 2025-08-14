@@ -16,10 +16,15 @@ export async function decompileDynamicParam(task: Task, repository: string, path
 			let txt2 = '';
 			//console.error(path, params);
 			for (const param of params) {
-				txt += `${param[0]}: <${param[1][0]}>\n`
-				txt2 += `${param[1][0]}\n\n`
+				if (param[1][0] == null) {
+					const message = `unable to decompile param, bytecode: ${param[1][1]}`;
+					txt += `${param[0]}: <${message}>\n`
+					txt2 += `${message}}\n\n`
+				} else {
+					txt += `${param[0]}: <${param[1][0]}>\n`
+					txt2 += `${param[1][0]}\n\n`
+				}
 			}
-
 
 			txt = txtPerTask.get(task.id) + path + '\n' + txt + '\n';
 			txtPerTask.set(task.id, txt);
@@ -27,8 +32,6 @@ export async function decompileDynamicParam(task: Task, repository: string, path
 			txt2PerTask.set(task.id, txt2);
 		}
 	}
-
-
 
 	return true;
 };
