@@ -1,15 +1,11 @@
 import { RepositoryEntry } from 'harmony-3d';
-import { addTaskSVG, downloadSVG, mediationSVG, shareSVG } from 'harmony-svg';
+import { addTaskSVG, shareSVG } from 'harmony-svg';
 import { createElement, createShadowRoot, defineHarmonyTree, HTMLHarmonyTreeElement, ItemActionEventData, ItemClickEventData, TreeItem } from 'harmony-ui';
-import { setTimeoutPromise } from 'harmony-utils';
 import repositorySelectorCSS from '../../css/repositoryselector.css';
 import treeCSS from '../../css/tree.css';
 import { Controller } from '../controller';
 import { AddTask, ControllerEvents, SelectFile, SelectRepository } from '../controllerevents';
-import { Task } from '../tasks/task';
-import { TaskRunner } from '../tasks/taskrunner';
 import { SiteElement } from './siteelement';
-import { downloadFile } from '../tasks/downloadfile';
 
 export class RepositorySelector extends SiteElement {
 	#htmlList?: HTMLHarmonyTreeElement;
@@ -40,6 +36,15 @@ export class RepositorySelector extends SiteElement {
 				this.#htmlList = createElement('harmony-tree', {
 					class: 'repositories',
 					$itemclick: (event: CustomEvent<ItemClickEventData>) => this.#itemClick(event),
+				}) as HTMLHarmonyTreeElement,
+				createElement('button', {
+					i18n: '#add_task',
+					$click: () => {
+						const root = this.#fileList?.get('');
+						if (root) {
+							Controller.dispatchEvent(new CustomEvent<AddTask>(ControllerEvents.AddTask, { detail: { root: root } }))
+						}
+					},
 				}) as HTMLHarmonyTreeElement,
 				this.#htmlFileFilter = createElement('input', {
 					class: 'files',
