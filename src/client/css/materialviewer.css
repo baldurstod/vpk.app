@@ -28,3 +28,22 @@
 	display: flex;
 	flex-direction: column;
 }
+
+.container {
+	display: flex;
+	flex: 1;
+	overflow: hidden;
+	justify-items: center;
+}
+
+.expression {
+	display: block;
+}
+
+textarea {
+	padding: 0.5rem;
+}
+
+label>* {
+	padding: 0.2rem;
+}

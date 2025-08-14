@@ -40,17 +40,23 @@ export class MaterialViewer extends SiteElement {
 						}),
 					],
 				}),
-				this.#htmlParams = createElement('div', {
-					class: 'params',
+				createElement('div', {
+					class: 'container',
 					childs: [
-						this.#htmlIntParams = createElement('div', { class: 'params', }),
-						this.#htmlFloatParams = createElement('div', { class: 'params', }),
-						this.#htmlVectorParams = createElement('div', { class: 'params', }),
-						this.#htmlDynamicParams = createElement('div', { class: 'params', }),
+						this.#htmlParams = createElement('div', {
+							class: 'params',
+							childs: [
+								this.#htmlIntParams = createElement('div', { class: 'params', }),
+								this.#htmlFloatParams = createElement('div', { class: 'params', }),
+								this.#htmlVectorParams = createElement('div', { class: 'params', }),
+								this.#htmlDynamicParams = createElement('div', { class: 'params', }),
+							]
+						}),
+						this.#html3d = createElement('div', {
+							class: 'viewer',
+						}),
+
 					]
-				}),
-				this.#html3d = createElement('div', {
-					class: 'viewer',
 				}),
 			]
 		});
@@ -69,7 +75,7 @@ export class MaterialViewer extends SiteElement {
 		let orbitControl: OrbitControl;
 		if (!this.#camera) {
 
-			this.#camera = new Camera({ position: vec3.fromValues(0, 0, 100) });
+			this.#camera = new Camera({ position: vec3.fromValues(0, 0, 10) });
 
 			orbitControl = new OrbitControl(this.#camera);
 			orbitControl.target.setPosition(vec3.fromValues(0, 0, 0));
@@ -90,9 +96,13 @@ export class MaterialViewer extends SiteElement {
 			const material = await Source2MaterialManager.getMaterial(repository, path);
 			if (material) {
 				plane.setMaterial(material);
-				this.#updateParams(material);
 			}
 			scene.addChild(new AmbientLight({ position: vec3.fromValues(0, -500, 0) }));
+		}
+
+		const material = await Source2MaterialManager.getMaterial(repository, path);
+		if (material) {
+			this.#updateParams(material);
 		}
 
 		setScene(scene);
@@ -129,12 +139,14 @@ export class MaterialViewer extends SiteElement {
 						value.innerText = String(param);
 						break;
 					case 'expression':
+						value.classList.add('expression')
 						const text = (param as [string | null, Uint8Array])[0] ?? 'error while decompiling expression';//TODO: i18n
 						const rows = (text.match(/,/g) || []).length;
 						createElement('textarea', {
 							parent: value,
 							rows: rows,
-							cols: 40,
+							cols: 60,
+							disabled: true,
 							properties: {
 								value: text,
 							},
