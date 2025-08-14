@@ -1,0 +1,30 @@
+:host {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+.toolbar {
+	flex: 0;
+	background-color: grey;
+}
+
+.toolbar svg {
+	cursor: pointer;
+	display: inline-block;
+	height: 3rem;
+	width: 3rem;
+}
+
+
+.viewer {
+	flex: 1;
+	position: relative;
+	overflow: hidden;
+}
+
+.params {
+	display: flex;
+	flex-direction: column;
+}

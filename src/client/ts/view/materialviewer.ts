@@ -1,9 +1,9 @@
-import { vec3 } from 'gl-matrix';
-import { AmbientLight, Camera, ColorBackground, ContextObserver, GraphicsEvents, OrbitControl, Plane, PointLight, Scene, Source1ModelManager, Source2MaterialManager, Source2ModelManager } from 'harmony-3d';
+import { vec3, vec4 } from 'gl-matrix';
+import { AmbientLight, Camera, ColorBackground, ContextObserver, GraphicsEvents, OrbitControl, Plane, Scene, Source2Material, Source2MaterialManager } from 'harmony-3d';
 import { downloadSVG } from 'harmony-svg';
 import { createElement, createShadowRoot, hide, show } from 'harmony-ui';
 import { Map2 } from 'harmony-utils';
-import modelViewerCSS from '../../css/modelviewer.css';
+import materialViewerCSS from '../../css/materialviewer.css';
 import { Controller } from '../controller';
 import { ControllerEvents, SelectFile } from '../controllerevents';
 import { setParent, setScene, startupRenderer } from '../graphics';
@@ -11,7 +11,12 @@ import { SiteElement } from './siteelement';
 
 export class MaterialViewer extends SiteElement {
 	#htmlToolbar?: HTMLElement;
-	#htmlText?: HTMLElement;
+	#htmlParams?: HTMLElement;
+	#htmlIntParams?: HTMLElement;
+	#htmlFloatParams?: HTMLElement;
+	#htmlVectorParams?: HTMLElement;
+	#htmlDynamicParams?: HTMLElement;
+	#html3d?: HTMLElement;
 	#repository: string = '';
 	#path: string = '';
 	#scenes = new Map2<string, string, Scene>();
@@ -23,7 +28,7 @@ export class MaterialViewer extends SiteElement {
 		}
 
 		this.shadowRoot = createShadowRoot('section', {
-			adoptStyle: modelViewerCSS,
+			adoptStyle: materialViewerCSS,
 			childs: [
 				this.#htmlToolbar = createElement('div', {
 					class: 'toolbar',
@@ -35,7 +40,16 @@ export class MaterialViewer extends SiteElement {
 						}),
 					],
 				}),
-				this.#htmlText = createElement('div', {
+				this.#htmlParams = createElement('div', {
+					class: 'params',
+					childs: [
+						this.#htmlIntParams = createElement('div', { class: 'params', }),
+						this.#htmlFloatParams = createElement('div', { class: 'params', }),
+						this.#htmlVectorParams = createElement('div', { class: 'params', }),
+						this.#htmlDynamicParams = createElement('div', { class: 'params', }),
+					]
+				}),
+				this.#html3d = createElement('div', {
 					class: 'viewer',
 				}),
 			]
@@ -66,7 +80,6 @@ export class MaterialViewer extends SiteElement {
 		if (!scene) {
 			scene = new Scene({ camera: this.#camera });
 			scene.addChild(this.#camera);
-			scene.addChild(orbitControl!.target);
 
 			scene.background = new ColorBackground({/*color:[1, 1, 1, 1]*/ });
 			this.#scenes.set(repository, path, scene);
@@ -77,21 +90,70 @@ export class MaterialViewer extends SiteElement {
 			const material = await Source2MaterialManager.getMaterial(repository, path);
 			if (material) {
 				plane.setMaterial(material);
-
+				this.#updateParams(material);
 			}
 			scene.addChild(new AmbientLight({ position: vec3.fromValues(0, -500, 0) }));
 		}
 
 		setScene(scene);
-		setParent(this.#htmlText!);
+		setParent(this.#html3d!);
+	}
+
+	#updateParams(material: Source2Material) {
+		this.initHTML();
+
+		this.#updateParam(this.#htmlIntParams!, material.getIntParams(), 'number');
+		this.#updateParam(this.#htmlFloatParams!, material.getFloatParams(), 'number');
+		this.#updateParam(this.#htmlVectorParams!, material.getVectorParams(), 'vec4');
+		this.#updateParam(this.#htmlDynamicParams!, material.getDynamicParams(), 'expression');
+	}
+
+	#updateParam(element: HTMLElement, params: Map<string, number> | Map<string, vec4> | Map<string, [string | null, Uint8Array]> | null, type: string): void {
+		element.replaceChildren();
+		if (params && params.size) {
+			show(element);
+			for (const [name, param] of params) {
+				let value: HTMLElement;
+				createElement('label', {
+					class: 'param',
+					parent: element,
+					childs: [
+						createElement('span', { innerText: name }),
+						value = createElement('span'),
+					],
+				});
+
+				switch (type) {
+					case 'number':
+					case 'string':
+						value.innerText = String(param);
+						break;
+					case 'expression':
+						const text = (param as [string | null, Uint8Array])[0] ?? 'error while decompiling expression';//TODO: i18n
+						const rows = (text.match(/,/g) || []).length;
+						createElement('textarea', {
+							parent: value,
+							rows: rows,
+							cols: 40,
+							properties: {
+								value: text,
+							},
+						});
+						break;
+				}
+
+			}
+		} else {
+			hide(element);
+		}
 	}
 
 	show(): void {
 		this.initHTML();
-		show(this.#htmlText);
+		show(this.#html3d);
 	}
 
 	hide(): void {
-		hide(this.#htmlText);
+		hide(this.#html3d);
 	}
 }
