@@ -7,6 +7,7 @@ import { Task } from '../tasks/task';
 import { TaskRunner } from '../tasks/taskrunner';
 import { SiteElement } from './siteelement';
 import { concatMaterials, concatMaterialsBegin, concatMaterialsEnd } from '../tasks/concatmaterials';
+import { decompileDynamicParam, decompileDynamicParamBegin, decompileDynamicParamEnd } from '../tasks/decompiledynamicparams';
 export * as test from '../files/export';
 
 export class TaskManager extends SiteElement {
@@ -38,9 +39,7 @@ export class TaskManager extends SiteElement {
 						if (!this.#root) {
 							return;
 						}
-
 						TaskRunner.addTask(new Task(downloadFile, { root: this.#root, filter: { files: true } }));
-
 					}
 				}),
 				createElement('button', {
@@ -49,9 +48,16 @@ export class TaskManager extends SiteElement {
 						if (!this.#root) {
 							return;
 						}
-
 						TaskRunner.addTask(new Task(concatMaterials, { root: this.#root, filter: { files: true, extension: 'vmt' } }, concatMaterialsBegin, concatMaterialsEnd));
-
+					}
+				}),
+				createElement('button', {
+					i18n: 'decompile dynamic params',
+					$click: () => {
+						if (!this.#root) {
+							return;
+						}
+						TaskRunner.addTask(new Task(decompileDynamicParam, { root: this.#root, filter: { files: true, extension: 'vmat_c' } }, decompileDynamicParamBegin, decompileDynamicParamEnd));
 					}
 				}),
 			]
