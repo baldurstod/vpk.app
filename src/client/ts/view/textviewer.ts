@@ -2,6 +2,9 @@ import { loadScripts } from 'harmony-browser-utils';
 import { createElement, createShadowRoot, hide, show } from 'harmony-ui';
 import textViewerCSS from '../../css/textviewer.css';
 import { SiteElement } from './siteelement';
+import { downloadSVG } from 'harmony-svg';
+import { ControllerEvents, SelectFile } from '../controllerevents';
+import { Controller } from '../controller';
 
 type Token = { start: number, value: string, row?: number };
 export type TextViewerRange = {
@@ -20,6 +23,9 @@ export class TextViewer extends SiteElement {
 	#isOpen = false;
 	#uuid?: Token;
 	#anchors?: Map<string, TextViewerRange>;
+	#htmlToolbar?: HTMLElement;
+	#repository: string = '';
+	#path: string = '';
 
 	initHTML() {
 		if (this.shadowRoot) {
@@ -29,6 +35,16 @@ export class TextViewer extends SiteElement {
 		this.shadowRoot = createShadowRoot('section', {
 			adoptStyle: textViewerCSS,
 			childs: [
+				this.#htmlToolbar = createElement('div', {
+					class: 'toolbar',
+					childs: [
+						createElement('span', {
+							i18n: { title: '#download_file' },
+							innerHTML: downloadSVG,
+							$click: () => Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.DownloadFile, { detail: { repository: this.#repository, path: this.#path } }))
+						}),
+					],
+				}),
 				this.#htmlText = createElement('div', {
 					class: 'editor',
 				}),
@@ -155,7 +171,9 @@ export class TextViewer extends SiteElement {
 		this.initHTML();
 	}
 
-	async setText(text: string, anchors?: Map<string, TextViewerRange>) {
+	async setText(repository: string, path: string, text: string, anchors?: Map<string, TextViewerRange>) {
+		this.#repository = repository;
+		this.#path = path;
 		this.show();
 		//this.#htmlText!.innerText = text;
 		this.#anchors = anchors;

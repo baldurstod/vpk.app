@@ -203,11 +203,11 @@ export class ContentViewer extends SiteElement {
 			},
 			() => {
 				this.#htmlContent?.replaceChildren(this.#htmlTextViewer!.getHTML());
-				this.#htmlTextViewer?.setText(String(content));
+				this.#htmlTextViewer?.setText(repository, path, String(content));
 			}
 		);
 
-		this.#htmlTextViewer?.setText(String(content));
+		this.#htmlTextViewer?.setText(repository, path, String(content));
 		return tab;
 	}
 
@@ -295,7 +295,7 @@ export class ContentViewer extends SiteElement {
 			},
 			() => {
 				this.#htmlContent?.replaceChildren(this.#htmlTextViewer!.getHTML());
-				this.#htmlTextViewer?.setText(String(content));
+				this.#htmlTextViewer?.setText(repository, path, String(content));
 			}
 		);
 
@@ -314,7 +314,7 @@ export class ContentViewer extends SiteElement {
 				});
 			}
 
-			await this.#htmlTextViewer?.setText(pcfResult.text, anchors);
+			await this.#htmlTextViewer?.setText(repository, path, pcfResult.text, anchors);
 		}
 
 		await this.#htmlTextViewer?.select(hash);
