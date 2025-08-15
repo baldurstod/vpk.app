@@ -37,21 +37,13 @@ export class RepositorySelector extends SiteElement {
 					class: 'repositories',
 					$itemclick: (event: CustomEvent<ItemClickEventData>) => this.#itemClick(event),
 				}) as HTMLHarmonyTreeElement,
-				createElement('button', {
-					i18n: '#add_task',
-					$click: () => {
-						const root = this.#fileList?.get('');
-						if (root) {
-							Controller.dispatchEvent(new CustomEvent<AddTask>(ControllerEvents.AddTask, { detail: { root: root } }))
-						}
-					},
-				}) as HTMLHarmonyTreeElement,
 				this.#htmlFileFilter = createElement('input', {
 					class: 'files',
 					type: 'text',
 					$input: (event: InputEvent) => this.setFileFilter((event.target as HTMLInputElement).value),
 				}) as HTMLInputElement,
 				this.#htmlFileTree = createElement('harmony-tree', {
+					class: 'file-list',
 					$itemclick: (event: CustomEvent<ItemClickEventData>) => this.#fileItemClick(event),
 				}) as HTMLHarmonyTreeElement,
 			]
@@ -91,6 +83,7 @@ export class RepositorySelector extends SiteElement {
 				break;
 			case 'sharelink':
 				Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.CreateFileLink, { detail: { repository: this.#repository, path: clickedItem.getPath() } }));
+				//Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.CreateFileLink, { detail: { repository: this.#repository, path: clickedItem.getPath().replace(/^(\/)+/g, '') } }));
 				break;
 		}
 	}
@@ -112,10 +105,10 @@ export class RepositorySelector extends SiteElement {
 
 		if (this.#dirtyFileList && this.#fileList) {
 			this.#htmlFileTree?.replaceChildren();
-			this.#fileRoot = TreeItem.createFromPathList(this.#fileList);
+			this.#fileRoot = TreeItem.createFromPathList(this.#fileList, { rootUserData: this.#fileList?.get('') });
 
 			for (let item of this.#fileRoot.walk({})) {
-				if (item.type == 'directory') {
+				if (item.type == 'directory' || item.type == 'root') {
 					item.addActions(['add task']);
 				}
 				item.addActions(['sharelink']);

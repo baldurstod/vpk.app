@@ -19,3 +19,7 @@ harmony-tree {
 .files {
 	flex: 0;
 }
+
+.file-list {
+	--harmony-tree-display-root: flex;
+}
