@@ -1,5 +1,5 @@
 import { vec3, vec4 } from 'gl-matrix';
-import { AmbientLight, Camera, ColorBackground, ContextObserver, GraphicsEvents, OrbitControl, Plane, Scene, Source2Material, Source2MaterialManager } from 'harmony-3d';
+import { AmbientLight, Camera, ColorBackground, ContextObserver, GraphicsEvents, OrbitControl, Plane, RenderFace, Scene, Source2Material, Source2MaterialManager } from 'harmony-3d';
 import { downloadSVG } from 'harmony-svg';
 import { createElement, createShadowRoot, hide, show } from 'harmony-ui';
 import { Map2 } from 'harmony-utils';
@@ -96,6 +96,7 @@ export class MaterialViewer extends SiteElement {
 			const material = await Source2MaterialManager.getMaterial(repository, path);
 			if (material) {
 				plane.setMaterial(material);
+				material.renderFace(RenderFace.Both);
 			}
 			scene.addChild(new AmbientLight({ position: vec3.fromValues(0, -500, 0) }));
 		}
