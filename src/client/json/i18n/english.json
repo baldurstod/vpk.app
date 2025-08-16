@@ -1,7 +1,11 @@
 {
 	"lang": "english",
 	"strings": {
+		"#report_bug": "Report bug",
+		"#options": "Options",
+		"#advanced_options": "Advanced options",
 		"#refresh_repositories": "Refresh repositories",
+		"##root": "Root",
 		"#version": "Version",
 		"#width": "Width",
 		"#height": "Height",
@@ -26,6 +30,11 @@
 		"#detail2": "Detail 2",
 		"#fresnel_waarp": "Fresnel warp",
 		"#cube_map": "Cube map",
+		"#color_tint": "Color tint",
+		"#coord_offset": "Coord offset",
+		"#coord_scale": "Coord scale",
+		"#coord_rotation": "Coord rotation",
+		"#blend_factor": "Blend factor",
 		"": ""
 	}
 }

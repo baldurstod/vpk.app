@@ -9,16 +9,69 @@ import { ControllerEvents, SelectFile } from '../controllerevents';
 import { setParent, setScene, startupRenderer } from '../graphics';
 import { SiteElement } from './siteelement';
 
-const textureName = new Map<string, string>([
-	['g_tColor', '#color'],
-	['g_tMasks1', '#masks1'],
-	['g_tMasks2', '#masks2'],
-	['g_tDetail', '#detail1'],
-	['g_tDetail2', '#detail2'],
-	['g_tFresnelWarp', '#fresnel_waarp'],
-	['g_tNormal', '#normal'],
-	['g_tCubeMap', '#cube_map'],
+export enum Source2Type {
+	Int,
+	Float,
+	Texture,
+	Vector,
+}
+
+type Source2Param = {
+	i18n: string,
+	type: Source2Type,
+	vectorSize?: number,
+	subVariables?: string[],
+	main?: boolean,
+	values?: Map<number, string>;
+}
+
+const source2Params = new Map<string, Source2Param>([
+	['g_tColor', { i18n: '#color', type: Source2Type.Texture, main: true, subVariables: ['g_vColorTint', 'g_vTexCoordOffset', 'g_vTexCoordScale'] }],
+	['g_tMasks1', { i18n: '#masks1', type: Source2Type.Texture, main: true }],
+	['g_tMasks2', { i18n: '#masks2', type: Source2Type.Texture, main: true }],
+	['g_tDetail', { i18n: '#detail1', type: Source2Type.Texture, main: true, subVariables: ['g_flDetailBlendFactor', 'g_flDetailTexCoordRotation', 'g_vDetail1ColorTint', 'g_vDetailTexCoordOffset', 'g_vDetailTexCoordScale'] }],
+	['g_tDetail2', { i18n: '#detail2', type: Source2Type.Texture, main: true }],
+	['g_tFresnelWarp', { i18n: '#fresnel_waarp', type: Source2Type.Texture, main: true }],
+	['g_tNormal', { i18n: '#normal', type: Source2Type.Texture, main: true }],
+	['g_tCubeMap', { i18n: '#cube_map', type: Source2Type.Texture, main: true }],
+
+	['g_vColorTint', { i18n: '#color_tint', type: Source2Type.Vector }],
+	['g_vTexCoordOffset', { i18n: '#coord_offset', type: Source2Type.Vector, vectorSize: 2 }],
+	['g_vTexCoordScale', { i18n: '#coord_scale', type: Source2Type.Vector, vectorSize: 2 }],
+
+	['g_flDetailBlendFactor', { i18n: '#blend_factor', type: Source2Type.Float }],
+	['g_flDetailTexCoordRotation', { i18n: '#coord_rotation', type: Source2Type.Float }],
+	['g_vDetail1ColorTint', { i18n: '#color_tint', type: Source2Type.Vector }],
+	['g_vDetailTexCoordOffset', { i18n: '#coord_offset', type: Source2Type.Vector, vectorSize: 2 }],
+	['g_vDetailTexCoordScale', { i18n: '#coord_scale', type: Source2Type.Vector, vectorSize: 2 }],
+
+	/*
+		g_flDetailBlendFactor "1.000"
+	g_flDetailTexCoordRotation "0.000"
+	g_vDetail1ColorTint "[1.000000 1.000000 1.000000 0.000000]"
+	g_vDetailTexCoordOffset "[0.000 0.000]"
+	g_vDetailTexCoordScale "[1.000 1.000]"
+	TextureDetail "[1.000000 1.000000 1.000000 1.000000]"
+*/
+
 ]);
+
+
+/*
+	g_vColorTint "[0.811765 0.172549 0.172549 0.000000]"
+	g_vTexCoordOffset "[0.305 -0.610]"
+	g_vTexCoordScale "[17.247 13.714]"
+	TextureColor ""
+
+	DynamicParams
+	{
+		g_vColorTint "a = 1 != 2;\nb = 2 > 3;\nc = 2 >= 3;\nd = 2 < 3;\ne = 2 <= 3;\nf = 2 % 3;\ng = a.wyxz;\nh=float4(0, 1, 2, 3).wzyx;\n\nreturn b;\n"
+		g_vTexCoordOffset "2 * 3"
+		g_vTexCoordScale "3 * 4"
+	}
+*/
+
+
 
 
 export class MaterialViewer extends SiteElement {
@@ -126,14 +179,202 @@ export class MaterialViewer extends SiteElement {
 
 	#updateParams(material: Source2Material) {
 		this.initHTML();
+		this.#htmlParams!.replaceChildren();
 
+
+		for (const [name, param] of source2Params) {
+			if (param.main) {
+				this.#updateParam(material, name);
+			}
+		}
+
+		/*
 		this.#updateParam(this.#htmlIntParams!, material.getIntParams(), 'number');
 		this.#updateParam(this.#htmlFloatParams!, material.getFloatParams(), 'number');
 		this.#updateParam(this.#htmlVectorParams!, material.getVectorParams(), 'vec4');
 		this.#updateParam(this.#htmlDynamicParams!, material.getDynamicParams(), 'expression');
 		this.#updateParam(this.#htmlTextures!, material.getTextureParams(), 'texture');
+		*/
 	}
 
+	#updateParam(material: Source2Material, name: string): void {
+		const param = source2Params.get(name);
+		if (!param) {
+			return;
+		}
+
+		this.#createParamHtml(material, name, this.#htmlParams!);
+	}
+
+	#createParamHtml(material: Source2Material, name: string, parent: HTMLElement/*, value: number | vec4 | string*/): void {
+		const param = source2Params.get(name);
+		if (!param) {
+			return;
+		}
+
+		const dynamicValue = material.getDecompiledDynamicParam(name);
+		if (dynamicValue) {
+			const text = (dynamicValue as [string | null, Uint8Array])[0] ?? 'error while decompiling expression';//TODO: i18n
+			const rows = (text.match(/,/g) || []).length;
+			createElement('div', {
+				parent: parent,
+				class: 'variable',
+				childs: [
+					createElement('div', {
+						class: 'title',
+						i18n: param.i18n,
+					}),
+					createElement('textarea', {
+						rows: rows,
+						cols: 60,
+						disabled: true,
+						properties: {
+							value: text,
+						},
+					}),
+				]
+			});
+			return;
+		}
+
+		let htmlChilds: HTMLElement;
+		switch (param.type) {
+			case Source2Type.Int:
+				// TODO: enums
+				const intValue = material.getFloatParam(name);
+				if (intValue === null) {
+					return;
+				}
+				createElement('label', {
+					parent: parent,
+					childs: [
+						createElement('span', {
+							class: 'param-label',
+							i18n: param.i18n,
+						}),
+						createElement('span', {
+							innerText: String(intValue),
+						}),
+						htmlChilds = createElement('span', {
+							class: 'childs',
+						}),
+					]
+				});
+				break;
+			case Source2Type.Float:
+				const floatValue = material.getFloatParam(name);
+				if (floatValue === null) {
+					return;
+				}
+				createElement('label', {
+					parent: parent,
+					childs: [
+						createElement('span', {
+							class: 'param-label',
+							i18n: param.i18n,
+						}),
+						createElement('span', {
+							innerText: String(floatValue),
+						}),
+						htmlChilds = createElement('span', {
+							class: 'childs',
+						}),
+					]
+				});
+				break;
+			case Source2Type.Vector:
+				const vectorValue = material.getVectorParam(name, vec4.create());
+				if (vectorValue === null) {
+					return;
+				}
+				let vectorText = '';
+				for (let i = 0, l = (param.vectorSize ?? 4); i < l; i++) {
+					vectorText += String(vectorValue[i]);
+					if (i < l -1) {
+						vectorText += ', ';
+					}
+				}
+				switch (param.vectorSize) {
+					case 1:
+						vectorText = String(vectorValue[0]);
+						break;
+					case 2:
+						vectorText = String(vectorValue[0]);
+						break;
+
+					default:
+						break;
+				}
+
+				createElement('label', {
+					parent: parent,
+					childs: [
+						createElement('span', {
+							class: 'param-label',
+							i18n: param.i18n,
+						}),
+						createElement('span', {
+							innerText: vectorText//vec4.str(vectorValue),
+						}),
+						htmlChilds = createElement('span', {
+							class: 'childs',
+						}),
+					]
+				});
+				break;
+			case Source2Type.Texture:
+				const textureValue = material.getTextureParam(name);
+				if (!textureValue) {
+					return;
+				}
+				const path = textureValue.replace(/\.vtex_c$/, '').replace(/\.vtex$/, '') + '.vtex_c';
+				createElement('label', {
+					parent: parent,
+					class: 'texture parameter',
+					childs: [
+						/*
+						createElement('span', {
+							class: 'param-label',
+							i18n: param.i18n,
+						}),
+						createElement('span', {
+							innerText: String(textureValue),
+						}),
+						*/
+						createElement('div', {
+							class: 'title',
+							i18n: param.i18n,
+						}),
+						createElement('div', {
+							class: 'path',
+							childs: [
+								createElement('input', {
+									disabled: true,
+									value: textureValue,
+								}),
+								createElement('span', {
+									class: 'open',
+									innerHTML: openInNewSVG,
+
+									$click: () => Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.SelectFile, { detail: { repository: this.#repository, path: path } })),
+								}),
+							],
+						}),
+						htmlChilds = createElement('span', {
+							class: 'childs',
+						}),
+					]
+				});
+				break;
+		}
+
+		if (param.subVariables && htmlChilds) {
+			for (const subVariable of param.subVariables) {
+				this.#createParamHtml(material, subVariable, htmlChilds);
+			}
+		}
+	}
+	/*
 	#updateParam(element: HTMLElement, params: Map<string, number> | Map<string, vec4> | Map<string, string> | Map<string, [string | null, Uint8Array]> | null, type: string): void {
 		element.replaceChildren();
 		if (params && params.size) {
@@ -172,7 +413,7 @@ export class MaterialViewer extends SiteElement {
 							childs: [
 								createElement('div', {
 									class: 'title',
-									i18n: textureName.get(name) ?? name,
+									i18n: source2Variables.get(name) ?? name,
 								}),
 								createElement('textarea', {
 									rows: rows,
@@ -193,7 +434,7 @@ export class MaterialViewer extends SiteElement {
 							childs: [
 								createElement('div', {
 									class: 'title',
-									i18n: textureName.get(name) ?? name,
+									i18n: source2Variables.get(name) ?? name,
 								}),
 								createElement('div', {
 									class: 'path',
@@ -219,6 +460,7 @@ export class MaterialViewer extends SiteElement {
 			hide(element);
 		}
 	}
+	*/
 
 	show(): void {
 		this.initHTML();

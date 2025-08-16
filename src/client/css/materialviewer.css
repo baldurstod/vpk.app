@@ -27,6 +27,7 @@
 .params {
 	display: flex;
 	flex-direction: column;
+	min-width: 30rem;
 }
 
 .container {
@@ -48,34 +49,39 @@ label>* {
 	padding: 0.2rem;
 }
 
-.variables {
+.parameters {
 	display: flex;
 	flex-direction: column;
 	gap: 0.3rem;
 	padding: 0.5rem;
 }
 
-.variable {
+.parameter {
 	padding: 0.5rem;
 	display: block;
 	background-color: darkgreen;
 }
 
-.variable>.title {
+.parameter>.title {
 	width: 100%;
 	text-align: center;
 }
 
-.variable>.path {
+.parameter>.path {
 	width: 100%;
 	display: flex;
 	/*box-sizing: border-box;*/
 }
 
-.variable>.path>input {
+.parameter>.path>input {
 	flex: 1;
 }
 
-.variable>.path>.open {
+.parameter>.path>.open {
 	cursor: pointer;
+}
+
+.parameter>.childs {
+	display: flex;
+	flex-direction: column;
 }
