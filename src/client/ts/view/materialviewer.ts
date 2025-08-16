@@ -153,14 +153,27 @@ export class MaterialViewer extends SiteElement {
 							],
 						});
 						break;
+					case 'vec4':
+						createElement('label', {
+							class: 'param',
+							parent: element,
+							childs: [
+								createElement('span', { innerText: name }),
+								createElement('span', { innerText: String(vec4.str(param as vec4)) }),
+							],
+						});
+						break;
 					case 'expression':
 						const text = (param as [string | null, Uint8Array])[0] ?? 'error while decompiling expression';//TODO: i18n
 						const rows = (text.match(/,/g) || []).length;
 						createElement('div', {
-							class: 'variable',
 							parent: element,
+							class: 'variable',
 							childs: [
-								createElement('span', { innerText: name }),
+								createElement('div', {
+									class: 'title',
+									i18n: textureName.get(name) ?? name,
+								}),
 								createElement('textarea', {
 									rows: rows,
 									cols: 60,
@@ -169,9 +182,8 @@ export class MaterialViewer extends SiteElement {
 										value: text,
 									},
 								}),
-							],
+							]
 						});
-						;
 						break;
 					case 'texture':
 						const path = (param as string).replace(/\.vtex_c$/, '').replace(/\.vtex$/, '') + '.vtex_c';
