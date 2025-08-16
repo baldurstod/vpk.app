@@ -19,6 +19,13 @@
 		"#close_all": "Close all",
 		"#close_other": "Close others",
 		"#close_to_the_right": "Close to the right",
+		"#color": "Color",
+		"#masks1": "Masks 1",
+		"#masks2": "Masks 2",
+		"#detail1": "Detail 1",
+		"#detail2": "Detail 2",
+		"#fresnel_waarp": "Fresnel warp",
+		"#cube_map": "Cube map",
 		"": ""
 	}
 }

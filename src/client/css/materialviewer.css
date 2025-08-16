@@ -47,3 +47,35 @@ textarea {
 label>* {
 	padding: 0.2rem;
 }
+
+.variables {
+	display: flex;
+	flex-direction: column;
+	gap: 0.3rem;
+	padding: 0.5rem;
+}
+
+.variable {
+	padding: 0.5rem;
+	display: block;
+	background-color: darkgreen;
+}
+
+.variable>.title {
+	width: 100%;
+	text-align: center;
+}
+
+.variable>.path {
+	width: 100%;
+	display: flex;
+	/*box-sizing: border-box;*/
+}
+
+.variable>.path>input {
+	flex: 1;
+}
+
+.variable>.path>.open {
+	cursor: pointer;
+}
