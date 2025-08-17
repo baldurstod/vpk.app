@@ -13,18 +13,27 @@ export enum TaskResult {
 	Done = 3,
 }
 
-export type TaskAction = (task: Task, repository: string, path: string, params?: any) => Promise<boolean>;
-export type TaskInit = (task: Task) => Promise<boolean>;
-export type TaskParams = { root: RepositoryEntry, filter: RepositoryFilter };
+export type TaskExecutor = (task: Task, repository: string, path: string, params: any) => Promise<boolean>;
+export type TaskInit = (task: Task, params: any) => Promise<boolean>;
+//export type TaskParams = { root: RepositoryEntry, filter: RepositoryFilter };
 
 let taskId = 0;
 
+export type TaskDefinition = {
+	executor: TaskExecutor,
+	preExecution?: TaskInit,
+	postExecution?: TaskInit,
+}
+
 export class Task {
 	readonly id = ++taskId;
-	#action: TaskAction;
-	#params: TaskParams;
-	#begin?: TaskInit;
-	#end?: TaskInit;
+	#definition: TaskDefinition;
+	//#action: TaskExecutor;
+	#root: RepositoryEntry;
+	#filter: RepositoryFilter;
+	#params: any;
+	//#begin?: TaskInit;
+	//#end?: TaskInit;
 	paused = false;
 	#result = false;
 	#files: Set<RepositoryEntry>;
@@ -34,12 +43,12 @@ export class Task {
 	currentPath: string = '';
 	#status: TaskStatus = TaskStatus.Pending;
 
-	constructor(action: TaskAction, params: TaskParams, begin?: TaskInit, end?: TaskInit) {
-		this.#action = action;
+	constructor(definition: TaskDefinition, root: RepositoryEntry, filter: RepositoryFilter, params?: any) {
+		this.#definition = definition;
+		this.#root = root;
+		this.#filter = filter;
 		this.#params = params;
-		this.#begin = begin;
-		this.#end = end;
-		this.#files = params.root.getAllChilds(params.filter);
+		this.#files = root.getAllChilds(filter);
 		this.initialCount = this.#files.size;
 	}
 
@@ -48,11 +57,15 @@ export class Task {
 	}
 
 	getRepository(): string {
-		return this.#params.root.getRepository().name;
+		return this.#root.getRepository().name;
 	}
 
 	getRoot(): string {
-		return this.#params.root.getFullName();
+		return this.#root.getFullName();
+	}
+
+	getFilter(): RepositoryFilter {
+		return this.#filter;
 	}
 
 	async process(): Promise<TaskResult> {
@@ -71,13 +84,13 @@ export class Task {
 		}
 		this.currentPath = path;
 
-		return await this.#action(this, this.#params.root.getRepository().name, next.getFullName()) ? TaskResult.Ok : TaskResult.Error;
+		return await this.#definition.executor(this, this.#root.getRepository().name, next.getFullName(), this.#params) ? TaskResult.Ok : TaskResult.Error;
 	}
 
 	async #runBegin(): Promise<boolean> {
 		if (!this.#beginFired) {
 			this.#beginFired = true;
-			return await this.#begin?.(this) ?? true;
+			return await this.#definition.preExecution?.(this, this.#params) ?? true;
 		}
 		return true;
 	}
@@ -85,7 +98,7 @@ export class Task {
 	async #runEnd(): Promise<boolean> {
 		if (!this.#endFired) {
 			this.#endFired = true;
-			return await this.#end?.(this) ?? true;
+			return await this.#definition.postExecution?.(this, this.#params) ?? true;
 		}
 		return true;
 	}

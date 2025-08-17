@@ -1,13 +1,13 @@
 import { RepositoryEntry } from 'harmony-3d';
 import { createElement, createShadowRoot } from 'harmony-ui';
 import taskManagerCSS from '../../css/taskmanager.css';
+import { concatMaterials, } from '../tasks/concatmaterials';
 import { exportToPng } from '../tasks/converttopng';
+import { decompileDynamicParam, } from '../tasks/decompiledynamicparams';
 import { downloadFile } from '../tasks/downloadfile';
 import { Task, TaskStatus } from '../tasks/task';
 import { TaskEvent, TaskRunner, TaskRunnerEvents } from '../tasks/taskrunner';
 import { SiteElement } from './siteelement';
-import { concatMaterials, concatMaterialsBegin, concatMaterialsEnd } from '../tasks/concatmaterials';
-import { decompileDynamicParam, decompileDynamicParamBegin, decompileDynamicParamEnd } from '../tasks/decompiledynamicparams';
 export * as test from '../files/export';
 
 export class TaskManager extends SiteElement {
@@ -49,7 +49,7 @@ export class TaskManager extends SiteElement {
 						if (!this.#root) {
 							return;
 						}
-						TaskRunner.addTask(new Task(exportToPng, { root: this.#root, filter: { files: true } }));
+						TaskRunner.addTask(new Task(exportToPng, this.#root, { files: true }));
 					}
 				}),
 				createElement('button', {
@@ -58,7 +58,7 @@ export class TaskManager extends SiteElement {
 						if (!this.#root) {
 							return;
 						}
-						TaskRunner.addTask(new Task(downloadFile, { root: this.#root, filter: { files: true } }));
+						TaskRunner.addTask(new Task(downloadFile, this.#root, { files: true }));
 					}
 				}),
 				createElement('button', {
@@ -67,7 +67,7 @@ export class TaskManager extends SiteElement {
 						if (!this.#root) {
 							return;
 						}
-						TaskRunner.addTask(new Task(concatMaterials, { root: this.#root, filter: { files: true, extension: 'vmt' } }, concatMaterialsBegin, concatMaterialsEnd));
+						TaskRunner.addTask(new Task(concatMaterials, this.#root, { files: true, extension: 'vmt' }));
 					}
 				}),
 				createElement('button', {
@@ -76,7 +76,7 @@ export class TaskManager extends SiteElement {
 						if (!this.#root) {
 							return;
 						}
-						TaskRunner.addTask(new Task(decompileDynamicParam, { root: this.#root, filter: { files: true, extension: 'vmat_c' } }, decompileDynamicParamBegin, decompileDynamicParamEnd));
+						TaskRunner.addTask(new Task(decompileDynamicParam, this.#root, { files: true, extension: 'vmat_c' }));
 					}
 				}),
 				this.#htmlTaskList = createElement('div', {
