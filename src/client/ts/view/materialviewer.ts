@@ -1,5 +1,5 @@
 import { vec3, vec4 } from 'gl-matrix';
-import { AmbientLight, Camera, ColorBackground, ContextObserver, GraphicsEvents, OrbitControl, Plane, RenderFace, Scene, Source2Material, Source2MaterialManager } from 'harmony-3d';
+import { AmbientLight, Camera, ColorBackground, ContextObserver, GraphicsEvents, OrbitControl, Plane, RenderFace, Scene, smartRound, Source2Material, Source2MaterialManager } from 'harmony-3d';
 import { downloadSVG, openInNewSVG } from 'harmony-svg';
 import { createElement, createShadowRoot, hide, show } from 'harmony-ui';
 import { Map2 } from 'harmony-utils';
@@ -293,21 +293,10 @@ export class MaterialViewer extends SiteElement {
 				}
 				let vectorText = '';
 				for (let i = 0, l = (param.vectorSize ?? 4); i < l; i++) {
-					vectorText += String(vectorValue[i]);
+					vectorText += String(smartRound(vectorValue[i]!));
 					if (i < l - 1) {
 						vectorText += ', ';
 					}
-				}
-				switch (param.vectorSize) {
-					case 1:
-						vectorText = String(vectorValue[0]);
-						break;
-					case 2:
-						vectorText = String(vectorValue[0]);
-						break;
-
-					default:
-						break;
 				}
 
 				createElement('label', {
@@ -351,6 +340,7 @@ export class MaterialViewer extends SiteElement {
 				}
 				createElement('label', {
 					parent: parent,
+					class: 'line-parameter',
 					childs: [
 						createElement('span', {
 							class: 'param-label',

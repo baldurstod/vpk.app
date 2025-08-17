@@ -87,3 +87,11 @@ label>* {
 	display: flex;
 	flex-direction: column;
 }
+
+.line-parameter {
+	display: flex;
+}
+
+.line-parameter>.color {
+	flex: 1;
+}
