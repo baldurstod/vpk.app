@@ -65,6 +65,7 @@ label>* {
 .parameter>.title {
 	width: 100%;
 	text-align: center;
+	background-color: darkgrey;
 }
 
 .parameter>.path {

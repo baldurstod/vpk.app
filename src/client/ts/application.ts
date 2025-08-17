@@ -116,7 +116,7 @@ class Application {
 		let result = /@view\/([^\:]*)\:?(.*)/i.exec(decodeURI(document.location.pathname));
 		if (result && result.length > 2) {
 			await this.#selectRepository(result[1]!, true, result[2]!);
-			await this.#viewFile(result[1]!, result[2]!, document.location.hash.substring(1), false);
+			await this.#viewFile(result[1]!, result[2]!, document.location.hash.substring(1), false, false);
 		}
 	}
 
@@ -177,7 +177,7 @@ class Application {
 		this.#navigateTo(this.#getFileLink(repository, path));
 	}
 
-	async #viewFile(repository: string, path: string, hash: string, userAction: boolean) {
+	async #viewFile(repository: string, path: string, hash: string, userAction: boolean, force: boolean) {
 		path = path.replace(/\.(vvd|dx80\.vtx|dx90\.vtx|sw\.vtx)$/, '.mdl');
 		this.#appContent.selectRepository(repository, !userAction);
 		this.#appContent.selectFile(path, !userAction);
@@ -188,7 +188,7 @@ class Application {
 		}
 
 		console.info(response.file);
-		this.#appContent.viewFile(repository, path, hash, GameEngine.Source1/*TODO: param*/, response.file!, userAction);
+		this.#appContent.viewFile(repository, path, hash, GameEngine.Source1/*TODO: param*/, response.file!, userAction, force);
 	}
 
 	async #downloadFile(event: CustomEvent<SelectFile>) {
@@ -273,7 +273,7 @@ class Application {
 			this.#selectRepository(repoName, true);
 		} else {
 			this.#localRepo.setFile(file.name, file);
-			await this.#viewFile('local', file.name, '', false);
+			await this.#viewFile('local', file.name, '', false, true);
 		}
 	}
 }

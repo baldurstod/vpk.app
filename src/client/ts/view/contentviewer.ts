@@ -71,7 +71,10 @@ export class ContentViewer extends SiteElement {
 		this.initHTML();
 	}
 
-	async viewFile(repository: string, path: string, hash: string, engine: GameEngine, file: File, userAction: boolean): Promise<void> {
+	async viewFile(repository: string, path: string, hash: string, engine: GameEngine, file: File, userAction: boolean, force: boolean): Promise<void> {
+		if (force) {
+			this.#openViewers.get(repository, path) ?.close();
+		}
 		let tab: HTMLHarmonyTabElement | undefined | null = this.#openViewers.get(repository, path);
 		if (tab) {
 			tab.activate();
