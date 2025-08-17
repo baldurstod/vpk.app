@@ -11,7 +11,7 @@ import { SiteElement } from './siteelement';
 
 export class ModelViewer extends SiteElement {
 	#htmlToolbar?: HTMLElement;
-	#htmlText?: HTMLElement;
+	#htmlViewer?: HTMLElement;
 	#repository: string = '';
 	#path: string = '';
 	#scenes = new Map2<string, string, Scene>();
@@ -34,7 +34,7 @@ export class ModelViewer extends SiteElement {
 						}),
 					],
 				}),
-				this.#htmlText = createElement('div', {
+				this.#htmlViewer = createElement('div', {
 					class: 'viewer',
 				}),
 			]
@@ -75,7 +75,7 @@ export class ModelViewer extends SiteElement {
 
 		setScene(scene);
 		//.append(getCanvas());
-		setParent(this.#htmlText!);
+		setParent(this.#htmlViewer!);
 	}
 
 	async setSource2Model(repository: string, path: string): Promise<void> {
@@ -109,15 +109,6 @@ export class ModelViewer extends SiteElement {
 
 		setScene(scene);
 		//.append(getCanvas());
-		setParent(this.#htmlText!);
-	}
-
-	show(): void {
-		this.initHTML();
-		show(this.#htmlText);
-	}
-
-	hide(): void {
-		hide(this.#htmlText);
+		setParent(this.#htmlViewer!);
 	}
 }

@@ -45,6 +45,9 @@ const source2Params = new Map<string, Source2Param>([
 	['g_vDetailTexCoordOffset', { i18n: '#coord_offset', type: Source2Type.Vector, vectorSize: 2 }],
 	['g_vDetailTexCoordScale', { i18n: '#coord_scale', type: Source2Type.Vector, vectorSize: 2 }],
 
+	['g_vDetail2TexCoordOffset', { i18n: '#coord_offset', type: Source2Type.Vector, vectorSize: 2 }],
+	['g_vDetail2TexCoordScale', { i18n: '#coord_scale', type: Source2Type.Vector, vectorSize: 2 }],
+
 	/*
 		g_flDetailBlendFactor "1.000"
 	g_flDetailTexCoordRotation "0.000"
@@ -82,7 +85,7 @@ export class MaterialViewer extends SiteElement {
 	#htmlVectorParams?: HTMLElement;
 	#htmlDynamicParams?: HTMLElement;
 	#htmlTextures?: HTMLElement;
-	#html3d?: HTMLElement;
+	#htmlViewer?: HTMLElement;
 	#repository: string = '';
 	#path: string = '';
 	#scenes = new Map2<string, string, Scene>();
@@ -119,7 +122,7 @@ export class MaterialViewer extends SiteElement {
 								this.#htmlTextures = createElement('div', { class: 'variables', }),
 							]
 						}),
-						this.#html3d = createElement('div', {
+						this.#htmlViewer = createElement('div', {
 							class: 'viewer',
 						}),
 
@@ -174,7 +177,7 @@ export class MaterialViewer extends SiteElement {
 		}
 
 		setScene(scene);
-		setParent(this.#html3d!);
+		setParent(this.#htmlViewer!);
 	}
 
 	#updateParams(material: Source2Material) {
@@ -461,13 +464,4 @@ export class MaterialViewer extends SiteElement {
 		}
 	}
 	*/
-
-	show(): void {
-		this.initHTML();
-		show(this.#html3d);
-	}
-
-	hide(): void {
-		hide(this.#html3d);
-	}
 }

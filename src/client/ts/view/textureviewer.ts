@@ -76,7 +76,6 @@ export class TextureViewer extends SiteElement {
 					childs: [
 						this.#htmlParams = createElement('div', { class: 'flags', }),
 						this.#htmlImageContainer = createElement('div', { class: 'image', }),
-
 					]
 				}),
 			]

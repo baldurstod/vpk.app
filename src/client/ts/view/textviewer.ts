@@ -195,13 +195,4 @@ export class TextViewer extends SiteElement {
 		const range = new (globalThis as any).ace.Range(1000, 1, 1000, 20);
 		const marker = this.#aceEditor.getSession().addMarker(range, 'ace_selected_word', 'text');
 	}
-
-	show() {
-		this.initHTML();
-		show(this.#htmlText);
-	}
-
-	hide() {
-		hide(this.#htmlText);
-	}
 }
