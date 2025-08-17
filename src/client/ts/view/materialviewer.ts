@@ -14,6 +14,7 @@ export enum Source2Type {
 	Float,
 	Texture,
 	Vector,
+	Color,
 }
 
 type Source2Param = {
@@ -35,13 +36,13 @@ const source2Params = new Map<string, Source2Param>([
 	['g_tNormal', { i18n: '#normal', type: Source2Type.Texture, main: true }],
 	['g_tCubeMap', { i18n: '#cube_map', type: Source2Type.Texture, main: true }],
 
-	['g_vColorTint', { i18n: '#color_tint', type: Source2Type.Vector }],
+	['g_vColorTint', { i18n: '#color_tint', type: Source2Type.Color }],
 	['g_vTexCoordOffset', { i18n: '#coord_offset', type: Source2Type.Vector, vectorSize: 2 }],
 	['g_vTexCoordScale', { i18n: '#coord_scale', type: Source2Type.Vector, vectorSize: 2 }],
 
 	['g_flDetailBlendFactor', { i18n: '#blend_factor', type: Source2Type.Float }],
 	['g_flDetailTexCoordRotation', { i18n: '#coord_rotation', type: Source2Type.Float }],
-	['g_vDetail1ColorTint', { i18n: '#color_tint', type: Source2Type.Vector }],
+	['g_vDetail1ColorTint', { i18n: '#color_tint', type: Source2Type.Color }],
 	['g_vDetailTexCoordOffset', { i18n: '#coord_offset', type: Source2Type.Vector, vectorSize: 2 }],
 	['g_vDetailTexCoordScale', { i18n: '#coord_scale', type: Source2Type.Vector, vectorSize: 2 }],
 
@@ -240,7 +241,7 @@ export class MaterialViewer extends SiteElement {
 			return;
 		}
 
-		let htmlChilds: HTMLElement;
+		let htmlChilds: HTMLElement | null = null;
 		switch (param.type) {
 			case Source2Type.Int:
 				// TODO: enums
@@ -293,7 +294,7 @@ export class MaterialViewer extends SiteElement {
 				let vectorText = '';
 				for (let i = 0, l = (param.vectorSize ?? 4); i < l; i++) {
 					vectorText += String(vectorValue[i]);
-					if (i < l -1) {
+					if (i < l - 1) {
 						vectorText += ', ';
 					}
 				}
@@ -321,6 +322,44 @@ export class MaterialViewer extends SiteElement {
 						}),
 						htmlChilds = createElement('span', {
 							class: 'childs',
+						}),
+					]
+				});
+				break;
+			case Source2Type.Color:
+				const colorValue = material.getVectorParam(name, vec4.create());
+				if (colorValue === null) {
+					return;
+				}
+				let colorText = '';
+				for (let i = 0, l = (param.vectorSize ?? 4); i < l; i++) {
+					colorText += String(colorValue[i]);
+					if (i < l - 1) {
+						colorText += ', ';
+					}
+				}
+				switch (param.vectorSize) {
+					case 1:
+						vectorText = String(colorValue[0]);
+						break;
+					case 2:
+						vectorText = String(colorValue[0]);
+						break;
+
+					default:
+						break;
+				}
+				createElement('label', {
+					parent: parent,
+					childs: [
+						createElement('span', {
+							class: 'param-label',
+							i18n: param.i18n,
+						}),
+						createElement('span', {
+							parent: parent,
+							class: 'color parameter',
+							style: `background-color:rgb(${colorValue[0] * 255}, ${colorValue[1] * 255}, ${colorValue[2] * 255});`,
 						}),
 					]
 				});

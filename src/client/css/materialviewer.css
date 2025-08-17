@@ -66,6 +66,7 @@ label>* {
 	width: 100%;
 	text-align: center;
 	background-color: darkgrey;
+	box-sizing: border-box;
 }
 
 .parameter>.path {
