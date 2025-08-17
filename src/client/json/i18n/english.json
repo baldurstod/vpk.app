@@ -37,6 +37,7 @@
 		"#coord_scale": "Coord scale",
 		"#coord_rotation": "Coord rotation",
 		"#blend_factor": "Blend factor",
+		"#file_count": "${count} files",
 		"": ""
 	}
 }

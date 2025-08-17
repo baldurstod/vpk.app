@@ -1,5 +1,5 @@
 import { RepositoryEntry } from 'harmony-3d';
-import { createElement, createShadowRoot } from 'harmony-ui';
+import { createElement, createShadowRoot, updateElement } from 'harmony-ui';
 import taskManagerCSS from '../../css/taskmanager.css';
 import { concatVmts, } from '../tasks/concatvmts';
 import { exportToPng } from '../tasks/converttopng';
@@ -37,11 +37,23 @@ export class TaskManager extends SiteElement {
 
 			childs: [
 				createElement('div', {
+					class: 'title',
 					childs: [
-						createElement('span', { i18n: '#root', }),
-						this.#htmlRoot = createElement('span'),
-						this.#htmlRootCount = createElement('span'),
-					]
+						createElement('label', {
+							childs: [
+								createElement('span', { i18n: '#root', }),
+								this.#htmlRoot = createElement('span'),
+								this.#htmlRootCount = createElement('span', {
+									i18n: {
+										innerText: '#file_count',
+										values: {
+											count: 0,
+										},
+									}
+								}),
+							],
+						}),
+					],
 				}),
 				createElement('button', {
 					i18n: '#export_to_png',
@@ -97,6 +109,14 @@ export class TaskManager extends SiteElement {
 		this.initHTML();
 		this.#root = root;
 		this.#htmlRoot!.innerText = root.getFullName();
+		updateElement(this.#htmlRootCount, {
+			i18n: {
+				innerText: '#file_count',
+				values: {
+					count: root.getAllChilds().size,
+				},
+			},
+		});
 		this.show();
 	}
 
