@@ -152,30 +152,34 @@ export class ContentViewer extends SiteElement {
 		const contextMenu = {
 			close: { i18n: '#close', f: () => tab.close() },
 			closeall: { i18n: '#close_all', f: () => this.#htmlTabs?.closeAllTabs() },
-			closeother: { i18n: '#close_other', f: () => {
-				const tabs = this.#htmlTabs?.getTabs();
-				if (tabs)  {
-					for (const t of tabs) {
-						if (t != tab) {
-							t.close();
+			closeother: {
+				i18n: '#close_other', f: () => {
+					const tabs = this.#htmlTabs?.getTabs();
+					if (tabs) {
+						for (const t of tabs) {
+							if (t != tab) {
+								t.close();
+							}
 						}
 					}
 				}
-			} },
-			closetotheright: { i18n: '#close_to_the_right', f: () => {
-				const tabs = this.#htmlTabs?.getTabs();
-				if (tabs)  {
-					let close = false;
-					for (const t of tabs) {
-						if (close) {
-							t.close();
-						}
-						if (t == tab) {
-							close = true;
+			},
+			closetotheright: {
+				i18n: '#close_to_the_right', f: () => {
+					const tabs = this.#htmlTabs?.getTabs();
+					if (tabs) {
+						let close = false;
+						for (const t of tabs) {
+							if (close) {
+								t.close();
+							}
+							if (t == tab) {
+								close = true;
+							}
 						}
 					}
 				}
-			} },
+			},
 		};
 
 		this.#htmlContextMenu.showContextual(contextMenu, originalEvent.clientX, originalEvent.clientY, null);
