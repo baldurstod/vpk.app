@@ -116,7 +116,7 @@ class Application {
 		let result = /@view\/([^\:]*)\:?(.*)/i.exec(decodeURI(document.location.pathname));
 		if (result && result.length > 2) {
 			await this.#selectRepository(result[1]!, true, result[2]!);
-			await this.#viewFile(result[1]!, result[2]!, document.location.hash.substring(1), false, false);
+			await this.#viewFile(result[1]!, result[2]!, document.location.hash.substring(1), false);
 		}
 	}
 
@@ -177,7 +177,7 @@ class Application {
 		this.#navigateTo(this.#getFileLink(repository, path));
 	}
 
-	async #viewFile(repository: string, path: string, hash: string, userAction: boolean, force: boolean) {
+	async #viewFile(repository: string, path: string, hash: string, userAction: boolean) {
 		path = path.replace(/\.(vvd|dx80\.vtx|dx90\.vtx|sw\.vtx)$/, '.mdl');
 		this.#appContent.selectRepository(repository, !userAction);
 		this.#appContent.selectFile(path, !userAction);
@@ -188,7 +188,7 @@ class Application {
 		}
 
 		console.info(response.file);
-		this.#appContent.viewFile(repository, path, hash, GameEngine.Source1/*TODO: param*/, response.file!, userAction, force);
+		this.#appContent.viewFile(repository, path, hash, GameEngine.Source1/*TODO: param*/, response.file!, userAction);
 	}
 
 	async #downloadFile(event: CustomEvent<SelectFile>) {
@@ -249,7 +249,9 @@ class Application {
 	}
 
 	async #openLocalFile(file: File): Promise<void> {
-		const extension = file.name.split('.').pop() ?? '';
+		const dot = file.name.lastIndexOf('.');
+		const name = file.name.substring(0, dot - 1);
+		const extension = file.name.substring(dot + 1);
 		switch (extension) {
 			case 'vpk':
 
@@ -272,8 +274,14 @@ class Application {
 			await this.#refreshRepositoryList();
 			this.#selectRepository(repoName, true);
 		} else {
-			this.#localRepo.setFile(file.name, file);
-			await this.#viewFile('local', file.name, '', false, true);
+			let filename = file.name;
+			let i = 0;
+			while ((await this.#localRepo.getFile(filename)).file) {
+				filename = `${name}(${++i}).${extension}`;
+			}
+
+			this.#localRepo.setFile(filename, file);
+			await this.#viewFile('local', filename, '', false);
 		}
 	}
 }
