@@ -4,7 +4,7 @@ import { Task, TaskDefinition } from './task';
 
 const txtPerTask = new Map<number, string>();
 
-export const concatMaterials: TaskDefinition = {
+export const concatVmts: TaskDefinition = {
 	executor: async (task: Task, repository: string, path: string, params?: any): Promise<boolean> => {
 		const response = await Repositories.getFileAsText(repository, path);
 		if (response.error) {

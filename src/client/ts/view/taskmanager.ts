@@ -1,7 +1,7 @@
 import { RepositoryEntry } from 'harmony-3d';
 import { createElement, createShadowRoot } from 'harmony-ui';
 import taskManagerCSS from '../../css/taskmanager.css';
-import { concatMaterials, } from '../tasks/concatmaterials';
+import { concatVmts, } from '../tasks/concatvmts';
 import { exportToPng } from '../tasks/converttopng';
 import { decompileDynamicParam, } from '../tasks/decompiledynamicparams';
 import { downloadFile } from '../tasks/downloadfile';
@@ -44,7 +44,7 @@ export class TaskManager extends SiteElement {
 					]
 				}),
 				createElement('button', {
-					i18n: 'convert to png',
+					i18n: '#export_to_png',
 					$click: () => {
 						if (!this.#root) {
 							return;
@@ -53,7 +53,7 @@ export class TaskManager extends SiteElement {
 					}
 				}),
 				createElement('button', {
-					i18n: 'download file',
+					i18n: '#download_file',
 					$click: () => {
 						if (!this.#root) {
 							return;
@@ -62,16 +62,16 @@ export class TaskManager extends SiteElement {
 					}
 				}),
 				createElement('button', {
-					i18n: 'merge materials',
+					i18n: '#concat_vmts',
 					$click: () => {
 						if (!this.#root) {
 							return;
 						}
-						TaskRunner.addTask(new Task(concatMaterials, this.#root, { files: true, extension: 'vmt' }));
+						TaskRunner.addTask(new Task(concatVmts, this.#root, { files: true, extension: 'vmt' }));
 					}
 				}),
 				createElement('button', {
-					i18n: 'decompile dynamic params',
+					i18n: '#decompile_dynamic_params',
 					$click: () => {
 						if (!this.#root) {
 							return;

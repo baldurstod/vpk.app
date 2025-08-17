@@ -48,7 +48,7 @@ export class Task {
 		this.#root = root;
 		this.#filter = filter;
 		this.#params = params;
-		this.#files = root.getAllChilds(filter);
+		this.#files = root.getAllChildsSorted(filter);
 		this.initialCount = this.#files.size;
 	}
 
