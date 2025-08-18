@@ -219,7 +219,7 @@ export class MaterialViewer extends SiteElement {
 		const dynamicValue = material.getDecompiledDynamicParam(name);
 		if (dynamicValue) {
 			const text = (dynamicValue as [string | null, Uint8Array])[0] ?? 'error while decompiling expression';//TODO: i18n
-			const rows = (text.match(/,/g) || []).length;
+			const rows = (text.match(/\n/g) || []).length + 1;
 			createElement('div', {
 				parent: parent,
 				class: 'variable',
