@@ -8,6 +8,7 @@ import { Controller } from '../controller';
 import { ControllerEvents, SelectFile } from '../controllerevents';
 import { setParent, setScene, startupRenderer } from '../graphics';
 import { SiteElement } from './siteelement';
+import { createResource } from './createresource';
 
 export enum Source2Type {
 	Int,
@@ -375,21 +376,7 @@ export class MaterialViewer extends SiteElement {
 							class: 'title',
 							i18n: param.i18n,
 						}),
-						createElement('div', {
-							class: 'path',
-							childs: [
-								createElement('input', {
-									disabled: true,
-									value: textureValue,
-								}),
-								createElement('span', {
-									class: 'open',
-									innerHTML: openInNewSVG,
-
-									$click: () => Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.SelectFile, { detail: { repository: this.#repository, path: path } })),
-								}),
-							],
-						}),
+						createResource(this.#repository, path),
 						htmlChilds = createElement('span', {
 							class: 'childs',
 						}),
