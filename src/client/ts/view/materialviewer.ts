@@ -143,12 +143,10 @@ export class MaterialViewer extends SiteElement {
 		this.#repository = repository;
 		this.#path = path;
 
-		let orbitControl: OrbitControl;
 		if (!this.#camera) {
-
 			this.#camera = new Camera({ position: vec3.fromValues(0, 0, 10) });
 
-			orbitControl = new OrbitControl(this.#camera);
+			const orbitControl = new OrbitControl(this.#camera);
 			orbitControl.target.setPosition(vec3.fromValues(0, 0, 0));
 			ContextObserver.observe(GraphicsEvents, this.#camera);
 		}
