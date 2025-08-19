@@ -76,17 +76,9 @@ const source2Params = new Map<string, Source2Param>([
 	}
 */
 
-
-
-
 export class MaterialViewer extends SiteElement {
 	#htmlToolbar?: HTMLElement;
 	#htmlParams?: HTMLElement;
-	#htmlIntParams?: HTMLElement;
-	#htmlFloatParams?: HTMLElement;
-	#htmlVectorParams?: HTMLElement;
-	#htmlDynamicParams?: HTMLElement;
-	#htmlTextures?: HTMLElement;
 	#htmlViewer?: HTMLElement;
 	#repository: string = '';
 	#path: string = '';
@@ -116,13 +108,6 @@ export class MaterialViewer extends SiteElement {
 					childs: [
 						this.#htmlParams = createElement('div', {
 							class: 'params',
-							childs: [
-								this.#htmlIntParams = createElement('div', { class: 'variables', }),
-								this.#htmlFloatParams = createElement('div', { class: 'variables', }),
-								this.#htmlVectorParams = createElement('div', { class: 'variables', }),
-								this.#htmlDynamicParams = createElement('div', { class: 'variables', }),
-								this.#htmlTextures = createElement('div', { class: 'variables', }),
-							]
 						}),
 						this.#htmlViewer = createElement('div', {
 							class: 'viewer',
@@ -190,14 +175,6 @@ export class MaterialViewer extends SiteElement {
 				this.#updateParam(material, name);
 			}
 		}
-
-		/*
-		this.#updateParam(this.#htmlIntParams!, material.getIntParams(), 'number');
-		this.#updateParam(this.#htmlFloatParams!, material.getFloatParams(), 'number');
-		this.#updateParam(this.#htmlVectorParams!, material.getVectorParams(), 'vec4');
-		this.#updateParam(this.#htmlDynamicParams!, material.getDynamicParams(), 'expression');
-		this.#updateParam(this.#htmlTextures!, material.getTextureParams(), 'texture');
-		*/
 	}
 
 	#updateParam(material: Source2Material, name: string): void {
