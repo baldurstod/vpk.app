@@ -20,6 +20,8 @@
 		"#add_task": "Add task",
 		"#download_file": "Download file",
 		"#decompile_dynamic_params": "Decompile dynamic params",
+		"#concat_vmts": "Concat vmts",
+		"#shader": "Shader",
 		"#copy_link": "Copy link",
 		"#close": "Close",
 		"#close_all": "Close all",
@@ -38,6 +40,7 @@
 		"#coord_rotation": "Coord rotation",
 		"#blend_factor": "Blend factor",
 		"#file_count": "${count} files",
+		"#scene_explorer": "Scene explorer",
 		"": ""
 	}
 }

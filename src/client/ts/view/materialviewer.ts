@@ -169,6 +169,14 @@ export class MaterialViewer extends SiteElement {
 		this.initHTML();
 		this.#htmlParams!.replaceChildren();
 
+		createElement('label', {
+			class: 'shader',
+			parent: this.#htmlParams!,
+			childs: [
+				createElement('span', { i18n: '#shader', }),
+				createElement('span', { innerText: material.shader, }),
+			],
+		});
 
 		for (const [name, param] of source2Params) {
 			if (param.main) {

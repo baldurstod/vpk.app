@@ -97,3 +97,10 @@ label>* {
 .line-parameter>.color {
 	flex: 1;
 }
+
+.shader{
+	padding: 0.5rem;
+	background-color: darkgrey;
+	font-size: 1.2rem;
+
+}
