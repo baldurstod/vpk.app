@@ -187,7 +187,6 @@ class Application {
 			return;
 		}
 
-		console.info(response.file);
 		this.#appContent.viewFile(repository, path, hash, GameEngine.Source1/*TODO: param*/, response.file!, userAction);
 	}
 
