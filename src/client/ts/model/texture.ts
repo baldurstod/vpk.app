@@ -28,20 +28,20 @@ export enum TextureWrap {
 export type TextureParamValue = boolean | number | string | TextureWrap;
 
 export class Texture {
-	#origin: string;
+	#repository: string;
 	#path: string;
 	#imageData: ImageData;
 	#params: Map<string, TextureParam>;
 
-	constructor(origin: string, path: string, imageData: ImageData, params?: Map<string, TextureParam>) {
-		this.#origin = origin;
+	constructor(repository: string, path: string, imageData: ImageData, params?: Map<string, TextureParam>) {
+		this.#repository = repository;
 		this.#path = path;
 		this.#imageData = imageData;
 		this.#params = new Map<string, TextureParam>(params);
 	}
 
-	getOrigin(): string {
-		return this.#origin;
+	getRepository(): string {
+		return this.#repository;
 	}
 
 	getPath(): string {

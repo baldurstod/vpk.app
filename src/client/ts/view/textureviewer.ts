@@ -45,7 +45,7 @@ export class TextureViewer extends SiteElement {
 							innerHTML: downloadSVG,
 							$click: () => {
 								if (this.#texture) {
-									Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.DownloadFile, { detail: { repository: this.#texture.getOrigin(), path: this.#texture.getPath() } }));
+									Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.DownloadFile, { detail: { repository: this.#texture.getRepository(), path: this.#texture.getPath() } }));
 								}
 							},
 						}),
@@ -89,8 +89,6 @@ export class TextureViewer extends SiteElement {
 	setTexture(texture: Texture) {
 		this.show();
 		this.#texture = texture;
-		const origin = texture.getOrigin();
-		const path = texture.getPath();
 
 		let textureOptions = this.#textureOptions.get(texture);
 		if (!textureOptions) {
