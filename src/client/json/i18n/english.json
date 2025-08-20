@@ -19,6 +19,10 @@
 		"#export_to_png": "Export to PNG",
 		"#add_task": "Add task",
 		"#download_file": "Download file",
+		"#export_file": "Export file",
+		"#rgb": "RGB",
+		"#rgba": "RGBA",
+		"#alpha": "Alpha",
 		"#decompile_dynamic_params": "Decompile dynamic params",
 		"#concat_vmts": "Concat vmts",
 		"#shader": "Shader",
@@ -41,6 +45,7 @@
 		"#blend_factor": "Blend factor",
 		"#file_count": "${count} files",
 		"#scene_explorer": "Scene explorer",
+		"#shader_editor": "Shader editor",
 		"": ""
 	}
 }
