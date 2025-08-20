@@ -115,8 +115,10 @@ class Application {
 	async #initViewFromUrl() {
 		let result = /@view\/([^\:]*)\:?(.*)/i.exec(decodeURI(document.location.pathname));
 		if (result && result.length > 2) {
-			await this.#selectRepository(result[1]!, true, result[2]!);
-			await this.#viewFile(result[1]!, result[2]!, document.location.hash.substring(1), false);
+			const path = result[2]!.replace(/(\/)+$/, '');
+
+			await this.#selectRepository(result[1]!, true, path);
+			await this.#viewFile(result[1]!, path, document.location.hash.substring(1), false);
 		}
 	}
 
