@@ -40,12 +40,20 @@ export class Options extends SiteElement {
 
 	#initHtmlShaderEditor() {
 		this.#shaderEditor = new ShaderEditor();
+
+		const htmlEditorContainer = createElement('div', {
+			class:'shader-editor',
+			style:'min-width: 30rem;height: 100%;',
+			child: this.#shaderEditor,
+		});
+
+
 		let htmlShaderEditorTab = createElement('harmony-tab', {
 			'data-i18n': '#shader_editor',
 			parent: this.#htmlTabs,
 			$activated: () => {
 				this.#shaderEditor!.initEditor({ aceUrl: './assets/js/ace-builds/src-min/ace.js', displayCustomShaderButtons: true });
-				htmlShaderEditorTab.append(this.#shaderEditor!);
+				htmlShaderEditorTab.append(htmlEditorContainer);
 			}
 		});
 	}
