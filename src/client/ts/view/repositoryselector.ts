@@ -1,6 +1,6 @@
 import { RepositoryEntry } from 'harmony-3d';
 import { addTaskSVG, shareSVG } from 'harmony-svg';
-import { createElement, createShadowRoot, defineHarmonyTree, HTMLHarmonyTreeElement, ItemActionEventData, ItemClickEventData, TreeItem } from 'harmony-ui';
+import { createElement, createShadowRoot, defineHarmonyTree, HTMLHarmonyTreeElement, ItemActionEventData, ItemClickEventData, TreeItem, TreeItemKind } from 'harmony-ui';
 import repositorySelectorCSS from '../../css/repositoryselector.css';
 import treeCSS from '../../css/tree.css';
 import { Controller } from '../controller';
@@ -95,7 +95,7 @@ export class RepositorySelector extends SiteElement {
 			this.#htmlList?.replaceChildren();
 			this.#repositoryRoot = TreeItem.createFromPathList(this.#repositoryList);
 
-			for (let item of this.#repositoryRoot.walk({ type: 'file' })) {
+			for (let item of this.#repositoryRoot.walk({ kind: TreeItemKind.File })) {
 				item.addActions(['sharelink']);
 			}
 
@@ -108,7 +108,7 @@ export class RepositorySelector extends SiteElement {
 			this.#fileRoot = TreeItem.createFromPathList(this.#fileList, { rootUserData: this.#fileList?.get('') });
 
 			for (let item of this.#fileRoot.walk({})) {
-				if (item.type == 'directory' || item.type == 'root') {
+				if (item.kind == TreeItemKind.Directory || item.kind == TreeItemKind.Root) {
 					item.addActions(['add task']);
 				}
 				item.addActions(['sharelink']);
@@ -134,7 +134,7 @@ export class RepositorySelector extends SiteElement {
 
 	#itemClick(event: CustomEvent<ItemClickEventData>) {
 		const clickedItem = event.detail.item;
-		if (!clickedItem || clickedItem.type != 'file') {
+		if (!clickedItem || clickedItem.kind != TreeItemKind.File) {
 			return;
 		}
 
@@ -143,7 +143,7 @@ export class RepositorySelector extends SiteElement {
 
 	#fileItemClick(event: CustomEvent<ItemClickEventData>) {
 		const clickedItem = event.detail.item;
-		if (!clickedItem || clickedItem.type != 'file') {
+		if (!clickedItem || clickedItem.kind != TreeItemKind.File) {
 			return;
 		}
 
