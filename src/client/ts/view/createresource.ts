@@ -1,11 +1,11 @@
 import { openInNewSVG } from 'harmony-svg';
 import { createElement } from 'harmony-ui';
-import { ControllerEvents, SelectFile } from '../controllerevents';
 import { Controller } from '../controller';
+import { ControllerEvents, SelectFile } from '../controllerevents';
 
 export function createResource(repository: string, path: string): HTMLElement {
 	return createElement('div', {
-		class: 'path',
+		class: 'resource',
 		childs: [
 			createElement('input', {
 				disabled: true,

@@ -4,11 +4,12 @@ import { downloadSVG, resetCameraSVG } from 'harmony-svg';
 import { createElement, createShadowRoot, defineHarmonyRadio, HTMLHarmonyRadioElement } from 'harmony-ui';
 import { Map2 } from 'harmony-utils';
 import modelViewerCSS from '../../css/modelviewer.css';
+import resourceCss from '../../css/resource.css';
 import { Controller } from '../controller';
 import { ControllerEvents, SelectFile } from '../controllerevents';
 import { setParent, setScene, startupRenderer } from '../graphics';
-import { SiteElement } from './siteelement';
 import { createResource } from './createresource';
+import { SiteElement } from './siteelement';
 
 const DEFAULT_CAMERA_POS = vec3.fromValues(0, 50, 0);
 const DEFAULT_CAMERA_TARGET = vec3.create();
@@ -33,7 +34,7 @@ export class ModelViewer extends SiteElement {
 
 		defineHarmonyRadio();
 		this.shadowRoot = createShadowRoot('section', {
-			adoptStyle: modelViewerCSS,
+			adoptStyles: [modelViewerCSS, resourceCss],
 			childs: [
 				this.#htmlToolbar = createElement('div', {
 					class: 'toolbar',
@@ -56,6 +57,7 @@ export class ModelViewer extends SiteElement {
 				this.#htmlMaterials = createElement('div', {
 					class: 'materials',
 					childs: [
+						createElement('div', { class: 'title', i18n: '#materials' }),
 						this.#htmlSkinSelector = createElement('harmony-radio', {
 							class: 'selector',
 							$change: (event: CustomEvent) => this.#selectSkin((event as CustomEvent).detail.value),

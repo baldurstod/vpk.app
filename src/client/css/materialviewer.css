@@ -71,20 +71,6 @@ label>* {
 	box-sizing: border-box;
 }
 
-.parameter>.path {
-	width: 100%;
-	display: flex;
-	/*box-sizing: border-box;*/
-}
-
-.parameter>.path>input {
-	flex: 1;
-}
-
-.parameter>.path>.open {
-	cursor: pointer;
-}
-
 .parameter>.childs {
 	display: flex;
 	flex-direction: column;
@@ -98,7 +84,7 @@ label>* {
 	flex: 1;
 }
 
-.shader{
+.shader {
 	padding: 0.5rem;
 	background-color: darkgrey;
 	font-size: 1.2rem;

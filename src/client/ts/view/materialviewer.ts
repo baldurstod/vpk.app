@@ -1,14 +1,15 @@
 import { vec3, vec4 } from 'gl-matrix';
 import { AmbientLight, Camera, ColorBackground, ContextObserver, GraphicsEvents, OrbitControl, Plane, RenderFace, Scene, smartRound, Source2Material, Source2MaterialManager } from 'harmony-3d';
-import { downloadSVG, openInNewSVG } from 'harmony-svg';
-import { createElement, createShadowRoot, hide, show } from 'harmony-ui';
+import { downloadSVG } from 'harmony-svg';
+import { createElement, createShadowRoot } from 'harmony-ui';
 import { Map2 } from 'harmony-utils';
 import materialViewerCSS from '../../css/materialviewer.css';
+import resourceCss from '../../css/resource.css';
 import { Controller } from '../controller';
 import { ControllerEvents, SelectFile } from '../controllerevents';
 import { setParent, setScene, startupRenderer } from '../graphics';
-import { SiteElement } from './siteelement';
 import { createResource } from './createresource';
+import { SiteElement } from './siteelement';
 
 export enum Source2Type {
 	Int,
@@ -91,7 +92,7 @@ export class MaterialViewer extends SiteElement {
 		}
 
 		this.shadowRoot = createShadowRoot('section', {
-			adoptStyle: materialViewerCSS,
+			adoptStyles: [materialViewerCSS, resourceCss],
 			childs: [
 				this.#htmlToolbar = createElement('div', {
 					class: 'toolbar',

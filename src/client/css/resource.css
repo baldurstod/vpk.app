@@ -1,0 +1,13 @@
+.resource {
+	width: 100%;
+	display: flex;
+	/*box-sizing: border-box;*/
+}
+
+.resource>input {
+	flex: 1;
+}
+
+.resource>.open {
+	cursor: pointer;
+}

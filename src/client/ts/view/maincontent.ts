@@ -1,5 +1,5 @@
 import { RepositoryEntry } from 'harmony-3d';
-import { createShadowRoot, toggle } from 'harmony-ui';
+import { createShadowRoot, display, isVisible, toggle } from 'harmony-ui';
 import mainContentCSS from '../../css/maincontent.css';
 import { GameEngine } from '../enums';
 import { ContentViewer } from './contentviewer';
@@ -50,5 +50,6 @@ export class MainContent extends SiteElement {
 
 	toogleOptions() {
 		toggle(this.#options.getHTML());
+		display(this.#repositorySelector.getHTML(), !isVisible(this.#options.getHTML()));
 	}
 }

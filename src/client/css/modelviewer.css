@@ -17,7 +17,6 @@
 	width: 3rem;
 }
 
-
 .viewer {
 	flex: 1;
 	position: relative;
@@ -30,4 +29,13 @@
 	overflow: hidden;
 	display: flex;
 	flex-direction: column;
+}
+
+.title {
+	padding: 1rem;
+	font-size: 2rem;
+	width: 100%;
+	text-align: center;
+	background-color: darkgrey;
+	box-sizing: border-box;
 }

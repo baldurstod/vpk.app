@@ -46,6 +46,7 @@
 		"#file_count": "${count} files",
 		"#scene_explorer": "Scene explorer",
 		"#shader_editor": "Shader editor",
+		"#materials": "Materials",
 		"": ""
 	}
 }
