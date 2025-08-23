@@ -242,7 +242,7 @@ export class MaterialViewer extends SiteElement {
 							i18n: param.i18n,
 						}),
 						createElement('span', {
-							innerText: String(intValue),
+							innerText: String(smartRound(intValue)),
 						}),
 						htmlChilds = createElement('span', {
 							class: 'childs',
@@ -263,7 +263,7 @@ export class MaterialViewer extends SiteElement {
 							i18n: param.i18n,
 						}),
 						createElement('span', {
-							innerText: String(floatValue),
+							innerText: String(smartRound(floatValue)),
 						}),
 						htmlChilds = createElement('span', {
 							class: 'childs',
@@ -307,7 +307,7 @@ export class MaterialViewer extends SiteElement {
 				}
 				let colorText = '';
 				for (let i = 0, l = (param.vectorSize ?? 4); i < l; i++) {
-					colorText += String(colorValue[i]);
+					colorText += String(smartRound(colorValue[i]!));
 					if (i < l - 1) {
 						colorText += ', ';
 					}
