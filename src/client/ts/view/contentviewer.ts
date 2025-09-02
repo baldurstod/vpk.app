@@ -71,13 +71,13 @@ export class ContentViewer extends SiteElement {
 		this.initHTML();
 	}
 
-	async viewFile(repository: string, path: string, hash: string, engine: GameEngine, file: File, userAction: boolean): Promise<void> {
+	async viewFile(repository: string, path: string, hash: string, search: URLSearchParams | null, engine: GameEngine, file: File, userAction: boolean): Promise<void> {
 		let tab: HTMLHarmonyTabElement | undefined | null = this.#openViewers.get(repository, path);
 		if (tab) {
 			tab.activate();
 			return;
 		}
-		tab = await this.#viewFile(repository, path, hash, engine, file, userAction);
+		tab = await this.#viewFile(repository, path, hash, search, engine, file, userAction);
 		if (!tab) {
 			return;//TODO: error ?
 		}
@@ -99,28 +99,28 @@ export class ContentViewer extends SiteElement {
 		return true;
 	}
 
-	async #viewFile(repository: string, path: string, hash: string, engine: GameEngine, file: File, userAction: boolean): Promise<HTMLHarmonyTabElement | null> {
+	async #viewFile(repository: string, path: string, hash: string, search: URLSearchParams | null, engine: GameEngine, file: File, userAction: boolean): Promise<HTMLHarmonyTabElement | null> {
 		const extension = path.split('.').pop() ?? '';
 		const filename = path.split('/').pop() ?? '';
 		const fileType = TypePerExtension[extension];
 
 		switch (fileType) {
 			case ContentType.Source1Texture:
-				return await this.#addSource1TextureContent(repository, path, filename, engine, await file.arrayBuffer());
+				return await this.#addSource1TextureContent(repository, path, search, filename, engine, await file.arrayBuffer());
 			case ContentType.Source1Model:
-				return await this.#addSource1ModelContent(repository, path, filename, engine, await file.arrayBuffer());
+				return await this.#addSource1ModelContent(repository, path, search, filename, engine, await file.arrayBuffer());
 			case ContentType.Source1Particle:
-				return await this.#addSource1ParticleContent(repository, path, hash, filename, engine, await file.arrayBuffer());
+				return await this.#addSource1ParticleContent(repository, path, search, hash, filename, engine, await file.arrayBuffer());
 			case ContentType.Source2Texture:
-				return await this.#addSource2TextureContent(repository, path, filename, engine, await file.arrayBuffer());
+				return await this.#addSource2TextureContent(repository, path, search, filename, engine, await file.arrayBuffer());
 			case ContentType.Source2Model:
-				return await this.#addSource2ModelContent(repository, path, filename, engine, await file.arrayBuffer());
+				return await this.#addSource2ModelContent(repository, path, search, filename, engine, await file.arrayBuffer());
 			case ContentType.Source2Material:
-				return await this.#addSource2MaterialContent(repository, path, filename, engine, await file.arrayBuffer());
+				return await this.#addSource2MaterialContent(repository, path, search, filename, engine, await file.arrayBuffer());
 			case ContentType.AudioMp3:
 			case ContentType.AudioWav:
 			case ContentType.AudioFlac:
-				return await this.#addAudioContent(repository, path, filename, GameEngine.None, await file.arrayBuffer(), fileType, userAction);
+				return await this.#addAudioContent(repository, path, search, filename, GameEngine.None, await file.arrayBuffer(), fileType, userAction);
 			case ContentType.Txt:
 			default:
 				return this.#addTxtContent(repository, path, filename, engine, new TextDecoder().decode(await file.arrayBuffer()));
@@ -215,7 +215,7 @@ export class ContentViewer extends SiteElement {
 		return tab;
 	}
 
-	async #addSource1TextureContent(repository: string, path: string, filename: string, engine: GameEngine, content: ArrayBuffer): Promise<HTMLHarmonyTabElement> {
+	async #addSource1TextureContent(repository: string, path: string, search: URLSearchParams | null, filename: string, engine: GameEngine, content: ArrayBuffer): Promise<HTMLHarmonyTabElement> {
 		this.initHTML();
 
 		if (!this.#htmlTextureViewer) {
@@ -254,7 +254,7 @@ export class ContentViewer extends SiteElement {
 		return tab;
 	}
 
-	async #addSource1ModelContent(repository: string, path: string, filename: string, engine: GameEngine, content: ArrayBuffer): Promise<HTMLHarmonyTabElement> {
+	async #addSource1ModelContent(repository: string, path: string, search: URLSearchParams | null, filename: string, engine: GameEngine, content: ArrayBuffer): Promise<HTMLHarmonyTabElement> {
 		this.initHTML();
 
 		if (!this.#htmlModelViewer) {
@@ -281,7 +281,7 @@ export class ContentViewer extends SiteElement {
 		return tab;
 	}
 
-	async #addSource1ParticleContent(repository: string, path: string, hash: string, filename: string, engine: GameEngine, content: ArrayBuffer): Promise<HTMLHarmonyTabElement> {
+	async #addSource1ParticleContent(repository: string, path: string, search: URLSearchParams | null, hash: string, filename: string, engine: GameEngine, content: ArrayBuffer): Promise<HTMLHarmonyTabElement> {
 		this.initHTML();
 
 		if (!this.#htmlTextViewer) {
@@ -326,7 +326,7 @@ export class ContentViewer extends SiteElement {
 		return tab;
 	}
 
-	async #addSource2TextureContent(repository: string, path: string, filename: string, engine: GameEngine, content: ArrayBuffer): Promise<HTMLHarmonyTabElement> {
+	async #addSource2TextureContent(repository: string, path: string, search: URLSearchParams | null, filename: string, engine: GameEngine, content: ArrayBuffer): Promise<HTMLHarmonyTabElement> {
 		this.initHTML();
 
 		if (!this.#htmlTextureViewer) {
@@ -366,7 +366,7 @@ export class ContentViewer extends SiteElement {
 		return tab;
 	}
 
-	async #addSource2ModelContent(repository: string, path: string, filename: string, engine: GameEngine, content: ArrayBuffer): Promise<HTMLHarmonyTabElement> {
+	async #addSource2ModelContent(repository: string, path: string, search: URLSearchParams | null, filename: string, engine: GameEngine, content: ArrayBuffer): Promise<HTMLHarmonyTabElement> {
 		this.initHTML();
 
 		if (!this.#htmlModelViewer) {
@@ -393,7 +393,7 @@ export class ContentViewer extends SiteElement {
 		return tab;
 	}
 
-	async #addSource2MaterialContent(repository: string, path: string, filename: string, engine: GameEngine, content: ArrayBuffer): Promise<HTMLHarmonyTabElement> {
+	async #addSource2MaterialContent(repository: string, path: string, search: URLSearchParams | null, filename: string, engine: GameEngine, content: ArrayBuffer): Promise<HTMLHarmonyTabElement> {
 		this.initHTML();
 
 		if (!this.#htmlMaterialViewer) {
@@ -420,7 +420,7 @@ export class ContentViewer extends SiteElement {
 		return tab;
 	}
 
-	async #addAudioContent(repository: string, path: string, filename: string, engine: GameEngine, content: ArrayBuffer, fileType: ContentType.AudioMp3 | ContentType.AudioWav | ContentType.AudioFlac, userAction: boolean): Promise<HTMLHarmonyTabElement | null> {
+	async #addAudioContent(repository: string, path: string, search: URLSearchParams | null, filename: string, engine: GameEngine, content: ArrayBuffer, fileType: ContentType.AudioMp3 | ContentType.AudioWav | ContentType.AudioFlac, userAction: boolean): Promise<HTMLHarmonyTabElement | null> {
 		this.initHTML();
 
 		const response = await Repositories.getFileAsArrayBuffer(repository, path);
