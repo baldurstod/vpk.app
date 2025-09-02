@@ -8,10 +8,10 @@ import { ControllerEvents, SelectFile } from '../controllerevents';
 import { Texture, TextureParam, TextureParamType, TextureWrap } from '../model/texture';
 import { SiteElement } from './siteelement';
 
-enum TextureMode {
-	Alpha = 0,
-	Rgb = 1,
-	Rgba = 2,
+export enum TextureMode {
+	Alpha = 'alpha',
+	Rgb = 'rgb',
+	Rgba = 'rgba',
 }
 
 type TextureOption = {

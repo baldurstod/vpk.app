@@ -11,7 +11,7 @@ import { AudioPlayer } from './audioplayer';
 import { MaterialViewer } from './materialviewer';
 import { ModelViewer } from './modelviewer';
 import { SiteElement } from './siteelement';
-import { TextureViewer } from './textureviewer';
+import { TextureMode, TextureViewer } from './textureviewer';
 import { TextViewer, TextViewerRange } from './textviewer';
 
 const TypePerExtension: { [key: string]: ContentType } = {
@@ -225,6 +225,11 @@ export class ContentViewer extends SiteElement {
 
 		this.#htmlTextureViewer?.show();
 
+		const mode = search?.get('mode');
+		if (mode) {
+			this.#htmlTextureViewer.setMode(TextureMode[mode as keyof typeof TextureMode]);
+		}
+
 		const vtf = await Source1TextureManager.getVtf(repository, path);
 		let texture: Texture;
 		if (vtf) {
@@ -335,6 +340,11 @@ export class ContentViewer extends SiteElement {
 		}
 
 		this.#htmlTextureViewer?.show();
+
+		const mode = search?.get('mode');
+		if (mode) {
+			this.#htmlTextureViewer.setMode(TextureMode[mode as keyof typeof TextureMode]);
+		}
 
 		const vtex = await Source2TextureManager.getVtex(repository, path);
 		let texture: Texture;
