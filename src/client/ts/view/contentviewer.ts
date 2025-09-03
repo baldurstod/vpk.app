@@ -1,4 +1,4 @@
-import { getLoader, pcfToSTring, Repositories, Source1TextureManager, Source2TextureManager, SourceEnginePCFLoader, SourceEngineVTF, SourcePCF, TEXTUREFLAGS_CLAMPS, TEXTUREFLAGS_CLAMPT, TEXTUREFLAGS_NORMAL, TEXTUREFLAGS_SRGB } from 'harmony-3d';
+import { getLoader, pcfToSTring, Repositories, Source1PcfLoader, Source1TextureManager, Source1Vtf, Source2TextureManager, SourcePCF, TEXTUREFLAGS_CLAMPS, TEXTUREFLAGS_CLAMPT, TEXTUREFLAGS_NORMAL, TEXTUREFLAGS_SRGB } from 'harmony-3d';
 import { createElement, createShadowRoot, defineHarmonyMenu, defineHarmonyTab, defineHarmonyTabGroup, HTMLHarmonyMenuElement, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement, TabEventData } from 'harmony-ui';
 import { Map2 } from 'harmony-utils';
 import contentViewerCSS from '../../css/contentviewer.css';
@@ -308,7 +308,7 @@ export class ContentViewer extends SiteElement {
 			}
 		);
 
-		const pcfLoader = getLoader('SourceEnginePCFLoader') as typeof SourceEnginePCFLoader;
+		const pcfLoader = getLoader('SourceEnginePCFLoader') as typeof Source1PcfLoader;
 		const pcf = await new pcfLoader().load(repository, path) as SourcePCF;
 
 
@@ -476,7 +476,7 @@ function fileTypeToAudioType(fileType: ContentType.AudioMp3 | ContentType.AudioW
 	}
 }
 
-function vtfToTextureFlags(vtf: SourceEngineVTF, texture: Texture) {
+function vtfToTextureFlags(vtf: Source1Vtf, texture: Texture) {
 	texture.setParam({ name: 'version', type: TextureParamType.String, i18n: '#version', value: `${vtf.versionMaj}.${vtf.versionMin}` });
 	texture.setParam({ name: 'width', type: TextureParamType.Number, i18n: '#width', value: vtf.width });
 	texture.setParam({ name: 'height', type: TextureParamType.Number, i18n: '#height', value: vtf.height });
