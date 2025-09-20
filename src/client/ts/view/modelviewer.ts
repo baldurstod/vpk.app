@@ -184,7 +184,7 @@ export class ModelViewer extends SiteElement {
 	}
 
 	async #selectSkin(skin: string): Promise<void> {
-		console.error(skin);
+		await this.#model?.setSkin(skin);
 		const materials = await this.#model?.getMaterialsName(skin);
 		if (!materials) {
 			return;
