@@ -2,7 +2,7 @@ import { vec3, vec4 } from 'gl-matrix';
 import { Camera, Composer, ContextObserver, Graphics, GraphicsEvent, GraphicsEvents, GraphicTickEvent, OrbitControl, Scene, SceneExplorer, WebGLStats } from 'harmony-3d';
 import { createElement } from 'harmony-ui';
 
-let renderer: Graphics | undefined;
+let renderer: typeof Graphics | undefined;
 let scene: Scene | undefined;
 let composer: Composer | undefined;
 let activeCamera: Camera | undefined;
@@ -40,7 +40,7 @@ export function startupRenderer() {
 	});
 
 
-	renderer = new Graphics().initCanvas({
+	renderer = Graphics.initCanvas({
 		autoResize: true,
 		canvas: canvas,
 		webGL: {
