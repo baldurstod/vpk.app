@@ -485,6 +485,8 @@ function vtfToTextureFlags(vtf: Source1Vtf, texture: Texture) {
 	texture.setParam({ name: 'srgb', type: TextureParamType.Boolean, i18n: '#srgb', value: vtf.getFlag(TEXTUREFLAGS_SRGB) });
 	texture.setParam({ name: 'normal', type: TextureParamType.Boolean, i18n: '#normal', value: vtf.getFlag(TEXTUREFLAGS_NORMAL) });
 
+	texture.setSpriteSheet(vtf.sheet);
+
 
 	/*
 export const TEXTUREFLAGS_POINTSAMPLE			= 0x00000001;

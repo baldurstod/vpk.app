@@ -1,3 +1,5 @@
+import { SpriteSheet } from "harmony-3d";
+
 export type TextureParam = {
 	/*
 	Version = 0,
@@ -32,6 +34,7 @@ export class Texture {
 	#path: string;
 	#imageData: ImageData;
 	#params: Map<string, TextureParam>;
+	#spriteSheet: SpriteSheet | null = null;
 
 	constructor(repository: string, path: string, imageData: ImageData, params?: Map<string, TextureParam>) {
 		this.#repository = repository;
@@ -58,5 +61,13 @@ export class Texture {
 
 	getParams() {
 		return this.#params;
+	}
+
+	setSpriteSheet(spriteSheet: SpriteSheet | null): void {
+		this.#spriteSheet = spriteSheet;
+	}
+
+	getSpriteSheet(): SpriteSheet | null {
+		return this.#spriteSheet;
 	}
 }

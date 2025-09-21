@@ -1,7 +1,7 @@
 import { imageDataToImage } from 'harmony-3d';
 import { saveFile } from 'harmony-browser-utils';
 import { backgroundReplaceSVG, downloadSVG, fileExportSVG, textureSVG, wallpaperSVG } from 'harmony-svg';
-import { createElement, createShadowRoot } from 'harmony-ui';
+import { createElement, createElementNS, createShadowRoot, hide, show } from 'harmony-ui';
 import textureViewerCSS from '../../css/textureviewer.css';
 import { Controller } from '../controller';
 import { ControllerEvents, SelectFile } from '../controllerevents';
@@ -18,11 +18,15 @@ type TextureOption = {
 	mode: TextureMode;
 }
 
+const svgNamespace = 'http://www.w3.org/2000/svg';
+
 export class TextureViewer extends SiteElement {
 	#htmlToolbar?: HTMLElement;
 	#htmlContainer?: HTMLElement;
 	#htmlParams?: HTMLElement;
 	#htmlImageContainer?: HTMLElement;
+	#htmlImageContainerInner?: HTMLElement;
+	#htmlSpriteSheet?: SVGElement;
 	//#imageData?: ImageData;
 	#texture?: Texture;
 	#htmlImage?: HTMLImageElement;
@@ -75,7 +79,12 @@ export class TextureViewer extends SiteElement {
 					class: 'container',
 					childs: [
 						this.#htmlParams = createElement('div', { class: 'flags', }),
-						this.#htmlImageContainer = createElement('div', { class: 'image', }),
+						this.#htmlImageContainer = createElement('div', {
+							class: 'image',
+							child: this.#htmlImageContainerInner = createElement('div', {
+								child: this.#htmlSpriteSheet = createElementNS('http://www.w3.org/2000/svg', 'svg') as SVGElement,
+							}),
+						}),
 					]
 				}),
 			]
@@ -98,6 +107,7 @@ export class TextureViewer extends SiteElement {
 		this.#mode = textureOptions.mode;
 		this.#updateImage();
 		this.#updateParams();
+		this.#updateSpriteSheet();
 	}
 
 	setMode(mode: TextureMode) {
@@ -142,8 +152,18 @@ export class TextureViewer extends SiteElement {
 		}
 
 		const image = imageDataToImage(imageData);
-		this.#htmlImageContainer!.replaceChildren(image);
+		this.#htmlImageContainerInner!.replaceChildren(image, this.#htmlSpriteSheet!);
 		this.#htmlImage = image;
+
+		const loaded = () => {
+			this.#htmlImageContainerInner!.style.aspectRatio = String(image.naturalWidth / image.naturalHeight);
+		}
+
+		if (image.complete) {
+			loaded();
+		} else {
+			image.addEventListener('load', loaded);
+		}
 	}
 
 	#updateParams() {
@@ -156,6 +176,37 @@ export class TextureViewer extends SiteElement {
 		for (const [name, param] of this.#texture.getParams()) {
 			this.#htmlParams.append(createParam(param));
 		}
+	}
+
+	#updateSpriteSheet(): void {
+		hide(this.#htmlSpriteSheet);
+		const spriteSheet = this.#texture?.getSpriteSheet();
+		if (!spriteSheet) {
+			return;
+		}
+
+		for (const sequence of spriteSheet.sequences) {
+			for (const frame of sequence.frames) {
+				const coord = frame.coords[0];// TODO: use other channels
+
+				if (coord) {
+					const rect = createElementNS(svgNamespace, 'rect', {
+						parent: this.#htmlSpriteSheet,
+						attributes: {
+							x: `${coord.uMin * 100}%`,
+							y: `${coord.vMin * 100}%`,
+							width: `${(coord.uMax - coord.uMin) * 100}%`,
+							height: `${(coord.vMax - coord.vMin) * 100}%`,
+							stroke: 'white',
+							fill: 'none',
+						}
+					});
+				}
+			}
+		}
+
+
+		show(this.#htmlSpriteSheet);
 	}
 
 	#convertImage() {
