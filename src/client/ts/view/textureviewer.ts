@@ -1,7 +1,7 @@
 import { imageDataToImage } from 'harmony-3d';
 import { saveFile } from 'harmony-browser-utils';
-import { backgroundReplaceSVG, downloadSVG, fileExportSVG, textureSVG, wallpaperSVG } from 'harmony-svg';
-import { createElement, createElementNS, createShadowRoot, hide, show } from 'harmony-ui';
+import { backgroundReplaceSVG, dashboardSVG, downloadSVG, fileExportSVG, textureSVG, wallpaperSVG } from 'harmony-svg';
+import { createElement, createElementNS, createShadowRoot, defineHarmonyToggleButton, display, hide, HTMLHarmonyToggleButtonElement, show } from 'harmony-ui';
 import textureViewerCSS from '../../css/textureviewer.css';
 import { Controller } from '../controller';
 import { ControllerEvents, SelectFile } from '../controllerevents';
@@ -26,18 +26,21 @@ export class TextureViewer extends SiteElement {
 	#htmlParams?: HTMLElement;
 	#htmlImageContainer?: HTMLElement;
 	#htmlImageContainerInner?: HTMLElement;
+	#htmlSpriteSheetButton?: HTMLElement;
 	#htmlSpriteSheet?: SVGElement;
 	//#imageData?: ImageData;
 	#texture?: Texture;
 	#htmlImage?: HTMLImageElement;
 	#mode = TextureMode.Rgb;
 	#textureOptions = new Map<Texture, TextureOption>;
+	#showSpriteSheet = false;
 
 	initHTML() {
 		if (this.shadowRoot) {
 			return;
 		}
 
+		defineHarmonyToggleButton();
 		this.shadowRoot = createShadowRoot('section', {
 			adoptStyle: textureViewerCSS,
 			childs: [
@@ -72,6 +75,26 @@ export class TextureViewer extends SiteElement {
 							i18n: { title: '#alpha' },
 							innerHTML: textureSVG,
 							$click: () => this.setMode(TextureMode.Alpha),
+						}),
+						createElement('harmony-toggle-button', {
+							i18n: { title: '#sprite_sheet' },
+							innerHTML: dashboardSVG,
+							$click: () => this.setMode(TextureMode.Alpha),
+						}),
+						this.#htmlSpriteSheetButton = createElement('harmony-toggle-button', {
+							i18n: { title: '#sprite_sheet' },
+							state: false,
+							childs: [
+								createElement('div', {
+									slot: 'off',
+									innerHTML: dashboardSVG,
+								}),
+								createElement('div', {
+									slot: 'on',
+									innerHTML: dashboardSVG,
+								}),
+							],
+							$change: (event: Event) => this.#displaySpriteSheet((event.target as HTMLHarmonyToggleButtonElement).state),
 						}),
 					],
 				}),
@@ -178,12 +201,20 @@ export class TextureViewer extends SiteElement {
 		}
 	}
 
+	#displaySpriteSheet(show: boolean) {
+		this.#showSpriteSheet = show;
+		display(this.#htmlSpriteSheet, show);
+	}
+
 	#updateSpriteSheet(): void {
 		hide(this.#htmlSpriteSheet);
+		this.#htmlSpriteSheet?.replaceChildren();
 		const spriteSheet = this.#texture?.getSpriteSheet();
 		if (!spriteSheet) {
+			hide(this.#htmlSpriteSheetButton);
 			return;
 		}
+		show(this.#htmlSpriteSheetButton);
 
 		for (const sequence of spriteSheet.sequences) {
 			for (const frame of sequence.frames) {
@@ -205,8 +236,7 @@ export class TextureViewer extends SiteElement {
 			}
 		}
 
-
-		show(this.#htmlSpriteSheet);
+		display(this.#htmlSpriteSheet, this.#showSpriteSheet);
 	}
 
 	#convertImage() {

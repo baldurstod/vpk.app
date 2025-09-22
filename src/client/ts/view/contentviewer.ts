@@ -354,6 +354,7 @@ export class ContentViewer extends SiteElement {
 
 			if (imageData) {
 				texture = new Texture(repository, path, imageData);
+				texture.setSpriteSheet(vtex.spriteSheet);
 				//vtfToTextureFlags(vtex, texture);
 				this.#htmlTextureViewer?.setTexture(texture);
 			}

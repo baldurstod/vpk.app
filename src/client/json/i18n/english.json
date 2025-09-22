@@ -23,6 +23,7 @@
 		"#rgb": "RGB",
 		"#rgba": "RGBA",
 		"#alpha": "Alpha",
+		"#sprite_sheet": "Sprite sheet",
 		"#decompile_dynamic_params": "Decompile dynamic params",
 		"#concat_vmts": "Concat vmts",
 		"#shader": "Shader",
