@@ -194,7 +194,8 @@ export class ModelViewer extends SiteElement {
 		this.#htmlSkins?.replaceChildren();
 
 		for (const material of materials[1]) {
-			this.#htmlSkins!.append(createResource(materials[0], material));
+			const path = material.replace(/\.vmat_c$/, '').replace(/\.vmat$/, '') + '.vmat_c';
+			this.#htmlSkins!.append(createResource(materials[0], path));
 		}
 
 	}
