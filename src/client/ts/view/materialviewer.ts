@@ -24,7 +24,7 @@ type Source2Param = {
 	type: Source2Type,
 	vectorSize?: number,
 	subVariables?: string[],
-	main?: boolean,
+	main?: boolean,// TODO: precise what this does
 	values?: Map<number, string>;
 }
 
@@ -37,6 +37,11 @@ const source2Params = new Map<string, Source2Param>([
 	['g_tFresnelWarp', { i18n: '#fresnel_waarp', type: Source2Type.Texture, main: true }],
 	['g_tNormal', { i18n: '#normal', type: Source2Type.Texture, main: true }],
 	['g_tCubeMap', { i18n: '#cube_map', type: Source2Type.Texture, main: true }],
+	['g_tAmbientOcclusion', { i18n: '#ambient_occlusion', type: Source2Type.Texture, main: true }],
+	['g_tMetalness', { i18n: '#metalness', type: Source2Type.Texture, main: true }],
+	['g_tNormalRoughness', { i18n: '#normal_roughness', type: Source2Type.Texture, main: true }],
+	['g_tSelfIllumMask', { i18n: '#self_illum_mask', type: Source2Type.Texture, main: true }],
+	['g_tTintMask', { i18n: '#tint_mask', type: Source2Type.Texture, main: true }],
 
 	['g_vColorTint', { i18n: '#color_tint', type: Source2Type.Color }],
 	['g_vTexCoordOffset', { i18n: '#coord_offset', type: Source2Type.Vector, vectorSize: 2 }],
