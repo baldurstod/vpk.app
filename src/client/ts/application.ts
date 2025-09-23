@@ -187,6 +187,7 @@ class Application {
 
 		const response = await Repositories.getFile(repository, path);
 		if (response.error) {
+			addNotification(I18n.getString('#file_not_found'), NotificationType.Error, 5)
 			return;
 		}
 

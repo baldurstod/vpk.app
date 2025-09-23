@@ -48,6 +48,7 @@
 		"#scene_explorer": "Scene explorer",
 		"#shader_editor": "Shader editor",
 		"#materials": "Materials",
+		"#file_not_found": "File not found",
 		"": ""
 	}
 }
