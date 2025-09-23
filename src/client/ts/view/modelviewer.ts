@@ -1,7 +1,7 @@
 import { vec3 } from 'gl-matrix';
 import { AmbientLight, Camera, ColorBackground, ContextObserver, GraphicsEvents, HasMaterials, OrbitControl, PointLight, Scene, Source1ModelManager, Source2ModelManager } from 'harmony-3d';
 import { downloadSVG, resetCameraSVG } from 'harmony-svg';
-import { createElement, createShadowRoot, defineHarmonyRadio, HTMLHarmonyRadioElement } from 'harmony-ui';
+import { createElement, createShadowRoot, defineHarmonyRadio, display, HTMLHarmonyRadioElement } from 'harmony-ui';
 import { Map2 } from 'harmony-utils';
 import modelViewerCSS from '../../css/modelviewer.css';
 import resourceCss from '../../css/resource.css';
@@ -181,6 +181,8 @@ export class ModelViewer extends SiteElement {
 			});
 			first = false;
 		}
+
+		display(this.#htmlSkinSelector, skins.size > 1);
 	}
 
 	async #selectSkin(skin: string): Promise<void> {
