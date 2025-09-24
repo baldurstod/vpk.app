@@ -1,4 +1,4 @@
-import { getLoader, pcfToSTring, Repositories, Source1PcfLoader, Source1TextureManager, Source1Vtf, Source2TextureManager, SourcePCF, TEXTUREFLAGS_CLAMPS, TEXTUREFLAGS_CLAMPT, TEXTUREFLAGS_NORMAL, TEXTUREFLAGS_SRGB } from 'harmony-3d';
+import { getLoader, pcfToSTring, Repositories, Source1PcfLoader, Source1TextureManager, Source1Vtf, Source2File, Source2FileLoader, Source2TextureManager, SourcePCF, TEXTUREFLAGS_CLAMPS, TEXTUREFLAGS_CLAMPT, TEXTUREFLAGS_NORMAL, TEXTUREFLAGS_SRGB } from 'harmony-3d';
 import { createElement, createShadowRoot, defineHarmonyMenu, defineHarmonyTab, defineHarmonyTabGroup, HTMLHarmonyMenuElement, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement, TabEventData } from 'harmony-ui';
 import { Map2 } from 'harmony-utils';
 import contentViewerCSS from '../../css/contentviewer.css';
@@ -27,6 +27,7 @@ const TypePerExtension: { [key: string]: ContentType } = {
 	'vmat_c': ContentType.Source2Material,
 	'vtex_c': ContentType.Source2Texture,
 	'vmdl_c': ContentType.Source2Model,
+	'vdata_c': ContentType.Source2Data,
 
 	'mp3': ContentType.AudioMp3,
 	'wav': ContentType.AudioWav,
@@ -117,6 +118,8 @@ export class ContentViewer extends SiteElement {
 				return await this.#addSource2ModelContent(repository, path, search, filename, engine, await file.arrayBuffer());
 			case ContentType.Source2Material:
 				return await this.#addSource2MaterialContent(repository, path, search, filename, engine, await file.arrayBuffer());
+			case ContentType.Source2Data:
+				return await this.#addSource2DataContent(repository, path, search, filename, engine);
 			case ContentType.AudioMp3:
 			case ContentType.AudioWav:
 			case ContentType.AudioFlac:
@@ -428,6 +431,42 @@ export class ContentViewer extends SiteElement {
 			}
 		);
 
+		return tab;
+	}
+
+	async #addSource2DataContent(repository: string, path: string, search: URLSearchParams | null, filename: string, engine: GameEngine): Promise<HTMLHarmonyTabElement> {
+		const dataFile = await new Source2FileLoader().load(repository, path) as Source2File;
+		const kv = dataFile.getKeyValueRoot();
+		//console.info(kv);
+		let text:string | null = '';
+
+		this.initHTML();
+
+		if (!this.#htmlTextViewer) {
+			this.#htmlTextViewer = new TextViewer();
+			this.#htmlContent?.append(this.#htmlTextViewer.getHTML());
+		}
+
+		this.#htmlTextViewer?.show();
+
+		const tab = this.#createTab(filename,
+			(event: CustomEvent<TabEventData>) => {
+				if (this.#closeFile(repository, path) && event.detail.tab.isActive()) {
+					this.#htmlTextViewer?.hide();
+				};
+			},
+			() => {
+				this.#htmlContent?.replaceChildren(this.#htmlTextViewer!.getHTML());
+				this.#htmlTextViewer?.setText(repository, path, text ?? '');
+			}
+		);
+
+		if (kv) {
+			text = kv.exportAsText();
+			if (text) {
+				this.#htmlTextViewer?.setText(repository, path, text);
+			}
+		}
 		return tab;
 	}
 

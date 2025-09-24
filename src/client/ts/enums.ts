@@ -16,6 +16,7 @@ export enum ContentType {
 	Source2Model,
 	Source2Texture,
 	Source2Material,
+	Source2Data,
 	AudioMp3,
 	AudioWav,
 	AudioFlac,
