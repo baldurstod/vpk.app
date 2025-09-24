@@ -42,6 +42,8 @@ const source2Params = new Map<string, Source2Param>([
 	['g_tNormalRoughness', { i18n: '#normal_roughness', type: Source2Type.Texture, main: true }],
 	['g_tSelfIllumMask', { i18n: '#self_illum_mask', type: Source2Type.Texture, main: true }],
 	['g_tTintMask', { i18n: '#tint_mask', type: Source2Type.Texture, main: true }],
+	['g_tNprOutlineMask', { i18n: '#npr_outline_mask', type: Source2Type.Texture, main: true }],
+	['g_tNprTransmissiveColor', { i18n: '#npr_transmissive_color', type: Source2Type.Texture, main: true }],
 
 	['g_vColorTint', { i18n: '#color_tint', type: Source2Type.Color }],
 	['g_vTexCoordOffset', { i18n: '#coord_offset', type: Source2Type.Vector, vectorSize: 2 }],
