@@ -45,7 +45,7 @@
 		"#self_illum_mask": "Self illum mask",
 		"#tint_mask": "Tint mask",
 		"#npr_outline_mask": "NPR outline Mask",
-		"#g_tNprTransmissiveColor": "NPR Transmissive color",
+		"#npr_transmissive_color": "NPR Transmissive color",
 		"#color_tint": "Color tint",
 		"#coord_offset": "Coord offset",
 		"#coord_scale": "Coord scale",
