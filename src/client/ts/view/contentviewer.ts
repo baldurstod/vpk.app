@@ -11,7 +11,7 @@ import { AudioPlayer } from './audioplayer';
 import { MaterialViewer } from './materialviewer';
 import { ModelViewer } from './modelviewer';
 import { SiteElement } from './siteelement';
-import { TextureMode, TextureViewer } from './textureviewer';
+import { stringToTextureMode, TextureMode, TextureViewer } from './textureviewer';
 import { TextViewer, TextViewerRange } from './textviewer';
 
 const TypePerExtension: { [key: string]: ContentType } = {
@@ -228,9 +228,9 @@ export class ContentViewer extends SiteElement {
 
 		this.#htmlTextureViewer?.show();
 
-		const mode = search?.get('mode');
+		const mode = stringToTextureMode.get(search?.get('mode'));
 		if (mode) {
-			this.#htmlTextureViewer.setMode(TextureMode[mode as keyof typeof TextureMode]);
+			this.#htmlTextureViewer.setMode(mode);
 		}
 
 		const vtf = await Source1TextureManager.getVtf(repository, path);
@@ -438,7 +438,7 @@ export class ContentViewer extends SiteElement {
 		const dataFile = await new Source2FileLoader().load(repository, path) as Source2File;
 		const kv = dataFile.getKeyValueRoot();
 		//console.info(kv);
-		let text:string | null = '';
+		let text: string | null = '';
 
 		this.initHTML();
 

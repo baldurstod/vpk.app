@@ -14,6 +14,12 @@ export enum TextureMode {
 	Rgba = 'rgba',
 }
 
+export const stringToTextureMode = new Map<string | null | undefined, TextureMode>([
+	['alpha', TextureMode.Alpha],
+	['rgb', TextureMode.Rgb],
+	['rgba', TextureMode.Rgba],
+]);
+
 type TextureOption = {
 	mode: TextureMode;
 }
