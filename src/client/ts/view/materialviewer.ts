@@ -138,11 +138,11 @@ export class MaterialViewer extends SiteElement {
 		this.#path = path;
 
 		if (!this.#camera) {
-			this.#camera = new Camera({ position: vec3.fromValues(0, 0, 10) });
+			this.#camera = new Camera({ position: vec3.fromValues(0, 0, 10), autoResize: true });
 
 			const orbitControl = new OrbitControl(this.#camera);
 			orbitControl.target.setPosition(vec3.fromValues(0, 0, 0));
-			ContextObserver.observe(GraphicsEvents, this.#camera);
+			//ContextObserver.observe(GraphicsEvents, this.#camera);
 		}
 
 		let scene = this.#scenes.get(repository, path);

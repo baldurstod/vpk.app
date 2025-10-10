@@ -153,9 +153,9 @@ export class ModelViewer extends SiteElement {
 
 	#createCamera() {
 		if (!this.#camera) {
-			this.#camera = new Camera();
+			this.#camera = new Camera({ autoResize: true });
 			this.#orbitControl = new OrbitControl(this.#camera);
-			ContextObserver.observe(GraphicsEvents, this.#camera);
+			//ContextObserver.observe(GraphicsEvents, this.#camera);
 			this.#resetCamera();
 		}
 	}

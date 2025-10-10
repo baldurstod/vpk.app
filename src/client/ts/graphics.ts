@@ -77,12 +77,12 @@ export function startupRenderer() {
 		*/
 	}
 	scene = new Scene();
-	activeCamera = new Camera({ position: vec3.fromValues(0, -500, 40) });
+	activeCamera = new Camera({ position: vec3.fromValues(0, -500, 40), autoResize: true });
 	orbitControl = new OrbitControl(activeCamera);
 	orbitControl.target.setPosition(vec3.fromValues(0, 0, 40));
 	renderer.play();
 
 	renderer.clearColor(vec4.create());
 	GraphicsEvents.addEventListener(GraphicsEvent.Tick, animate);
-	ContextObserver.observe(GraphicsEvents, activeCamera);
+	//ContextObserver.observe(GraphicsEvents, activeCamera);
 }
