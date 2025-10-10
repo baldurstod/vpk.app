@@ -113,11 +113,16 @@ export class TextViewer extends SiteElement {
 			return;
 		}
 
-		const range = this.#anchors.get(token);
+		const textRange = this.#anchors.get(token);
 		console.info(this.#anchors.get(token));
 
 		this.#aceEditor.resize(true);
-		this.#aceEditor.gotoLine(range?.startRow, 0);
+		this.#aceEditor.gotoLine(textRange?.startRow, 0);
+
+		if (textRange) {
+			const range = new (globalThis as any).ace.Range(textRange?.startRow, textRange?.startCol, textRange?.startRow, 1000);
+			this.#marker = this.#aceEditor.session.addMarker(range, 'ace_link_marker', 'text', true);
+		}
 	}
 
 	#clear() {
