@@ -311,7 +311,7 @@ export class ContentViewer extends SiteElement {
 			}
 		);
 
-		const pcfLoader = getLoader('SourceEnginePCFLoader') as typeof Source1PcfLoader;
+		const pcfLoader = getLoader('Source1PcfLoader') as typeof Source1PcfLoader;
 		const pcf = await new pcfLoader().load(repository, path) as SourcePCF;
 
 
