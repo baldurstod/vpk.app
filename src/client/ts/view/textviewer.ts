@@ -214,7 +214,8 @@ export class TextViewer extends SiteElement {
 		const marker = this.#aceEditor.getSession().addMarker(range, 'ace_selected_word', 'text');
 	}
 
-	addSession(repository: string, path: string, anchors?: Map<string, TextViewerRange>): EditSession {
+	async addSession(repository: string, path: string, anchors?: Map<string, TextViewerRange>): Promise<EditSession> {
+		await this.#aceEditorReady;
 		const attributes = {
 			anchors,
 			repository,
@@ -227,7 +228,8 @@ export class TextViewer extends SiteElement {
 		return session;
 	}
 
-	setSession(session: EditSession): void {
+	async setSession(session: EditSession): Promise<void> {
+		await this.#aceEditorReady;
 		this.#currentSession = session;
 		this.#aceEditor.setSession(session);
 	}

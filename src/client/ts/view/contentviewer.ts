@@ -126,7 +126,7 @@ export class ContentViewer extends SiteElement {
 				return await this.#addAudioContent(repository, path, search, filename, GameEngine.None, await file.arrayBuffer(), fileType, userAction);
 			case ContentType.Txt:
 			default:
-				return this.#addTxtContent(repository, path, filename, engine, new TextDecoder().decode(await file.arrayBuffer()));
+				return await this.#addTxtContent(repository, path, filename, engine, new TextDecoder().decode(await file.arrayBuffer()));
 		}
 	}
 
@@ -192,7 +192,7 @@ export class ContentViewer extends SiteElement {
 
 	}
 
-	#addTxtContent(repository: string, path: string, filename: string, engine: GameEngine, content: string): HTMLHarmonyTabElement {
+	async #addTxtContent(repository: string, path: string, filename: string, engine: GameEngine, content: string): Promise<HTMLHarmonyTabElement> {
 		this.initHTML();
 
 		if (!this.#htmlTextViewer) {
@@ -201,7 +201,7 @@ export class ContentViewer extends SiteElement {
 		}
 
 		this.#htmlTextViewer?.show();
-		const editSession = this.#htmlTextViewer.addSession(repository, path);
+		const editSession = await this.#htmlTextViewer.addSession(repository, path);
 		const tab = this.#createTab(filename,
 			(event: CustomEvent<TabEventData>) => {
 				if (this.#closeFile(repository, path) && event.detail.tab.isActive()) {
@@ -305,7 +305,7 @@ export class ContentViewer extends SiteElement {
 
 		const pcfResult = pcfToSTring(pcf);
 		const anchors = new Map<string, TextViewerRange>();
-		const editSession = this.#htmlTextViewer.addSession(repository, path, anchors);
+		const editSession = await this.#htmlTextViewer.addSession(repository, path, anchors);
 		this.#htmlTextViewer?.setSession(editSession);
 		if (pcfResult) {
 			for (const [id, line] of pcfResult.elementsLine) {
@@ -455,7 +455,7 @@ export class ContentViewer extends SiteElement {
 
 		this.#htmlTextViewer?.show();
 
-		const editSession = this.#htmlTextViewer.addSession(repository, path);
+		const editSession = await this.#htmlTextViewer.addSession(repository, path);
 		const tab = this.#createTab(filename,
 			(event: CustomEvent<TabEventData>) => {
 				if (this.#closeFile(repository, path) && event.detail.tab.isActive()) {
