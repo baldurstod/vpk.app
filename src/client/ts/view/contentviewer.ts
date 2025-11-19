@@ -201,7 +201,7 @@ export class ContentViewer extends SiteElement {
 		}
 
 		this.#htmlTextViewer?.show();
-
+		const editSession = this.#htmlTextViewer.addSession(repository, path);
 		const tab = this.#createTab(filename,
 			(event: CustomEvent<TabEventData>) => {
 				if (this.#closeFile(repository, path) && event.detail.tab.isActive()) {
@@ -210,11 +210,12 @@ export class ContentViewer extends SiteElement {
 			},
 			() => {
 				this.#htmlContent?.replaceChildren(this.#htmlTextViewer!.getHTML());
-				this.#htmlTextViewer?.setText(repository, path, String(content));
+				this.#htmlTextViewer?.setSession(editSession);
 			}
 		);
 
-		this.#htmlTextViewer?.setText(repository, path, String(content));
+		editSession.doc.setValue(content);
+		//this.#htmlTextViewer?.setText(repository, path, String(content));
 		return tab;
 	}
 
@@ -304,7 +305,7 @@ export class ContentViewer extends SiteElement {
 
 		const pcfResult = pcfToSTring(pcf);
 		const anchors = new Map<string, TextViewerRange>();
-		const editSession = this.#htmlTextViewer.addSession(repository, path, anchors);//new (globalThis as any).ace.EditSession('');
+		const editSession = this.#htmlTextViewer.addSession(repository, path, anchors);
 		this.#htmlTextViewer?.setSession(editSession);
 		if (pcfResult) {
 			for (const [id, line] of pcfResult.elementsLine) {
@@ -454,6 +455,7 @@ export class ContentViewer extends SiteElement {
 
 		this.#htmlTextViewer?.show();
 
+		const editSession = this.#htmlTextViewer.addSession(repository, path);
 		const tab = this.#createTab(filename,
 			(event: CustomEvent<TabEventData>) => {
 				if (this.#closeFile(repository, path) && event.detail.tab.isActive()) {
@@ -462,14 +464,17 @@ export class ContentViewer extends SiteElement {
 			},
 			() => {
 				this.#htmlContent?.replaceChildren(this.#htmlTextViewer!.getHTML());
-				this.#htmlTextViewer?.setText(repository, path, text ?? '');
+				this.#htmlTextViewer?.setSession(editSession);
 			}
 		);
 
 		if (kv) {
 			text = kv.exportAsText();
 			if (text) {
-				this.#htmlTextViewer?.setText(repository, path, text);
+				editSession.doc.setValue(text);
+				//this.#htmlTextViewer?.setText(repository, path, text);
+			} else {
+				editSession.doc.setValue('Unable to open file'/*TODO: i18n*/);
 			}
 		}
 		return tab;

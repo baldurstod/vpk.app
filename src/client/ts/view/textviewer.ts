@@ -16,7 +16,7 @@ export type TextViewerRange = {
 }
 
 type EditSessionAttributes = {
-	anchors: Map<string, TextViewerRange>;
+	anchors?: Map<string, TextViewerRange>;
 	repository: string;
 	path: string;
 }
@@ -187,7 +187,7 @@ export class TextViewer extends SiteElement {
 		this.initHTML();
 	}
 
-	// TODO: remove
+	/*
 	async setText(repository: string, path: string, text: string, anchors?: Map<string, TextViewerRange>) {
 		this.#repository = repository;
 		this.#path = path;
@@ -198,6 +198,7 @@ export class TextViewer extends SiteElement {
 		await this.#aceEditorReady;
 		this.#aceEditor.setValue(text);
 	}
+	*/
 
 	async select(hash: string): Promise<void> {
 		const line = Number(hash);
@@ -213,7 +214,7 @@ export class TextViewer extends SiteElement {
 		const marker = this.#aceEditor.getSession().addMarker(range, 'ace_selected_word', 'text');
 	}
 
-	addSession(repository: string, path: string, anchors: Map<string, TextViewerRange>): EditSession {
+	addSession(repository: string, path: string, anchors?: Map<string, TextViewerRange>): EditSession {
 		const attributes = {
 			anchors,
 			repository,
