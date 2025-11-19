@@ -1,10 +1,11 @@
+import { EditSession } from 'ace-builds';
 import { loadScripts } from 'harmony-browser-utils';
-import { createElement, createShadowRoot, hide, show } from 'harmony-ui';
-import textViewerCSS from '../../css/textviewer.css';
-import { SiteElement } from './siteelement';
 import { downloadSVG } from 'harmony-svg';
-import { ControllerEvents, SelectFile } from '../controllerevents';
+import { createElement, createShadowRoot } from 'harmony-ui';
+import textViewerCSS from '../../css/textviewer.css';
 import { Controller } from '../controller';
+import { ControllerEvents, SelectFile } from '../controllerevents';
+import { SiteElement } from './siteelement';
 
 type Token = { start: number, value: string, row?: number };
 export type TextViewerRange = {
@@ -12,6 +13,12 @@ export type TextViewerRange = {
 	startCol: number;
 	endRow?: number;
 	endCol?: number;
+}
+
+type EditSessionAttributes = {
+	anchors: Map<string, TextViewerRange>;
+	repository: string;
+	path: string;
 }
 
 export class TextViewer extends SiteElement {
@@ -22,10 +29,12 @@ export class TextViewer extends SiteElement {
 	#marker = -1;
 	#isOpen = false;
 	#uuid?: Token;
-	#anchors?: Map<string, TextViewerRange>;
+	//#anchors = new Map<EditSession, Map<string, TextViewerRange>>;
 	#htmlToolbar?: HTMLElement;
 	#repository: string = '';
 	#path: string = '';
+	#currentSession: EditSession | null = null;
+	#sessions = new Map<EditSession, EditSessionAttributes>;
 
 	initHTML() {
 		if (this.shadowRoot) {
@@ -109,17 +118,19 @@ export class TextViewer extends SiteElement {
 	}
 
 	#selectToken(token: string) {
-		if (!this.#anchors) {
+		const anchors = this.#sessions.get(this.#currentSession!)?.anchors;
+		if (!anchors) {
 			return;
 		}
 
-		const textRange = this.#anchors.get(token);
-		console.info(this.#anchors.get(token));
+		const textRange = anchors.get(token);
+		console.info(anchors.get(token));
 
 		this.#aceEditor.resize(true);
 		this.#aceEditor.gotoLine(textRange?.startRow, 0);
 
 		if (textRange) {
+			this.#aceEditor.session.removeMarker(this.#marker);
 			const range = new (globalThis as any).ace.Range(textRange?.startRow, textRange?.startCol, textRange?.startRow, 1000);
 			this.#marker = this.#aceEditor.session.addMarker(range, 'ace_link_marker', 'text', true);
 		}
@@ -176,12 +187,13 @@ export class TextViewer extends SiteElement {
 		this.initHTML();
 	}
 
+	// TODO: remove
 	async setText(repository: string, path: string, text: string, anchors?: Map<string, TextViewerRange>) {
 		this.#repository = repository;
 		this.#path = path;
 		this.show();
 		//this.#htmlText!.innerText = text;
-		this.#anchors = anchors;
+		//this.#anchors = anchors;
 
 		await this.#aceEditorReady;
 		this.#aceEditor.setValue(text);
@@ -199,5 +211,23 @@ export class TextViewer extends SiteElement {
 
 		const range = new (globalThis as any).ace.Range(1000, 1, 1000, 20);
 		const marker = this.#aceEditor.getSession().addMarker(range, 'ace_selected_word', 'text');
+	}
+
+	addSession(repository: string, path: string, anchors: Map<string, TextViewerRange>): EditSession {
+		const attributes = {
+			anchors,
+			repository,
+			path,
+		}
+
+		const session = new (globalThis as any).ace.EditSession('');
+		this.#sessions.set(session, attributes);
+
+		return session;
+	}
+
+	setSession(session: EditSession): void {
+		this.#currentSession = session;
+		this.#aceEditor.setSession(session);
 	}
 }

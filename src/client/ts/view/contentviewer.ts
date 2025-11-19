@@ -298,6 +298,27 @@ export class ContentViewer extends SiteElement {
 		}
 
 		this.#htmlTextViewer?.show();
+		const pcfLoader = getLoader('Source1PcfLoader') as typeof Source1PcfLoader;
+		const pcf = await new pcfLoader().load(repository, path) as SourcePCF;
+
+
+		const pcfResult = pcfToSTring(pcf);
+		const anchors = new Map<string, TextViewerRange>();
+		const editSession = this.#htmlTextViewer.addSession(repository, path, anchors);//new (globalThis as any).ace.EditSession('');
+		this.#htmlTextViewer?.setSession(editSession);
+		if (pcfResult) {
+			for (const [id, line] of pcfResult.elementsLine) {
+				anchors.set(id, {
+					startRow: line,
+					startCol: 0,
+				});
+			}
+
+			//await this.#htmlTextViewer?.setText(repository, path, pcfResult.text, anchors);
+			editSession.doc.setValue(pcfResult.text);
+		} else {
+			editSession.doc.setValue('Unable to open PCF file'/*TODO: i18n*/);
+		}
 
 		const tab = this.#createTab(filename,
 			(event: CustomEvent<TabEventData>) => {
@@ -307,27 +328,11 @@ export class ContentViewer extends SiteElement {
 			},
 			() => {
 				this.#htmlContent?.replaceChildren(this.#htmlTextViewer!.getHTML());
-				this.#htmlTextViewer?.setText(repository, path, String(content));
+				//this.#htmlTextViewer?.setText(repository, path, pcfResult?.text ?? 'Unable to open PCF file'/*TODO: i18n*/, anchors);
+				this.#htmlTextViewer?.setSession(editSession);
 			}
 		);
 
-		const pcfLoader = getLoader('Source1PcfLoader') as typeof Source1PcfLoader;
-		const pcf = await new pcfLoader().load(repository, path) as SourcePCF;
-
-
-		const pcfResult = pcfToSTring(pcf);
-		if (pcfResult) {
-
-			const anchors = new Map<string, TextViewerRange>();
-			for (const [id, line] of pcfResult.elementsLine) {
-				anchors.set(id, {
-					startRow: line,
-					startCol: 0,
-				});
-			}
-
-			await this.#htmlTextViewer?.setText(repository, path, pcfResult.text, anchors);
-		}
 
 		await this.#htmlTextViewer?.select(hash);
 
