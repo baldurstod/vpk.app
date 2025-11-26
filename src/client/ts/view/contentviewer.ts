@@ -202,6 +202,7 @@ export class ContentViewer extends SiteElement {
 
 		this.#htmlTextViewer?.show();
 		const editSession = await this.#htmlTextViewer.addSession(repository, path);
+		this.#htmlTextViewer?.setSession(editSession);
 		const tab = this.#createTab(filename,
 			(event: CustomEvent<TabEventData>) => {
 				if (this.#closeFile(repository, path) && event.detail.tab.isActive()) {
@@ -456,6 +457,7 @@ export class ContentViewer extends SiteElement {
 		this.#htmlTextViewer?.show();
 
 		const editSession = await this.#htmlTextViewer.addSession(repository, path);
+		this.#htmlTextViewer?.setSession(editSession);
 		const tab = this.#createTab(filename,
 			(event: CustomEvent<TabEventData>) => {
 				if (this.#closeFile(repository, path) && event.detail.tab.isActive()) {
