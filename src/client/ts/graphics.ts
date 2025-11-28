@@ -5,7 +5,7 @@ import { createElement } from 'harmony-ui';
 let renderer: typeof Graphics | undefined;
 let scene: Scene | undefined;
 let composer: Composer | undefined;
-let activeCamera: Camera | undefined;
+let activeCamera: Camera | null = null;
 let orbitControl: OrbitControl | undefined;
 let canvasContainer: HTMLElement | undefined;
 
