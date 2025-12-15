@@ -232,5 +232,11 @@ export class TextViewer extends SiteElement {
 		await this.#aceEditorReady;
 		this.#currentSession = session;
 		this.#aceEditor.setSession(session);
+
+		const attributes = this.#sessions.get(session);
+		if (attributes) {
+			this.#repository = attributes.repository;
+			this.#path = attributes.path;
+		}
 	}
 }
