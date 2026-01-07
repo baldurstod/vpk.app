@@ -113,7 +113,7 @@ class Application {
 	}
 
 	async #initViewFromUrl() {
-		let result = /@view\/([^\:]*)\:?(.*)/i.exec(decodeURI(document.location.pathname));
+		let result = /@view\/([^\/]*)\/?(.*)/i.exec(decodeURI(document.location.pathname));
 
 		if (result && result.length > 2) {
 			const path = result[2]!.replace(/(\/)+$/, '');
@@ -217,7 +217,7 @@ class Application {
 	}
 
 	#getFileLink(repository: string, path: string): string {
-		return `${document.location.origin}/@view/${encodeURI(repository)}:${encodeURI(path)}`
+		return `${document.location.origin}/@view/${encodeURI(repository)}/${encodeURI(path)}`
 	}
 
 	#createFileLink(event: CustomEvent<SelectFile>): void {
