@@ -10,8 +10,8 @@ function base64ToArrayBuffer(base64: string): ArrayBuffer {
 	return bytes.buffer;
 }
 
-export async function getFile(repository: string, path: string): Promise<File | null> {
-	const { requestId, response } = await fetchApi('get-file', 1, { repository: repository, path: path }) as { requestId: string, response: getFileResponse };
+export async function getFile(application: string, path: string): Promise<File | null> {
+	const { requestId, response } = await fetchApi('get-file', 1, { application, path: path }) as { requestId: string, response: getFileResponse };
 
 	if (!response.success) {
 		return null;

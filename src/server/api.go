@@ -203,7 +203,7 @@ func apiGetFile(c *gin.Context, params map[string]any) apiError {
 		return CreateApiError(NoParamsError)
 	}
 
-	repository, ok := params["repository"].(string)
+	application, ok := params["application"].(string)
 	if !ok {
 		return CreateApiError(InvalidParamApplication)
 	}
@@ -213,17 +213,22 @@ func apiGetFile(c *gin.Context, params map[string]any) apiError {
 		return CreateApiError(InvalidParamPath)
 	}
 
+	vpkPath, found := filesToVpk[application][filePath]
+	if !found {
+		return CreateApiError(InvalidParamPath)
+	}
+
 	filePath = strings.ReplaceAll(filePath, "\\", "/")
 	filePath = path.Clean(filePath)
 
 	var pak vpk.VPK
 	var err error
-	inputFile := filepath.Join(repositoryRoot, repository)
+	//inputFile := filepath.Join(repositoryRoot, repository)
 
-	if strings.HasSuffix(inputFile, "_dir.vpk") {
-		pak, err = vpk.OpenDir(inputFile)
+	if strings.HasSuffix(vpkPath, "_dir.vpk") {
+		pak, err = vpk.OpenDir(vpkPath)
 	} else {
-		pak, err = vpk.OpenSingle(inputFile)
+		pak, err = vpk.OpenSingle(vpkPath)
 	}
 	if err != nil {
 		logError(c, err)
