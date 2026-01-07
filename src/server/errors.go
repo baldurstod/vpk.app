@@ -13,17 +13,17 @@ type ApiErrorCode int
 const (
 	UnexpectedError = iota
 	NoParamsError
-	InvalidParamRepository
+	InvalidParamApplication
 	InvalidParamPath
 	InvalidParamExtension
 )
 
 var apiErrorValues = map[ApiErrorCode]error{
-	UnexpectedError:        errors.New("unexpected error, contact support"),
-	NoParamsError:          errors.New("no params provided"),
-	InvalidParamRepository: errors.New("invalid param repository"),
-	InvalidParamPath:       errors.New("invalid param path"),
-	InvalidParamExtension:  errors.New("invalid param extension"),
+	UnexpectedError:         errors.New("unexpected error, contact support"),
+	NoParamsError:           errors.New("no params provided"),
+	InvalidParamApplication: errors.New("invalid param application"),
+	InvalidParamPath:        errors.New("invalid param path"),
+	InvalidParamExtension:   errors.New("invalid param extension"),
 }
 
 type apiError interface {

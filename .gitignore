@@ -2,6 +2,6 @@ build/
 dist/
 node_modules
 var/
-vpk/
+content/
 config.json
 __debug_bin*

@@ -13,6 +13,7 @@ type HTTPS struct {
 
 type Game struct {
 	Name           string   `json:"name"`
+	Alias          string   `json:"alias"`
 	Path           string   `json:"path"`
 	AppId          int      `json:"app_id"`
 	VpkSearchPaths []string `json:"vpk_search_paths"`

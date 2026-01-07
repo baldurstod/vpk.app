@@ -7,6 +7,7 @@
 	"games": [
 		{
 			"name": "Team Fortress 2",
+			"alias": "tf2",
 			"path": "tf2",
 			"app_id": 440,
 			"vpk_search_paths": [
@@ -17,6 +18,7 @@
 		},
 		{
 			"name": "Dota 2",
+			"alias": "dota2",
 			"path": "dota2",
 			"app_id": 570,
 			"vpk_search_paths": [
@@ -26,7 +28,8 @@
 		},
 		{
 			"name": "Counter-Strike 2",
-			"path": "cs2",
+			"alias": "cs2",
+			"path": "cs2/game",
 			"app_id": 730,
 			"vpk_search_paths": [
 				"csgo",
@@ -38,6 +41,7 @@
 		},
 		{
 			"name": "Deadlock",
+			"alias": "deadlock",
 			"path": "deadlock",
 			"app_id": 1422450,
 			"vpk_search_paths": [

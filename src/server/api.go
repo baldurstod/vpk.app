@@ -24,12 +24,71 @@ func registerToken() bool {
 	return true
 }
 
-var repositoryRoot = "vpk/"
+var repositoryRoot = "content/"
 
 var games []Game
+var applications map[string]string
+var filesPerApp map[string][]string
+var filesToVpk map[string]map[string]string
 
 func initApi(g []Game) {
 	games = g
+
+	applications = map[string]string{}
+	filesPerApp = map[string][]string{}
+	filesToVpk = map[string]map[string]string{}
+
+	for _, e := range games {
+		applications[e.Alias] = e.Name
+		listVpks(e)
+	}
+}
+
+func listVpks(g Game) {
+	filesPerApp[g.Alias] = []string{}
+	filesToVpk[g.Alias] = map[string]string{}
+
+	for _, e := range g.VpkSearchPaths {
+		root := path.Join(repositoryRoot, g.Path, e)
+		Walk(root, func(path string, info os.FileInfo, err error) error {
+			if info != nil && !info.IsDir() && strings.HasSuffix(path, "_dir.vpk") {
+				listVpksFiles(g, path)
+			}
+			return nil
+		})
+	}
+}
+
+func listVpksFiles(g Game, filePath string) {
+	log.Println("Listing files for ", filePath)
+
+	files := filesPerApp[g.Alias]
+	f := filesToVpk[g.Alias]
+
+	var pak vpk.VPK
+	var err error
+	if strings.HasSuffix(filePath, "_dir.vpk") {
+		pak, err = vpk.OpenDir(filePath)
+	} else {
+		pak, err = vpk.OpenSingle(filePath)
+	}
+
+	if err != nil {
+		log.Printf("error while listing %s %s", filePath, err)
+	}
+
+	for _, entry := range pak.Entries() {
+		filename := entry.Filename()
+		_, found := f[filename]
+		if !found {
+			files = append(files, filename)
+			f[filename] = filePath
+		}
+	}
+
+	filesPerApp[g.Alias] = files
+
+	log.Println("Finished listing files for ", filePath, len(f))
 }
 
 type apiRequest struct {
@@ -57,8 +116,6 @@ func apiHandler(c *gin.Context) {
 
 	var apiError apiError
 	switch request.Action {
-	case "get-repository-list":
-		apiError = apiGetRepositoryList(c)
 	case "get-application-list":
 		apiError = apiGetApplicationList(c)
 	case "get-file-list":
@@ -75,43 +132,8 @@ func apiHandler(c *gin.Context) {
 	}
 }
 
-func apiGetRepositoryList(c *gin.Context) apiError {
-	//files, err = FilePathWalkDir(root)
-	var files []string
-	err := Walk(repositoryRoot, func(path string, info os.FileInfo, err error) error {
-		if info != nil && !info.IsDir() && strings.HasSuffix(path, "_dir.vpk") {
-			//files = append(files, strings.TrimSuffix(info.Name(), "_dir.vpk"))
-			//dir, file := filepath.Split(strings.TrimPrefix(path, root))
-			//fmt.Printf("input: %q\n\tdir: %q\n\tfile: %q\n", path, dir, file)
-			files = append(files, strings.TrimPrefix(path, repositoryRoot))
-		}
-		return nil
-	})
-
-	//entries, err := os.ReadDir("./vpk/")
-	if err != nil {
-		logError(c, err)
-		return CreateApiError(UnexpectedError)
-	}
-
-	/*
-		for _, e := range entries {
-			fmt.Println(e.Name())
-		}
-	*/
-
-	jsonSuccess(c, map[string]any{"files": files})
-	return nil
-}
-
 func apiGetApplicationList(c *gin.Context) apiError {
-	apps := map[string]string{}
-
-	for _, e := range games {
-		apps[e.Path] = e.Name
-	}
-
-	jsonSuccess(c, map[string]any{"applications": apps})
+	jsonSuccess(c, map[string]any{"applications": applications})
 	return nil
 }
 
@@ -164,27 +186,12 @@ func apiGetFileList(c *gin.Context, params map[string]any) apiError {
 
 	application, ok := params["application"].(string)
 	if !ok {
-		return CreateApiError(InvalidParamRepository)
+		return CreateApiError(InvalidParamApplication)
 	}
 
-	var pak vpk.VPK
-	var err error
-	inputFile := filepath.Join(repositoryRoot, application)
-
-	if strings.HasSuffix(inputFile, "_dir.vpk") {
-		pak, err = vpk.OpenDir(inputFile)
-	} else {
-		pak, err = vpk.OpenSingle(inputFile)
-	}
-
-	if err != nil {
-		logError(c, err)
-		return CreateApiError(UnexpectedError)
-	}
-
-	var files = []string{}
-	for _, entry := range pak.Entries() {
-		files = append(files, entry.Filename())
+	files, found := filesPerApp[application]
+	if !found {
+		return CreateApiError(InvalidParamApplication)
 	}
 
 	jsonSuccess(c, map[string]any{"files": files})
@@ -198,7 +205,7 @@ func apiGetFile(c *gin.Context, params map[string]any) apiError {
 
 	repository, ok := params["repository"].(string)
 	if !ok {
-		return CreateApiError(InvalidParamRepository)
+		return CreateApiError(InvalidParamApplication)
 	}
 
 	filePath, ok := params["path"].(string)

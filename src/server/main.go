@@ -24,8 +24,6 @@ func main() {
 		return
 	}
 
-	log.Println((config))
-
 	initApi(config.Games)
 	startServer(config)
 }
