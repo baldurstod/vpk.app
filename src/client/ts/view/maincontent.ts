@@ -2,13 +2,13 @@ import { RepositoryEntry } from 'harmony-3d';
 import { createShadowRoot, display, isVisible, toggle } from 'harmony-ui';
 import mainContentCSS from '../../css/maincontent.css';
 import { GameEngine } from '../enums';
+import { ApplicationSelector } from './applicationselector';
 import { ContentViewer } from './contentviewer';
 import { Options } from './options';
-import { RepositorySelector } from './repositoryselector';
 import { SiteElement } from './siteelement';
 
 export class MainContent extends SiteElement {
-	#repositorySelector = new RepositorySelector();
+	#repositorySelector = new ApplicationSelector();
 	#contentViewer = new ContentViewer();
 	#options = new Options();
 
@@ -36,8 +36,8 @@ export class MainContent extends SiteElement {
 		this.#repositorySelector.selectFile(path, scrollIntoView);
 	}
 
-	setRepositoryList(repositoryList: Set<string>) {
-		this.#repositorySelector.setRepositoryList(repositoryList);
+	setApplicationList(applicationList: Map<string, string>) {
+		this.#repositorySelector.setApplicationList(applicationList);
 	}
 
 	setFileList(repository: string, fileList: Map<string, RepositoryEntry>) {

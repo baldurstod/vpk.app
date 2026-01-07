@@ -7,12 +7,12 @@ import { Controller } from '../controller';
 import { AddTask, ControllerEvents, SelectFile, SelectRepository } from '../controllerevents';
 import { SiteElement } from './siteelement';
 
-export class RepositorySelector extends SiteElement {
+export class ApplicationSelector extends SiteElement {
 	#htmlList?: HTMLHarmonyTreeElement;
 	#htmlFileFilter?: HTMLInputElement;
 	#htmlFileTree?: HTMLHarmonyTreeElement;
 	#repository: string = '';
-	#repositoryList?: Set<string>;
+	#applicationList?: Map<string, string>;
 	#fileList?: Map<string, RepositoryEntry>;
 	#repositoryRoot?: TreeItem;
 	#fileRoot?: TreeItem;
@@ -91,9 +91,9 @@ export class RepositorySelector extends SiteElement {
 	protected refreshHTML(): void {
 		this.initHTML();
 
-		if (this.#dirtyRepositoryList && this.#repositoryList) {
+		if (this.#dirtyRepositoryList && this.#applicationList) {
 			this.#htmlList?.replaceChildren();
-			this.#repositoryRoot = TreeItem.createFromPathList(this.#repositoryList);
+			this.#repositoryRoot = TreeItem.createFromPathList(this.#applicationList);
 
 			for (let item of this.#repositoryRoot.walk({ kind: TreeItemKind.File })) {
 				item.addActions(['sharelink']);
@@ -119,8 +119,8 @@ export class RepositorySelector extends SiteElement {
 		}
 	}
 
-	setRepositoryList(repositoryList: Set<string>) {
-		this.#repositoryList = repositoryList;
+	setApplicationList(applicationList: Map<string, string>) {
+		this.#applicationList = applicationList;
 		this.#dirtyRepositoryList = true;
 		this.refreshHTML();
 	}

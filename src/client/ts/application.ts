@@ -13,7 +13,7 @@ import { AddTask, ControllerEvents, NavigateTo, SelectFile, SelectRepository } f
 import { GameEngine } from './enums';
 import { fetchApi } from './fetchapi';
 import { FileCache } from './filecache';
-import { RepositoryListResponse } from './responses/repository';
+import { ApplicationListResponse } from './responses/repository';
 import { MainContent } from './view/maincontent';
 import { TaskManager } from './view/taskmanager';
 import { Toolbar } from './view/toolbar';
@@ -46,13 +46,13 @@ class Application {
 		I18n.start();
 		this.#initEvents();
 		this.#initPage();
-		await this.#refreshRepositoryList();
+		await this.#refreshApplicationList();
 		await this.#startup();
 		OptionsManager.init({ json: optionsmanager });
 	}
 
 	#initEvents() {
-		Controller.addEventListener(ControllerEvents.RefreshRepositoryList, () => this.#refreshRepositoryList());
+		Controller.addEventListener(ControllerEvents.RefreshRepositoryList, () => this.#refreshApplicationList());
 		Controller.addEventListener(ControllerEvents.SelectRepository, (event: Event) => this.#selectRepository((event as CustomEvent<SelectRepository>).detail.repository, false));
 		Controller.addEventListener(ControllerEvents.SelectFile, (event: Event) => this.#selectFile((event as CustomEvent<SelectFile>).detail.repository, (event as CustomEvent<SelectFile>).detail.path, (event as CustomEvent<SelectFile>).detail.hash ?? '', true));
 		Controller.addEventListener(ControllerEvents.DownloadFile, (event: Event) => this.#downloadFile(event as CustomEvent<SelectFile>));
@@ -125,24 +125,26 @@ class Application {
 		}
 	}
 
-	async #refreshRepositoryList() {
-		const { requestId, response } = await fetchApi('get-repository-list', 1) as { requestId: string, response: RepositoryListResponse };
+	async #refreshApplicationList() {
+		const { requestId, response } = await fetchApi('get-application-list', 1) as { requestId: string, response: ApplicationListResponse };
 
 		if (!response.success) {
 			return;
 		}
 
+		/*
 		const localRepositories: string[] = [];
 		for (const localRepository of this.#localRepositories) {
 			localRepositories.push(localRepository.name);
 		}
+		*/
 
-		let repositories = new Set<string>();
-		for (const child of response.result?.files!) {
-			repositories.add(child);
+		let repositories = new Map<string, string>();
+		for (const path in response.result?.applications!) {
+			repositories.set(path, response.result?.applications[path]!);
 		}
 
-		this.#appContent.setRepositoryList(repositories/*response.result!.files.concat(localRepositories)*/);
+		this.#appContent.setApplicationList(repositories/*response.result!.files.concat(localRepositories)*/);
 	}
 
 	async #selectRepository(repository: string, scrollIntoView: boolean, path?: string): Promise<void> {
@@ -276,7 +278,7 @@ class Application {
 			//Repositories.addRepository(new MergeRepository(repoName, repo, tf2MaterialsRepo));
 			Repositories.addRepository(repo);
 			this.#localRepositories.push(repo);
-			await this.#refreshRepositoryList();
+			await this.#refreshApplicationList();
 			this.#selectRepository(repoName, true);
 		} else {
 			let filename = file.name;

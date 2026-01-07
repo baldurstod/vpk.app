@@ -26,6 +26,12 @@ func registerToken() bool {
 
 var repositoryRoot = "vpk/"
 
+var games []Game
+
+func initApi(g []Game) {
+	games = g
+}
+
 type apiRequest struct {
 	Action  string         `json:"action" binding:"required"`
 	Version int            `json:"version" binding:"required"`
@@ -53,6 +59,8 @@ func apiHandler(c *gin.Context) {
 	switch request.Action {
 	case "get-repository-list":
 		apiError = apiGetRepositoryList(c)
+	case "get-application-list":
+		apiError = apiGetApplicationList(c)
 	case "get-file-list":
 		apiError = apiGetFileList(c, request.Params)
 	case "get-file":
@@ -93,6 +101,17 @@ func apiGetRepositoryList(c *gin.Context) apiError {
 	*/
 
 	jsonSuccess(c, map[string]any{"files": files})
+	return nil
+}
+
+func apiGetApplicationList(c *gin.Context) apiError {
+	apps := map[string]string{}
+
+	for _, e := range games {
+		apps[e.Path] = e.Name
+	}
+
+	jsonSuccess(c, map[string]any{"applications": apps})
 	return nil
 }
 
@@ -143,14 +162,14 @@ func apiGetFileList(c *gin.Context, params map[string]any) apiError {
 		return CreateApiError(NoParamsError)
 	}
 
-	repository, ok := params["repository"].(string)
+	application, ok := params["application"].(string)
 	if !ok {
 		return CreateApiError(InvalidParamRepository)
 	}
 
 	var pak vpk.VPK
 	var err error
-	inputFile := filepath.Join(repositoryRoot, repository)
+	inputFile := filepath.Join(repositoryRoot, application)
 
 	if strings.HasSuffix(inputFile, "_dir.vpk") {
 		pak, err = vpk.OpenDir(inputFile)

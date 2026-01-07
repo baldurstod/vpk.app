@@ -21,8 +21,8 @@ export async function getFile(repository: string, path: string): Promise<File | 
 	return new File([new Blob([content])], path);
 }
 
-export async function getFileList(repository: string): Promise<Array<string>> {
-	const { requestId, response } = await fetchApi('get-file-list', 1, { repository: repository }) as { requestId: string, response: RepositoryListResponse };
+export async function getFileList(application: string): Promise<Array<string>> {
+	const { requestId, response } = await fetchApi('get-file-list', 1, { application }) as { requestId: string, response: RepositoryListResponse };
 
 	if (!response.success) {
 		return [];

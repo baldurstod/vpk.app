@@ -6,6 +6,14 @@ export type RepositoryListResponse = {
 	}
 }
 
+export type ApplicationListResponse = {
+	success: boolean,
+	error?: string,
+	result?: {
+		applications: Record<string, string>,
+	}
+}
+
 export type getFileResponse = {
 	success: boolean,
 	error?: string,

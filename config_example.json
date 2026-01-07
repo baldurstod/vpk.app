@@ -3,5 +3,47 @@
 		"port": 0,
 		"https_key_file": "./var/key.pem",
 		"https_cert_file": "./var/cert.pem"
-	}
+	},
+	"games": [
+		{
+			"name": "Team Fortress 2",
+			"path": "tf2",
+			"app_id": 440,
+			"vpk_search_paths": [
+				"tf",
+				"hl2",
+				"platform"
+			]
+		},
+		{
+			"name": "Dota 2",
+			"path": "dota2",
+			"app_id": 570,
+			"vpk_search_paths": [
+				"dota",
+				"core"
+			]
+		},
+		{
+			"name": "Counter-Strike 2",
+			"path": "cs2",
+			"app_id": 730,
+			"vpk_search_paths": [
+				"csgo",
+				"csgo_imported",
+				"csgo_core",
+				"core",
+				"csgo_community_addons"
+			]
+		},
+		{
+			"name": "Deadlock",
+			"path": "deadlock",
+			"app_id": 1422450,
+			"vpk_search_paths": [
+				"citadel",
+				"core"
+			]
+		}
+	]
 }
