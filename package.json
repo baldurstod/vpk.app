@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "ace-builds": "^1.42.0",
+    "amandine": "github:baldurstod/amandine",
     "fast-png": "^7.0.1",
     "gl-matrix": "^3.4.3",
     "harmony-3d": "github:baldurstod/harmony-3d",
@@ -38,6 +39,7 @@
     "harmony-types": "github:baldurstod/harmony-types",
     "harmony-ui": "github:baldurstod/harmony-ui",
     "harmony-utils": "github:baldurstod/harmony-utils",
-    "harmony-vpk": "github:baldurstod/harmony-vpk"
+    "harmony-vpk": "github:baldurstod/harmony-vpk",
+    "wgsl_reflect": "^1.2.3"
   }
 }

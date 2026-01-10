@@ -9,8 +9,8 @@ let activeCamera: Camera | null = null;
 let orbitControl: OrbitControl | undefined;
 let canvasContainer: HTMLElement | undefined;
 
-export function setScene(s: Scene) {
-	startupRenderer();
+export async function setScene(s: Scene): Promise<void> {
+	await startupRenderer();
 	scene = s;
 	new SceneExplorer().setScene(scene);
 	if (!s.activeCamera) {
@@ -18,8 +18,8 @@ export function setScene(s: Scene) {
 	}
 }
 
-export function setParent(parent: HTMLElement): void {
-	startupRenderer();
+export async function setParent(parent: HTMLElement): Promise<void> {
+	await startupRenderer();
 
 
 	parent.append(canvasContainer!);
@@ -27,7 +27,7 @@ export function setParent(parent: HTMLElement): void {
 
 }
 
-export function startupRenderer() {
+export async function startupRenderer(): Promise<void> {
 	if (renderer) {
 		return;
 	}
@@ -40,7 +40,7 @@ export function startupRenderer() {
 	});
 
 
-	renderer = Graphics.initCanvas({
+	renderer = await Graphics.initCanvas({
 		autoResize: true,
 		canvas: canvas,
 		webGL: {

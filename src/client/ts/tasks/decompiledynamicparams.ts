@@ -37,7 +37,7 @@ export const decompileDynamicParam: TaskDefinition = {
 		return true;
 	},
 	preExecution: async (task: Task, params?: any): Promise<boolean> => {
-		startupRenderer();
+		await startupRenderer();
 		txtPerTask.set(task.id, `Repository: ${task.getRepository()}\nRoot: ${task.getRoot()}\n\n`);
 		txt2PerTask.set(task.id, `Repository: ${task.getRepository()}\nRoot: ${task.getRoot()}\n\n`);
 		return true;

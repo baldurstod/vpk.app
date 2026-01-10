@@ -60,8 +60,6 @@ func listVpks(g Game) {
 }
 
 func listVpksFiles(g Game, filePath string) {
-	log.Println("Listing files for ", filePath)
-
 	files := filesPerApp[g.Alias]
 	f := filesToVpk[g.Alias]
 
@@ -87,8 +85,6 @@ func listVpksFiles(g Game, filePath string) {
 	}
 
 	filesPerApp[g.Alias] = files
-
-	log.Println("Finished listing files for ", filePath, len(f))
 }
 
 type apiRequest struct {

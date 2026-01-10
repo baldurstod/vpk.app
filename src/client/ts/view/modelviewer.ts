@@ -74,7 +74,7 @@ export class ModelViewer extends SiteElement {
 	}
 
 	async setSource1Model(repository: string, path: string): Promise<void> {
-		startupRenderer();
+		await startupRenderer();
 		this.#createCamera();
 		this.show();
 		this.#repository = repository;
@@ -109,13 +109,13 @@ export class ModelViewer extends SiteElement {
 			scene.addChild(new AmbientLight({ position: vec3.fromValues(0, -500, 0) }));
 		}
 
-		setScene(scene);
+		await setScene(scene);
 		//.append(getCanvas());
-		setParent(this.#htmlViewer!);
+		await setParent(this.#htmlViewer!);
 	}
 
 	async setSource2Model(repository: string, path: string): Promise<void> {
-		startupRenderer();
+		await startupRenderer();
 		this.#createCamera();
 		this.show();
 		this.#repository = repository;
@@ -146,9 +146,9 @@ export class ModelViewer extends SiteElement {
 			scene.addChild(new AmbientLight({ position: vec3.fromValues(0, -500, 0) }));
 		}
 
-		setScene(scene);
+		await setScene(scene);
 		//.append(getCanvas());
-		setParent(this.#htmlViewer!);
+		await setParent(this.#htmlViewer!);
 	}
 
 	#createCamera() {

@@ -132,7 +132,7 @@ export class MaterialViewer extends SiteElement {
 	}
 
 	async setSource2Material(repository: string, path: string): Promise<void> {
-		startupRenderer();
+		await startupRenderer();
 		this.show();
 		this.#repository = repository;
 		this.#path = path;
@@ -169,8 +169,8 @@ export class MaterialViewer extends SiteElement {
 			this.#updateParams(material);
 		}
 
-		setScene(scene);
-		setParent(this.#htmlViewer!);
+		await setScene(scene);
+		await setParent(this.#htmlViewer!);
 	}
 
 	#updateParams(material: Source2Material) {
