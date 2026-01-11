@@ -178,6 +178,14 @@ export class TextureViewer extends SiteElement {
 					imageData.data[i] = 255;
 				}
 				break;
+			case TextureMode.Rgba:
+				for (let i = 0; i < imageData?.data.length; i += 4) {
+					const alpha = imageData.data[i + 3]! / 255;
+					imageData.data[i]! *= alpha;
+					imageData.data[i + 1]! *= alpha;
+					imageData.data[i + 2]! *= alpha;
+				}
+				break;
 		}
 
 		const image = imageDataToImage(imageData);
