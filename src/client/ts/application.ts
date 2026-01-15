@@ -85,7 +85,7 @@ class Application {
 		this.#restoreHistoryState(historyState);
 		let pathname = document.location.pathname;
 		switch (true) {
-			case pathname.includes('@view'):
+			case pathname.includes('@'):
 				this.#initViewFromUrl();
 				break;
 			case pathname == '':
@@ -113,7 +113,7 @@ class Application {
 	}
 
 	async #initViewFromUrl() {
-		let result = /@view\/([^\/]*)\/?(.*)/i.exec(decodeURI(document.location.pathname));
+		let result = /@([^\/]*)\/?(.*)/i.exec(decodeURI(document.location.pathname));
 
 		if (result && result.length > 2) {
 			const path = result[2]!.replace(/(\/)+$/, '');
@@ -213,11 +213,11 @@ class Application {
 	}
 
 	#createRepositoryLink(event: CustomEvent<SelectRepository>): void {
-		this.#copyLink(`${document.location.origin}/@view/${encodeURI(event.detail.repository)}`);
+		this.#copyLink(`${document.location.origin}/@${encodeURI(event.detail.repository)}`);
 	}
 
 	#getFileLink(repository: string, path: string): string {
-		return `${document.location.origin}/@view/${encodeURI(repository)}/${encodeURI(path)}`
+		return `${document.location.origin}/@${encodeURI(repository)}/${encodeURI(path)}`
 	}
 
 	#createFileLink(event: CustomEvent<SelectFile>): void {
