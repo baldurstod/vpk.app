@@ -35,6 +35,7 @@
     "harmony-3d": "github:baldurstod/harmony-3d",
     "harmony-browser-utils": "github:baldurstod/harmony-browser-utils",
     "harmony-css": "github:baldurstod/harmony-css",
+    "harmony-dmx": "github:baldurstod/harmony-dmx",
     "harmony-svg": "github:baldurstod/harmony-svg",
     "harmony-types": "github:baldurstod/harmony-types",
     "harmony-ui": "github:baldurstod/harmony-ui",

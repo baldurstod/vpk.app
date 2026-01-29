@@ -13,10 +13,13 @@ import { ModelViewer } from './modelviewer';
 import { SiteElement } from './siteelement';
 import { stringToTextureMode, TextureMode, TextureViewer } from './textureviewer';
 import { TextViewer, TextViewerRange } from './textviewer';
+import { serializeDmxTextWithLines, unserializeDmxSync } from 'harmony-dmx';
 
 const TypePerExtension: { [key: string]: ContentType } = {
 	'cfg': ContentType.Txt,
 	'txt': ContentType.Txt,
+
+	'dmx': ContentType.SourceDmx,
 
 	// Source 1
 	'vtf': ContentType.Source1Texture,
@@ -106,6 +109,8 @@ export class ContentViewer extends SiteElement {
 		const fileType = TypePerExtension[extension];
 
 		switch (fileType) {
+			case ContentType.SourceDmx:
+				return await this.#addSource1DmxContent(repository, path, search, hash, filename, engine, await file.arrayBuffer());
 			case ContentType.Source1Texture:
 				return await this.#addSource1TextureContent(repository, path, search, filename, engine, await file.arrayBuffer());
 			case ContentType.Source1Model:
@@ -305,6 +310,66 @@ export class ContentViewer extends SiteElement {
 
 
 		const pcfResult = pcfToSTring(pcf);
+		const anchors = new Map<string, TextViewerRange>();
+		const editSession = await this.#htmlTextViewer.addSession(repository, path, anchors);
+		this.#htmlTextViewer?.setSession(editSession);
+		if (pcfResult) {
+			for (const [id, line] of pcfResult.elementsLine) {
+				anchors.set(id, {
+					startRow: line,
+					startCol: 0,
+				});
+			}
+
+			//await this.#htmlTextViewer?.setText(repository, path, pcfResult.text, anchors);
+			editSession.doc.setValue(pcfResult.text);
+		} else {
+			editSession.doc.setValue('Unable to open PCF file'/*TODO: i18n*/);
+		}
+
+		const tab = this.#createTab(filename,
+			(event: CustomEvent<TabEventData>) => {
+				if (this.#closeFile(repository, path) && event.detail.tab.isActive()) {
+					this.#htmlTextViewer?.hide();
+				};
+			},
+			() => {
+				this.#htmlContent?.replaceChildren(this.#htmlTextViewer!.getHTML());
+				//this.#htmlTextViewer?.setText(repository, path, pcfResult?.text ?? 'Unable to open PCF file'/*TODO: i18n*/, anchors);
+				this.#htmlTextViewer?.setSession(editSession);
+			}
+		);
+
+
+		await this.#htmlTextViewer?.select(hash);
+
+		return tab;
+	}
+
+	async #addSource1DmxContent(repository: string, path: string, search: URLSearchParams | null, hash: string, filename: string, engine: GameEngine, content: ArrayBuffer): Promise<HTMLHarmonyTabElement | null> {
+		this.initHTML();
+
+		if (!this.#htmlTextViewer) {
+			this.#htmlTextViewer = new TextViewer();
+			this.#htmlContent?.append(this.#htmlTextViewer.getHTML());
+		}
+
+		this.#htmlTextViewer?.show();
+
+		const response = await Repositories.getFileAsArrayBuffer(repository, path);
+
+		if (response.error) {
+			return null;
+		}
+
+
+		const dmx = unserializeDmxSync(response.buffer!);
+		if (!dmx) {
+			return null;
+		}
+
+		const pcfResult = serializeDmxTextWithLines(dmx);
+
 		const anchors = new Map<string, TextViewerRange>();
 		const editSession = await this.#htmlTextViewer.addSession(repository, path, anchors);
 		this.#htmlTextViewer?.setSession(editSession);

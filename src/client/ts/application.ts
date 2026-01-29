@@ -158,7 +158,7 @@ class Application {
 			repo = Repositories.addRepository(new MemoryCacheRepository(new ApiRepository(repository)));
 		}
 
-		if (!path) {
+		if (!path && repository != 'local') {
 			this.#navigateTo(this.#getFileLink(repository));
 		}
 
@@ -185,7 +185,9 @@ class Application {
 	}
 
 	async #selectFile(repository: string, path: string, hash: string, userAction: boolean) {
-		this.#navigateTo(this.#getFileLink(repository, path));
+		if (repository != 'local') {
+			this.#navigateTo(this.#getFileLink(repository, path));
+		}
 	}
 
 	async #viewFile(repository: string, path: string, hash: string, search: URLSearchParams | null, userAction: boolean) {

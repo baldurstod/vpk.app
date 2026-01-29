@@ -8,6 +8,7 @@ export enum ContentType {
 	Unknown,
 	Txt,
 	Binary,
+	SourceDmx,
 	Source1Model,
 	Source1Map,
 	Source1Texture,
