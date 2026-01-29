@@ -158,6 +158,10 @@ class Application {
 			repo = Repositories.addRepository(new MemoryCacheRepository(new ApiRepository(repository)));
 		}
 
+		if (!path) {
+			this.#navigateTo(this.#getFileLink(repository));
+		}
+
 		this.#selectRepository2(repository, repo, scrollIntoView, path);
 	}
 
@@ -216,8 +220,12 @@ class Application {
 		this.#copyLink(`${document.location.origin}/@${encodeURI(event.detail.repository)}`);
 	}
 
-	#getFileLink(repository: string, path: string): string {
-		return `${document.location.origin}/@${encodeURI(repository)}/${encodeURI(path)}`
+	#getFileLink(repository: string, path?: string): string {
+		if (path) {
+			return `${document.location.origin}/@${encodeURI(repository)}/${encodeURI(path)}`;
+		} else {
+			return `${document.location.origin}/@${encodeURI(repository)}`;
+		}
 	}
 
 	#createFileLink(event: CustomEvent<SelectFile>): void {
