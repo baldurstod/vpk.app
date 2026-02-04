@@ -302,7 +302,13 @@ function createParam(param: TextureParam): HTMLElement {
 				i18n: param.value as TextureWrap == TextureWrap.Clamp ? '#clamp' : '#repeat',
 			});
 			break;
+		case TextureParamType.TextureFormat:
+			htmlValue = createElement('span', {
+				i18n: param.value as string,
+			});
+			break;
 	}
+
 	return createElement('label', {
 		childs: [
 			createElement('span', {

@@ -1,4 +1,4 @@
-import { SpriteSheet } from "harmony-3d";
+import { SpriteSheet } from 'harmony-3d';
 
 export type TextureParam = {
 	/*
@@ -20,6 +20,7 @@ export enum TextureParamType {
 	Number,
 	String,
 	TextureWrap,
+	TextureFormat,
 }
 
 export enum TextureWrap {

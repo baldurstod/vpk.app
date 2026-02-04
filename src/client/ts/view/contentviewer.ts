@@ -601,6 +601,7 @@ function vtfToTextureFlags(vtf: Source1Vtf, texture: Texture) {
 	texture.setParam({ name: 'wrapt', type: TextureParamType.TextureWrap, i18n: '#wrap_t', value: vtf.getFlag(TEXTUREFLAGS_CLAMPT) ? TextureWrap.Clamp : TextureWrap.Repeat });
 	texture.setParam({ name: 'srgb', type: TextureParamType.Boolean, i18n: '#srgb', value: vtf.getFlag(TEXTUREFLAGS_SRGB) });
 	texture.setParam({ name: 'normal', type: TextureParamType.Boolean, i18n: '#normal', value: vtf.getFlag(TEXTUREFLAGS_NORMAL) });
+	texture.setParam({ name: 'format', type: TextureParamType.TextureFormat, i18n: '#format', value: vtf.getImageFormat() });
 
 	texture.setSpriteSheet(vtf.sheet);
 
