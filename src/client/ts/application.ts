@@ -1,5 +1,5 @@
 
-import { MemoryCacheRepository, MemoryRepository, Repositories, Repository, RepositoryEntry, Source1MaterialManager, Source1TextureManager, VpkRepository, ZipRepository } from 'harmony-3d';
+import { MemoryCacheRepository, MemoryRepository, Repositories, Repository, RepositoryEntry, sanitizeRepositoryName, Source1MaterialManager, Source1TextureManager, VpkRepository, ZipRepository } from 'harmony-3d';
 import { addNotification, NotificationType, OptionsManager, saveFile } from 'harmony-browser-utils';
 import { themeCSS } from 'harmony-css';
 import { createShadowRoot, documentStyle, I18n } from 'harmony-ui';
@@ -279,7 +279,7 @@ class Application {
 		}
 		if (extension == 'vpk' || extension == 'zip') {
 			let repo: Repository;
-			const repoName = 'local_' + file.name;
+			const repoName = sanitizeRepositoryName('local_' + file.name);
 			if (extension == 'vpk') {
 				repo = new VpkRepository(repoName, [file]);
 			} else {
