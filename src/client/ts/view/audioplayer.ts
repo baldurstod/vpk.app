@@ -92,7 +92,7 @@ export class AudioPlayer extends SiteElement {
 									min: 0,
 									max: 2,
 									step: 0.01,
-									value: 1,
+									value: '1',
 									$input: (event: Event) => this.#setVolume(Number((event.target as HTMLInputElement).value)),
 								}) as HTMLInputElement,
 							]

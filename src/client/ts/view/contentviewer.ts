@@ -1,5 +1,6 @@
 import { getLoader, pcfToSTring, Repositories, Source1PcfLoader, Source1TextureManager, Source1Vtf, Source2File, Source2FileLoader, Source2TextureManager, SourcePCF, TEXTUREFLAGS_CLAMPS, TEXTUREFLAGS_CLAMPT, TEXTUREFLAGS_NORMAL, TEXTUREFLAGS_SRGB } from 'harmony-3d';
-import { createElement, createShadowRoot, defineHarmonyMenu, defineHarmonyTab, defineHarmonyTabGroup, HTMLHarmonyMenuElement, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement, TabEventData } from 'harmony-ui';
+import { serializeDmxTextWithLines, unserializeDmxSync } from 'harmony-dmx';
+import { createElement, createShadowRoot, defineHarmonyMenu, defineHarmonyTab, defineHarmonyTabGroup, HarmonyMenuItems, HTMLHarmonyMenuElement, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement, TabEventData } from 'harmony-ui';
 import { Map2 } from 'harmony-utils';
 import contentViewerCSS from '../../css/contentviewer.css';
 import { Controller } from '../controller';
@@ -13,7 +14,6 @@ import { ModelViewer } from './modelviewer';
 import { SiteElement } from './siteelement';
 import { stringToTextureMode, TextureMode, TextureViewer } from './textureviewer';
 import { TextViewer, TextViewerRange } from './textviewer';
-import { serializeDmxTextWithLines, unserializeDmxSync } from 'harmony-dmx';
 
 const TypePerExtension: { [key: string]: ContentType } = {
 	'cfg': ContentType.Txt,
@@ -157,8 +157,8 @@ export class ContentViewer extends SiteElement {
 
 		const tab = event.detail.tab;
 
-		const contextMenu = {
-			close: { i18n: '#close', f: () => tab.close() },
+		const contextMenu: HarmonyMenuItems = {
+			close: { i18n: '#close', f: () => { tab.close() } },
 			closeall: { i18n: '#close_all', f: () => this.#htmlTabs?.closeAllTabs() },
 			closeother: {
 				i18n: '#close_other', f: () => {

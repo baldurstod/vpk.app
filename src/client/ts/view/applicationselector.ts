@@ -79,7 +79,7 @@ export class ApplicationSelector extends SiteElement {
 
 		switch (event.detail.action) {
 			case 'add task':
-				Controller.dispatchEvent(new CustomEvent<AddTask>(ControllerEvents.AddTask, { detail: { root: clickedItem.userData } }));
+				Controller.dispatchEvent(new CustomEvent<AddTask>(ControllerEvents.AddTask, { detail: { root: clickedItem.userData as RepositoryEntry } }));
 				break;
 			case 'sharelink':
 				Controller.dispatchEvent(new CustomEvent<SelectFile>(ControllerEvents.CreateFileLink, { detail: { repository: this.#repository, path: clickedItem.getPath() } }));

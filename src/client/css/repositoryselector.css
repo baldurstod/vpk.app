@@ -1,7 +1,7 @@
 :host {
-	overflow: hidden;
 	display: flex;
 	flex-direction: column;
+	width: 25%;
 }
 
 .vpk-item {
@@ -22,4 +22,11 @@ harmony-tree {
 
 .file-list {
 	--harmony-tree-display-root: flex;
+}
+
+.file-list:hover {
+	width: max-content;
+	min-width: 100%;
+	max-width: 50vw;
+	z-index: 10;
 }
