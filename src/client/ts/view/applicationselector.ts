@@ -1,6 +1,6 @@
 import { RepositoryEntry } from 'harmony-3d';
 import { addTaskSVG, shareSVG } from 'harmony-svg';
-import { createElement, createShadowRoot, defineHarmonyTree, HTMLHarmonyTreeElement, ItemActionEventData, ItemClickEventData, TreeItem, TreeItemKind } from 'harmony-ui';
+import { createElement, createShadowRoot, defineHarmonyFilter, defineHarmonyTree, HarmonyFilterEvent, HTMLHarmonyFilterElement, HTMLHarmonyTreeElement, ItemActionEventData, ItemClickEventData, TreeItem, TreeItemKind } from 'harmony-ui';
 import repositorySelectorCSS from '../../css/repositoryselector.css';
 import treeCSS from '../../css/tree.css';
 import { Controller } from '../controller';
@@ -9,7 +9,7 @@ import { SiteElement } from './siteelement';
 
 export class ApplicationSelector extends SiteElement {
 	#htmlList?: HTMLHarmonyTreeElement;
-	#htmlFileFilter?: HTMLInputElement;
+	#htmlFileFilter?: HTMLHarmonyFilterElement;
 	#htmlFileTree?: HTMLHarmonyTreeElement;
 	#repository: string = '';
 	#applicationList?: Map<string, string>;
@@ -24,6 +24,7 @@ export class ApplicationSelector extends SiteElement {
 			return;
 		}
 		defineHarmonyTree();
+		defineHarmonyFilter();
 		this.shadowRoot = createShadowRoot('section', {
 			adoptStyle: repositorySelectorCSS,
 			childs: [
@@ -37,11 +38,11 @@ export class ApplicationSelector extends SiteElement {
 					class: 'repositories',
 					$itemclick: (event: CustomEvent<ItemClickEventData>) => this.#itemClick(event),
 				}) as HTMLHarmonyTreeElement,
-				this.#htmlFileFilter = createElement('input', {
-					class: 'files',
+				this.#htmlFileFilter = createElement('harmony-filter', {
+					class: 'filters',
 					type: 'text',
-					$input: (event: InputEvent) => this.setFileFilter((event.target as HTMLInputElement).value),
-				}) as HTMLInputElement,
+					$filter: (event: CustomEvent<HarmonyFilterEvent>) => this.#setFileFilter(event.detail),
+				}) as HTMLHarmonyFilterElement,
 				this.#htmlFileTree = createElement('harmony-tree', {
 					class: 'file-list',
 					$itemclick: (event: CustomEvent<ItemClickEventData>) => this.#fileItemClick(event),
@@ -57,6 +58,18 @@ export class ApplicationSelector extends SiteElement {
 		this.#htmlFileTree.addAction('sharelink', shareSVG, '#copy_link');
 		this.#htmlFileTree.addEventListener('itemaction', (event: Event) => this.#handleItemAction(event as CustomEvent<ItemActionEventData>));
 		this.#htmlList.adoptStyle(treeCSS);
+		this.#initFilters();
+	}
+
+	#initFilters(): void {
+		this.#htmlFileFilter!.addFilters([
+			{
+				name: 'name',
+				type: 'string',
+				title: '#filter_files',
+				placeholder: '#filter_files',
+			},
+		]);
 	}
 
 	#handleRepositoryAction(event: CustomEvent<ItemActionEventData>) {
@@ -180,7 +193,7 @@ export class ApplicationSelector extends SiteElement {
 		}
 	}
 
-	setFileFilter(filter: string) {
-		this.#htmlFileTree?.setFilter({ name: filter });
+	#setFileFilter(filter: HarmonyFilterEvent) {
+		this.#htmlFileTree?.setFilter({ name: filter.value });
 	}
 }

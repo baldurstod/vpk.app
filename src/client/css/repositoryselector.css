@@ -16,8 +16,8 @@ harmony-tree {
 	flex: 0 0 20%;
 }
 
-.files {
-	flex: 0;
+.filters {
+	flex: 0 0 auto;
 }
 
 .file-list {
