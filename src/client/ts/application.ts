@@ -3,6 +3,7 @@ import { MemoryCacheRepository, MemoryRepository, Repositories, Repository, Repo
 import { addNotification, NotificationType, OptionsManager, saveFile } from 'harmony-browser-utils';
 import { themeCSS } from 'harmony-css';
 import { createShadowRoot, documentStyle, I18n } from 'harmony-ui';
+import { BugReport, BugReporter } from 'harmony-utils';
 import applicationCSS from '../css/application.css';
 import htmlCSS from '../css/html.css';
 import english from '../json/i18n/english.json';
@@ -63,6 +64,9 @@ class Application {
 		Controller.addEventListener(ControllerEvents.NavigateTo, (event: Event) => this.#navigateTo((event as CustomEvent<NavigateTo>).detail.url, (event as CustomEvent).detail.replaceSate));
 		Controller.addEventListener(ControllerEvents.AddTask, (event: Event) => this.#addTask((event as CustomEvent<AddTask>).detail.root));
 		addEventListener('popstate', event => this.#startup(event.state ?? {}));
+		BugReporter.addEventListener('report', (event: Event) => {
+			console.info('bug report', (event as CustomEvent<BugReport>).detail);
+		});
 	}
 
 	#initPage() {
