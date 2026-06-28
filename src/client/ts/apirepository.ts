@@ -1,9 +1,10 @@
-import { Repository, RepositoryArrayBufferResponse, RepositoryBlobResponse, RepositoryEntry, RepositoryError, RepositoryFileListResponse, RepositoryFileResponse, RepositoryFilter, RepositoryJsonResponse, RepositoryTextResponse } from 'harmony-3d';
+import { Repository, RepositoryArrayBufferResponse, RepositoryBlobResponse, RepositoryEntry, RepositoryError, RepositoryFileListResponse, RepositoryFileResponse, RepositoryHasFileResponse, RepositoryJsonResponse, RepositoryProperty, RepositoryTextResponse } from 'harmony-3d';
 import { getFile, getFileList } from './api';
 
 export class ApiRepository implements Repository {
-	#name: string;
+	readonly #name: string;
 	active: boolean = true;
+	readonly properties = new Map<string, RepositoryProperty>();
 
 	constructor(name: string) {
 		this.#name = name;
@@ -80,4 +81,9 @@ export class ApiRepository implements Repository {
 		}
 		return { root: root };
 	}
+
+	async hasFile(path: string): Promise<RepositoryHasFileResponse> {
+		return { error: RepositoryError.NotSupported };
+	}
+
 }
