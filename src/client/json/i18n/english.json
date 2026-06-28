@@ -57,6 +57,12 @@
 		"#materials": "Materials",
 		"#file_not_found": "File not found",
 		"#filter_files": "Filter files",
+		"#file_type": "File type",
+		"#asset_type_all": "All",
+		"#asset_type_vmat": "Material (.vmat)",
+		"#asset_type_vmdl": "Model (.vmdl)",
+		"#asset_type_vtex": "Texture (.vtex)",
+		"#asset_type_txt": "Text (.txt)",
 		"": ""
 	}
 }
