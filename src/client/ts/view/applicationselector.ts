@@ -1,12 +1,16 @@
 import { RepositoryEntry } from 'harmony-3d';
 import { addTaskSVG, shareSVG } from 'harmony-svg';
-import { createElement, createShadowRoot, defineHarmonyFilter, defineHarmonyTree, HarmonyFilterEvent, HarmonyFilterOption, HTMLHarmonyFilterElement, HTMLHarmonyTreeElement, ItemActionEventData, ItemClickEventData, TreeItem, TreeItemFilter, TreeItemKind } from 'harmony-ui';
+import { createElement, createShadowRoot, defineHarmonyFilter, defineHarmonyTree, HarmonyFilterEvent, HarmonyFilterListType, HarmonyFilterOption, HTMLHarmonyFilterElement, HTMLHarmonyTreeElement, ItemActionEventData, ItemClickEventData, TreeItem, TreeItemFilter, TreeItemKind } from 'harmony-ui';
 import { BugReporter } from 'harmony-utils';
 import repositorySelectorCSS from '../../css/repositoryselector.css';
 import treeCSS from '../../css/tree.css';
 import { Controller } from '../controller';
 import { AddTask, ControllerEvents, SelectFile, SelectRepository } from '../controllerevents';
 import { SiteElement } from './siteelement';
+
+type ExtensionSet = string[];
+const Source1Extensions: ExtensionSet = ['all', 'others', 'vbsp', 'mdl', 'txt', 'pcf', 'res', 'tga'];
+const Source2Extensions: ExtensionSet = ['all', 'others', 'vdata', 'vmdl', 'vmat', 'vtex', 'vpcf', 'vfont', 'vsnap', 'svg', 'css', 'txt'];
 
 export class ApplicationSelector extends SiteElement {
 	#htmlList?: HTMLHarmonyTreeElement;
@@ -20,6 +24,25 @@ export class ApplicationSelector extends SiteElement {
 	#dirtyRepositoryList = true;
 	#dirtyFileList = true;
 	readonly #fileFilter: TreeItemFilter = {};
+
+	constructor() {
+		super();
+		Controller.addEventListener(ControllerEvents.SelectRepository, (event: Event) => {
+			switch ((event as CustomEvent<SelectRepository>).detail.repository) {
+				case 'tf2':
+					this.#initFilters(Source1Extensions);
+					break;
+				case 'dota2':
+				case 'cs2':
+				case 'deadlock':
+					this.#initFilters(Source2Extensions);
+					break;
+				default:
+					this.#initFilters();
+					break;
+			}
+		});
+	}
 
 	initHTML() {
 		if (this.shadowRoot) {
@@ -49,7 +72,7 @@ export class ApplicationSelector extends SiteElement {
 								this.#setFileFilter(event.detail);
 								break;
 							case 'filetype':
-								this.#setExtensionFilter(event.detail);
+								this.#setExtensionFilter((event as CustomEvent<HarmonyFilterEvent<Map<string, boolean | undefined>>>).detail.value);
 								break;
 						}
 					},
@@ -69,20 +92,15 @@ export class ApplicationSelector extends SiteElement {
 		this.#htmlFileTree.addAction('sharelink', shareSVG, '#copy_link');
 		this.#htmlFileTree.addEventListener('itemaction', (event: Event) => this.#handleItemAction(event as CustomEvent<ItemActionEventData>));
 		this.#htmlList.adoptStyle(treeCSS);
-		this.#initFilters();
+		//this.#initFilters();
 	}
 
-	#initFilters(): void {
-		const options: HarmonyFilterOption[] = [];
+	#initFilters(extensionSet?: ExtensionSet): void {
+		this.#htmlFileFilter!.clearFilter();
 
-		for (const name of ['all', 'vmdl', 'vmat', 'vtex', 'txt']) {
-			options.push(
-				{
-					name,
-					title: `#asset_type_${name}`,
-					value: true,
-				});
-		}
+								//this.#setExtensionFilter(new Map<string, boolean>());
+
+		const options: HarmonyFilterOption[] = [];
 
 		this.#htmlFileFilter!.addFilters([
 			{
@@ -90,14 +108,33 @@ export class ApplicationSelector extends SiteElement {
 				type: 'string',
 				placeholder: '#filter_files',
 			},
-			{
-				name: 'filetype',
-				title: '#file_type',
-				type: 'list',
-				placeholder: '#filter_files',
-				options,
-			},
 		]);
+
+		if (extensionSet) {
+			for (const name of extensionSet) {
+				const option: HarmonyFilterOption =
+				{
+					name,
+					title: `#asset_type_${name}`,
+				};
+				if (name === 'all' || name === 'others') {
+					option.value = true;
+					option.optionType = HarmonyFilterListType.Boolean;
+				}
+				options.push(option);
+			}
+
+			this.#htmlFileFilter!.addFilters([
+				{
+					name: 'filetype',
+					title: '#file_type',
+					type: 'list',
+					listType: HarmonyFilterListType.Ternary,
+					placeholder: '#filter_files',
+					options,
+				},
+			]);
+		}
 	}
 
 	#handleRepositoryAction(event: CustomEvent<ItemActionEventData>) {
@@ -227,29 +264,48 @@ export class ApplicationSelector extends SiteElement {
 	}
 
 
-	#setExtensionFilter(filter: HarmonyFilterEvent<Map<string, boolean | undefined>>) {
-		let extensions: string[] | undefined = [];
-		loop:
-		for (const [ext, value] of filter.value) {
+	#setExtensionFilter(filter: Map<string, boolean | undefined>) {
+		const extensions = new Map<string, boolean | undefined>();
+		for (const [ext, value] of filter) {
+			/*
 			if (!value) {
 				continue;
 			}
+			*/
 			switch (ext) {
 				case 'all':
-					extensions = undefined;
-					break loop;
+					extensions.set('*', value);
+					break;
+				case 'others':
+					extensions.set('^', value);
+					break;
+				case 'vdata':
 				case 'vmdl':
-					extensions.push('.vmdl', '.vmdl_c');
-					break;
 				case 'vmat':
-					extensions.push('.vmat', '.vmat_c');
-					break;
 				case 'vtex':
-					extensions.push('.vtex', '.vtex_c');
+				case 'vpcf':
+				case 'vfont':
+				case 'vsnap':
+				case 'vsvg':
+					extensions.set(ext, value);
+					extensions.set(ext + '_c', value);
 					break;
 				case 'txt':
-					extensions.push('.txt');
+				case 'vbsp':
+				case 'pcf':
+				case 'res':
+				case 'tga':
+					extensions.set(ext, value);
+				case 'mdl':
+					extensions.set(ext, value);
+					extensions.set('vtx', value);
+					extensions.set('vvd', value);
 					break;
+				case 'svg':
+				case 'css':
+					extensions.set(ext, value);
+					extensions.set('v' + ext, value);
+					extensions.set('v' + ext + '_c', value);
 				default:
 					BugReporter.reportBug('warning', `missing filter extension ${ext}`);
 					break;

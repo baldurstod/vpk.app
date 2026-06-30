@@ -59,10 +59,22 @@
 		"#filter_files": "Filter files",
 		"#file_type": "File type",
 		"#asset_type_all": "All",
+		"#asset_type_others": "Other",
 		"#asset_type_vmat": "Material (.vmat)",
 		"#asset_type_vmdl": "Model (.vmdl)",
+		"#asset_type_mdl": "Model (.mdl)",
 		"#asset_type_vtex": "Texture (.vtex)",
-		"#asset_type_txt": "Text (.txt)",
+		"#asset_type_vfont": "Font (.vfont)",
+		"#asset_type_vpcf": "Particle (.vpcf)",
+		"#asset_type_pcf": "Particle (.pcf)",
+		"#asset_type_vsnap": "Particle snapshot (.vsnap)",
+		"#asset_type_vdata": "Data (.vdata)",
+		"#asset_type_vbsp": "Map (.vbsp)",
+		"#asset_type_svg": "Vector graphics (.vsvg, .svg)",
+		"#asset_type_css": "Style (.vcss, .css)",
+		"#asset_type_txt": "Text files (.txt)",
+		"#asset_type_tga": "Image targa (.tga)",
+		"#asset_type_res": "Resource (.res)",
 		"": ""
 	}
 }

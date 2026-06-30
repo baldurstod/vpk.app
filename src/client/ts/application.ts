@@ -123,6 +123,7 @@ class Application {
 			const path = result[2]!.replace(/(\/)+$/, '');
 
 			await this.#selectRepository(result[1]!, true, path);
+			Controller.dispatchEvent(new CustomEvent<SelectRepository>(ControllerEvents.SelectRepository, { detail: { repository: result[1]! } }));
 			if (path) {
 				await this.#viewFile(result[1]!, path, document.location.hash.substring(1), new URLSearchParams(document.location.search), false);
 			}
