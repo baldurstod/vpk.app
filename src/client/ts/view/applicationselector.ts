@@ -1,4 +1,5 @@
 import { RepositoryEntry } from 'harmony-3d';
+import { OptionsManager } from 'harmony-browser-utils';
 import { addTaskSVG, shareSVG } from 'harmony-svg';
 import { createElement, createShadowRoot, defineHarmonyFilter, defineHarmonyTree, HarmonyFilterEvent, HarmonyFilterListType, HarmonyFilterOption, HTMLHarmonyFilterElement, HTMLHarmonyTreeElement, ItemActionEventData, ItemClickEventData, TreeItem, TreeItemFilter, TreeItemKind } from 'harmony-ui';
 import { BugReporter } from 'harmony-utils';
@@ -98,7 +99,7 @@ export class ApplicationSelector extends SiteElement {
 	#initFilters(extensionSet?: ExtensionSet): void {
 		this.#htmlFileFilter!.clearFilter();
 
-								//this.#setExtensionFilter(new Map<string, boolean>());
+		const extensions = OptionsManager.getItem('app.fileselector.extensions') as Record<string, boolean | undefined>;
 
 		const options: HarmonyFilterOption[] = [];
 
@@ -118,8 +119,10 @@ export class ApplicationSelector extends SiteElement {
 					title: `#asset_type_${name}`,
 				};
 				if (name === 'all' || name === 'others') {
-					option.value = true;
+					option.value = extensions[name] ?? true;
 					option.optionType = HarmonyFilterListType.Boolean;
+				} else {
+					option.value = extensions[name];
 				}
 				options.push(option);
 			}
@@ -267,6 +270,7 @@ export class ApplicationSelector extends SiteElement {
 	#setExtensionFilter(filter: Map<string, boolean | undefined>) {
 		const extensions = new Map<string, boolean | undefined>();
 		for (const [ext, value] of filter) {
+			OptionsManager.setSubItem('app.fileselector.extensions', ext, value);
 			/*
 			if (!value) {
 				continue;

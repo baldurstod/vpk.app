@@ -22,6 +22,11 @@
 				"name",
 				"path"
 			]
+		},
+		{
+			"name": "app.fileselector.extensions",
+			"type": "map",
+			"default": {}
 		}
 	]
 }
