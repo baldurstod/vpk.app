@@ -1,5 +1,5 @@
 import { vec3 } from 'gl-matrix';
-import { AmbientLight, Camera, ColorBackground, ContextObserver, GraphicsEvents, HasMaterials, OrbitControl, PointLight, Scene, Source1ModelManager, Source2ModelManager } from 'harmony-3d';
+import { AmbientLight, Camera, ColorBackground, HasMaterials, OrbitControl, PointLight, Scene, Source1ModelManager, Source2ModelManager } from 'harmony-3d';
 import { downloadSVG, resetCameraSVG } from 'harmony-svg';
 import { createElement, createShadowRoot, defineHarmonyRadio, display, HTMLHarmonyRadioElement } from 'harmony-ui';
 import { Map2 } from 'harmony-utils';
@@ -194,7 +194,10 @@ export class ModelViewer extends SiteElement {
 		this.#htmlSkins?.replaceChildren();
 
 		for (const material of materials[1]) {
-			const path = material.replace(/\.vmat_c$/, '').replace(/\.vmat$/, '') + '.vmat_c';
+			let path = material;
+			if (path.endsWith('.vmat')) {
+				path = path.replace(/\.vmat$/, '') + '.vmat_c';
+			}
 			this.#htmlSkins!.append(createResource(materials[0], path));
 		}
 
