@@ -26,14 +26,15 @@
 .materials {
 	flex: 0 0 auto;
 	position: relative;
-	overflow: hidden;
+	overflow: auto;
 	display: flex;
 	flex-direction: column;
+	max-height: 25%;
 }
 
 .title {
-	padding: 1rem;
-	font-size: 2rem;
+	/*padding: 1rem;*/
+	font-size: 1.5rem;
 	width: 100%;
 	text-align: center;
 	background-color: darkgrey;

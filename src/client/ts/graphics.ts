@@ -1,5 +1,5 @@
 import { vec3, vec4 } from 'gl-matrix';
-import { Camera, Composer, Graphics, GraphicsEvents, GraphicTickEvent, OrbitControl, Scene, SceneExplorer, WebGLStats } from 'harmony-3d';
+import { Camera, Composer, ContextType, Graphics, GraphicsEvents, GraphicTickEvent, OrbitControl, Scene, SceneExplorer, WebGLStats } from 'harmony-3d';
 import { createElement } from 'harmony-ui';
 
 let renderer: typeof Graphics | undefined;
@@ -39,10 +39,15 @@ export async function startupRenderer(): Promise<void> {
 		child: canvas = createElement('canvas') as HTMLCanvasElement,
 	});
 
-
+	let type = ContextType.WebGL;
+	const url = new URL(document.URL);
+	if (url.hash.substring(1) == 'webgpu') {
+		type = ContextType.WebGPU;
+	}
 	renderer = await Graphics.initCanvas({
 		autoResize: true,
 		canvas: canvas,
+		type,
 		webGL: {
 			alpha: true,
 			preserveDrawingBuffer: true,
