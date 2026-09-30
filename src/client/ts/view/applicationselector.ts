@@ -99,7 +99,7 @@ export class ApplicationSelector extends SiteElement {
 	#initFilters(extensionSet?: ExtensionSet): void {
 		this.#htmlFileFilter!.clearFilter();
 
-		const extensions = OptionsManager.getItem('app.fileselector.extensions') as Record<string, boolean | undefined>;
+		const extensions = OptionsManager.getItem('app.fileselector.extensions') as Record<string, boolean | undefined> | undefined ?? {};
 
 		const options: HarmonyFilterOption[] = [];
 
