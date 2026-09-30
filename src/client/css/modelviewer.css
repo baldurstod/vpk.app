@@ -40,3 +40,8 @@
 	background-color: darkgrey;
 	box-sizing: border-box;
 }
+
+.selector {
+	flex: 0 0 auto;
+	overflow: auto;
+}

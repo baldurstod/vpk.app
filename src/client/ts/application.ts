@@ -104,7 +104,9 @@ class Application {
 	}
 
 	#navigateTo(url: string, replaceSate = false) {
-		history[replaceSate ? 'replaceState' : 'pushState']({}, '', url);
+		const u = new URL(url);
+		u.search = document.location.search;
+		history[replaceSate ? 'replaceState' : 'pushState']({}, '', u);
 		this.#startup();
 	}
 

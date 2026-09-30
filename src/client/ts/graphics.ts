@@ -40,10 +40,11 @@ export async function startupRenderer(): Promise<void> {
 	});
 
 	let type = ContextType.WebGL;
-	const url = new URL(document.URL);
-	if (url.hash.substring(1) == 'webgpu') {
+	const webgpu = new URLSearchParams(document.location.search).get('webgpu');
+	if (webgpu === '1') {
 		type = ContextType.WebGPU;
 	}
+
 	renderer = await Graphics.initCanvas({
 		autoResize: true,
 		canvas: canvas,
