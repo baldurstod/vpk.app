@@ -1,5 +1,5 @@
 import { vec3 } from 'gl-matrix';
-import { AmbientLight, Camera, ColorBackground, HasMaterials, OrbitControl, PointLight, Scene, Source1ModelManager, Source2ModelManager } from 'harmony-3d';
+import { AmbientLight, Camera, ColorBackground, HasMaterials, OrbitControl, PointLight, Scene, Source1ModelInstance, Source1ModelManager, Source2ModelInstance, Source2ModelManager } from 'harmony-3d';
 import { downloadSVG, resetCameraSVG } from 'harmony-svg';
 import { createElement, createShadowRoot, defineHarmonyRadio, display, HTMLHarmonyRadioElement } from 'harmony-ui';
 import { Map2 } from 'harmony-utils';
@@ -14,6 +14,11 @@ import { SiteElement } from './siteelement';
 const DEFAULT_CAMERA_POS = vec3.fromValues(0, 50, 0);
 const DEFAULT_CAMERA_TARGET = vec3.create();
 
+type SceneModel = {
+	scene: Scene;
+	model: Source1ModelInstance | Source2ModelInstance | null;
+}
+
 export class ModelViewer extends SiteElement {
 	#htmlToolbar?: HTMLElement;
 	#htmlViewer?: HTMLElement;
@@ -22,10 +27,10 @@ export class ModelViewer extends SiteElement {
 	#htmlSkins?: HTMLHarmonyRadioElement;
 	#repository: string = '';
 	#path: string = '';
-	#scenes = new Map2<string, string, Scene>();
+	#scenes = new Map2<string, string, SceneModel>();
 	#camera?: Camera;
 	#orbitControl?: OrbitControl;
-	#model?: HasMaterials;
+	#model?: HasMaterials | null;
 
 	initHTML() {
 		if (this.shadowRoot) {
@@ -80,13 +85,14 @@ export class ModelViewer extends SiteElement {
 		this.#repository = repository;
 		this.#path = path;
 
-		let scene = this.#scenes.get(repository, path);
-		if (!scene) {
-			scene = new Scene({ camera: this.#camera });
+		let sceneModel = this.#scenes.get(repository, path);
+		if (!sceneModel) {
+			const scene = new Scene({ camera: this.#camera });
 
 			scene.background = new ColorBackground();
-			this.#scenes.set(repository, path, scene);
 			const model = await Source1ModelManager.createInstance(repository, path, true);
+			sceneModel = { scene, model }
+			this.#scenes.set(repository, path, sceneModel);
 
 			if (model) {
 				scene.addChild(model);
@@ -96,20 +102,14 @@ export class ModelViewer extends SiteElement {
 				if (seq) {
 					model.playSequence(seq.name);
 				}
-
-				const skins = await model.getSkins();
-				for (const skin of skins) {
-					console.info(skin, await model.getMaterialsName(skin));
-				}
-
-				this.#updateSkins(model);
 			}
 
 			scene.addChild(new PointLight({ position: vec3.fromValues(0, -500, 0) }));
 			scene.addChild(new AmbientLight({ position: vec3.fromValues(0, -500, 0) }));
 		}
 
-		await setScene(scene);
+		await setScene(sceneModel.scene);
+		this.#updateSkins(sceneModel.model);
 		//.append(getCanvas());
 		await setParent(this.#htmlViewer!);
 	}
@@ -121,18 +121,17 @@ export class ModelViewer extends SiteElement {
 		this.#repository = repository;
 		this.#path = path;
 
-		let scene = this.#scenes.get(repository, path);
-		if (!scene) {
-			scene = new Scene({ camera: this.#camera });
+		let sceneModel = this.#scenes.get(repository, path);
+		if (!sceneModel) {
+			const scene = new Scene({ camera: this.#camera });
 
 			scene.background = new ColorBackground();
-			this.#scenes.set(repository, path, scene);
 			const model = await Source2ModelManager.createInstance(repository, path, true);
+			sceneModel = { scene, model }
+			this.#scenes.set(repository, path, sceneModel);
 
 			if (model) {
 				scene.addChild(model);
-
-				this.#updateSkins(model);
 				//model.frame = 0.;
 				/*
 								let seq = model.sourceModel.mdl.getSequenceById(0);
@@ -146,7 +145,8 @@ export class ModelViewer extends SiteElement {
 			scene.addChild(new AmbientLight({ position: vec3.fromValues(0, -500, 0) }));
 		}
 
-		await setScene(scene);
+		await setScene(sceneModel.scene);
+		this.#updateSkins(sceneModel.model);
 		//.append(getCanvas());
 		await setParent(this.#htmlViewer!);
 	}
@@ -166,23 +166,27 @@ export class ModelViewer extends SiteElement {
 		this.#orbitControl!.target.setPosition(DEFAULT_CAMERA_TARGET);
 	}
 
-	async #updateSkins(model: HasMaterials): Promise<void> {
+	async #updateSkins(model: HasMaterials | null): Promise<void> {
 		this.initHTML();
 		this.#model = model;
-		this.#htmlSkinSelector?.replaceChildren();
-		const skins = await model.getSkins();
-		let first = true;
-		for (const skin of skins) {
-			createElement('button', {
-				parent: this.#htmlSkinSelector,
-				innerText: skin,
-				value: skin,
-				...(first) && { attributes: { selected: '' } },
-			});
-			first = false;
-		}
+		this.#htmlSkinSelector?.clear();
+		this.#htmlSkins?.replaceChildren();
+		const skins = await model?.getSkins();
+		if (skins) {
 
-		display(this.#htmlSkinSelector, skins.size > 1);
+			let first = true;
+			for (const skin of skins) {
+				createElement('button', {
+					parent: this.#htmlSkinSelector,
+					innerText: skin,
+					value: skin,
+					...(first) && { attributes: { selected: '' } },
+				});
+				first = false;
+			}
+
+			display(this.#htmlSkinSelector, skins.size > 1);
+		}
 	}
 
 	async #selectSkin(skin: string): Promise<void> {

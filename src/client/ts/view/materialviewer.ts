@@ -1,5 +1,5 @@
 import { vec3, vec4 } from 'gl-matrix';
-import { AmbientLight, Camera, ColorBackground, ContextObserver, GraphicsEvents, OrbitControl, Plane, RenderFace, Scene, smartRound, Source2Material, Source2MaterialManager } from 'harmony-3d';
+import { AmbientLight, Camera, ColorBackground, OrbitControl, Plane, RenderFace, Scene, smartRound, Source2Material, Source2MaterialManager } from 'harmony-3d';
 import { downloadSVG } from 'harmony-svg';
 import { createElement, createShadowRoot } from 'harmony-ui';
 import { Map2 } from 'harmony-utils';

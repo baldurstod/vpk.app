@@ -1,5 +1,5 @@
 import { vec3, vec4 } from 'gl-matrix';
-import { Camera, Composer, ContextObserver, Graphics, GraphicsEvent, GraphicsEvents, GraphicTickEvent, OrbitControl, Scene, SceneExplorer, WebGLStats } from 'harmony-3d';
+import { Camera, Composer, Graphics, GraphicsEvents, GraphicTickEvent, OrbitControl, Scene, SceneExplorer, WebGLStats } from 'harmony-3d';
 import { createElement } from 'harmony-ui';
 
 let renderer: typeof Graphics | undefined;
@@ -83,6 +83,6 @@ export async function startupRenderer(): Promise<void> {
 	renderer.play();
 
 	renderer.clearColor(vec4.create());
-	GraphicsEvents.addEventListener(GraphicsEvent.Tick, animate);
+	GraphicsEvents.addEventListener('tick', animate);
 	//ContextObserver.observe(GraphicsEvents, activeCamera);
 }
