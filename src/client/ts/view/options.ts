@@ -42,9 +42,9 @@ export class Options extends SiteElement {
 		this.#shaderEditor = new ShaderEditor();
 
 		const htmlEditorContainer = createElement('div', {
-			class:'shader-editor',
-			style:'min-width: 30rem;height: 100%;',
-			child: this.#shaderEditor,
+			class: 'shader-editor',
+			style: 'min-width: 30rem;height: 100%;',
+			child: this.#shaderEditor.htmlElement,
 		});
 
 

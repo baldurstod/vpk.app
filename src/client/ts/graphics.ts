@@ -39,10 +39,10 @@ export async function startupRenderer(): Promise<void> {
 		child: canvas = createElement('canvas') as HTMLCanvasElement,
 	});
 
-	let type = ContextType.WebGL;
+	let type: ContextType = 'webgl';
 	const webgpu = new URLSearchParams(document.location.search).get('webgpu');
 	if (webgpu === '1') {
-		type = ContextType.WebGPU;
+		type = 'webgpu';
 	}
 
 	renderer = await Graphics.initCanvas({

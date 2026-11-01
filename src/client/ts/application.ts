@@ -265,7 +265,6 @@ class Application {
 			if (item.kind === 'file') {
 				const file = item.getAsFile();
 				if (file) {
-					console.log(`… file.name = ${file.name}`, file);
 					await this.#openLocalFile(file);
 				}
 			}
