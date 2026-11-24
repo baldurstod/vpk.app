@@ -1,6 +1,6 @@
 
 import { MemoryCacheRepository, MemoryRepository, Repositories, Repository, RepositoryEntry, sanitizeRepositoryName, Source1MaterialManager, Source1TextureManager, VpkRepository, ZipRepository } from 'harmony-3d';
-import { addNotification, NotificationType, OptionsManager, saveFile } from 'harmony-browser-utils';
+import { addNotification, addNotificationI18n, NotificationType, OptionsManager, saveFile } from 'harmony-browser-utils';
 import { themeCSS } from 'harmony-css';
 import { createShadowRoot, documentStyle, I18n } from 'harmony-ui';
 import { BugReport, BugReporter } from 'harmony-utils';
@@ -204,7 +204,7 @@ class Application {
 
 		const response = await Repositories.getFile(repository, path);
 		if (response.error) {
-			addNotification(I18n.getString('#file_not_found'), NotificationType.Error, 5)
+			addNotificationI18n('#file_not_found', NotificationType.Error, 5)
 			return;
 		}
 
@@ -246,7 +246,7 @@ class Application {
 		let notificationText = `${I18n.getString('#share_this_url')}<input value='${url}'>`;
 		try {
 			navigator.clipboard.writeText(url).then(
-				() => addNotification(I18n.getString('#share_link_clipboard_ok'), NotificationType.Info, 5),
+				() => addNotificationI18n('#share_link_clipboard_ok', NotificationType.Info, 5),
 				() => addNotification(notificationText, NotificationType.Info, 15)
 			);
 		} catch (e) {
